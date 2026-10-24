@@ -1,0 +1,29 @@
+---
+import type { ResultRow } from '../lib/results/store';
+import { meetingsOf, resultPath } from '../lib/results/view';
+import { skTeam } from '../lib/names';
+import { hhmm, dayLabel, shortDay } from '../lib/text';
+import Crest from './Crest.astro';
+/** Next match of a competition with its last meetings — a teaser that links to the full match page. */
+interface Props { r: ResultRow; now: number }
+const { r, now } = Astro.props;
+const meet = meetingsOf(r);
+const year = (ms: number) => new Date(ms).getUTCFullYear();
+---
+<section class="sec">
+  <div class="sec-h"><h2>Najbližší zápas: vzájomné zápasy</h2><a href={resultPath(r)}>Detail ›</a></div>
+  <div class="h2h-next">
+    <a class="hn-top" href={resultPath(r)}>
+      <span class="side"><Crest sp={r.sport} name={r.home} size={44} />{skTeam(r.home)}</span>
+      <span class="mid">{hhmm(r.start_utc)}<small>{dayLabel(r.start_utc, now)}</small></span>
+      <span class="side"><Crest sp={r.sport} name={r.away} size={44} />{skTeam(r.away)}</span>
+    </a>
+    {meet.map((x) => (
+      <div class="m res final">
+        <div class="t">{year(x.date)}<small>{shortDay(x.date)}</small></div>
+        <div class="teams"><span><em>{x.home}</em></span><span><em>{x.away}</em></span></div>
+        <div class="act"><span class="sc"><span>{x.sh}</span><span>{x.sa}</span></span></div>
+      </div>
+    ))}
+  </div>
+</section>

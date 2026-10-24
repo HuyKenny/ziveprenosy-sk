@@ -7,12 +7,15 @@ import { SPORTS, SPORT_BY_ID } from '../lib/sports';
 import { COMPETITIONS } from '../lib/competitions';
 import { TODAY_SPORTS } from '../lib/sport-text';
 import { dayKey, addDays } from '../lib/text';
+import { resultsConfig } from '../lib/results/config';
+import { resultSports } from '../lib/results/sports';
 export const prerender = false;
 /** Hubs, sports, curated competitions, competitions currently in the feed (2+ matches), programme days, guides. */
 export const GET = async () => {
   const v = await view(env as unknown as Env);
   const now = Date.now();
   const urls: Url[] = ['/', '/teraz-nazivo/', '/program/', '/program/zajtra/', '/vysledky/', '/vysledky/vcera/', '/tipsport-tv/'].map((loc) => ({ loc }));
+  for (const s of resultSports(resultsConfig(env as unknown as Env).comps)) urls.push({ loc: `/vysledky/${s.slug}/` }, { loc: `/vysledky/${s.slug}/vcera/` });
   for (let i = 2; i < 7; i++) urls.push({ loc: `/program/${dayKey(addDays(now, i))}/` });
   for (const s of SPORTS) {
     urls.push({ loc: `/${s.slug}/` });

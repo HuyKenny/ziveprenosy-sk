@@ -1,7 +1,8 @@
 ---
 import type { ResultRow } from '../lib/results/store';
 import { group, statusShort } from '../lib/results/status';
-import { resultPath, scoreText, isStale } from '../lib/results/view';
+import { resultPath, scoreText, isStale, detailOf, scorers } from '../lib/results/view';
+import EventIcon from './EventIcon.astro';
 import { skTeam } from '../lib/names';
 import { hhmm, shortDay, dayKey } from '../lib/text';
 import Crest from './Crest.astro';
@@ -14,16 +15,23 @@ const stale = isStale(r, now, staleMs);
 const fin = g === 'final' && r.sh != null && r.sa != null;
 const hw = fin && r.sh! > r.sa!;
 const aw = fin && r.sa! > r.sh!;
+// Scorers (football) and red cards from the stored match details, when there are any.
+const d = g === 'live' || g === 'final' ? detailOf(r) : null;
+const goals = scorers(d);
+const short = (list: typeof goals.h) => list.slice(0, 3).map((e) => `${e.player.split(' ').slice(-1)[0]} ${e.min}${e.kind === 'pen' ? ' (pen.)' : e.kind === 'own' ? ' (vl.)' : ''}`).join(', ') + (list.length > 3 ? ` +${list.length - 3}` : '');
+const hasStats = !!d?.stats.length;
 ---
 <div class:list={['m', 'res', g === 'live' && 'live', g === 'final' && 'final']}>
   <div class="t">
     {r.status === 'scheduled' ? hhmm(r.start_utc) : <>{statusShort(r.status, r.sport)}<small>{showDay && dayKey(r.start_utc) !== dayKey(now) ? shortDay(r.start_utc) : hhmm(r.start_utc)}</small></>}
   </div>
   <a class="teams" href={resultPath(r)}>
-    <span class:list={[hw && 'win', aw && 'lose']}><Crest sp={r.sport} name={r.home} /><em>{skTeam(r.home)}</em></span>
-    <span class:list={[aw && 'win', hw && 'lose']}><Crest sp={r.sport} name={r.away} /><em>{skTeam(r.away)}</em></span>
+    <span class:list={[hw && 'win', aw && 'lose']}><Crest sp={r.sport} name={r.home} /><em>{skTeam(r.home)}</em>{goals.redH ? <EventIcon kind="red" label={`Červené karty: ${goals.redH}`} /> : null}</span>
+    <span class:list={[aw && 'win', hw && 'lose']}><Crest sp={r.sport} name={r.away} /><em>{skTeam(r.away)}</em>{goals.redA ? <EventIcon kind="red" label={`Červené karty: ${goals.redA}`} /> : null}</span>
+    {goals.h.length || goals.a.length ? <small class="scorers"><EventIcon kind="goal" label="Góly" />{[short(goals.h), short(goals.a)].filter(Boolean).join(' · ')}</small> : null}
   </a>
   <div class="act">
+    {hasStats ? <span class="tag st" title="K zápasu sú štatistiky a zostavy">štatistiky</span> : null}
     {stale ? <span class="tag" title="Zdroj zápas dlhšie nepotvrdil">{hhmm(r.checked_at)}</span> : null}
     {sc ? <span class="sc"><span>{r.sh}</span><span>{r.sa}</span></span> : r.status !== 'scheduled' ? <span class="sc one">–</span> : null}
   </div>

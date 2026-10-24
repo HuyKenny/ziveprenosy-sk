@@ -22,8 +22,8 @@
     "TIPSPORT_TV_URL": "https://www.tipsport.sk/PartnerRedirectAction.do?pid=12487&sid=17272&bid=5053&tid=3021&urlid=356",
     "TIPSPORT_REG_URL": "https://www.tipsport.sk/PartnerRedirectAction.do?pid=12487&sid=17272&bid=1922&tid=484&urlid=253",
     "RESULTS_ENABLED": "on",
-    // Competition ids (competitions.ts `id`) that sportstreamy syncs results for.
-    "RESULTS_COMPETITIONS": "nike-liga,slovenska-extraliga,liga-mistru,evropska-liga,konferencni-liga,premier-league,la-liga,bundesliga,serie-a,ligue-1,championship,chance-liga,nhl,tipsport-extraliga,nba,euroliga",
+    // Competition ids (competitions.ts `id`) that sportstreamy syncs results for; order = order of groups on the results pages.
+    "RESULTS_COMPETITIONS": "nike-liga,2-slovenska-liga,slovenska-extraliga,slovenska-1-liga-hokej,slovenska-extraliga-volejbal,slovenska-extraliga-hazena,liga-mistru,evropska-liga,konferencni-liga,premier-league,la-liga,bundesliga,serie-a,ligue-1,championship,chance-liga,nhl,tipsport-extraliga,nba,euroliga",
     "RESULTS_STALE_MIN": "10"
   },
   "analytics_engine_datasets": [{ "binding": "CLICKS", "dataset": "ziveprenosy_clicks" }],

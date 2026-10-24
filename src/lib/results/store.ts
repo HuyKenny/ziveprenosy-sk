@@ -73,3 +73,11 @@ export async function finalsSince(db: Db, since: number, comps: string[]): Promi
     .all<Pick<ResultRow, 'ext_id' | 'home' | 'away' | 'final_at'>>();
   return r.results;
 }
+
+/** The next scheduled match of a competition that already has its head-to-head stored. */
+export async function nextWithH2h(db: Db, comp: string, now: number): Promise<ResultRow | null> {
+  return db
+    .prepare(`SELECT * FROM matches WHERE ${PUBLIC} AND comp = ? AND status = 'scheduled' AND start_utc > ? AND h2h IS NOT NULL AND h2h <> '[]' ORDER BY start_utc LIMIT 1`)
+    .bind(comp, now)
+    .first<ResultRow>();
+}

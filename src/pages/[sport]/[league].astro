@@ -15,7 +15,8 @@ import { breadcrumbLd, faqLd, itemListLd, BRAND } from '../../lib/seo';
 import { sportPath } from '../../lib/url';
 import { BONUS } from '../../lib/bonus';
 import { resultsConfig, resultsDb } from '../../lib/results/config';
-import { recentOfComp } from '../../lib/results/store';
+import { recentOfComp, nextWithH2h } from '../../lib/results/store';
+import H2hNext from '../../components/H2hNext.astro';
 
 export const prerender = false;
 const sport = SPORT_BY_SLUG.get(Astro.params.sport ?? '');
@@ -41,6 +42,7 @@ const name = today ? `${sport.name} dnes` : comp?.name ?? (sample ? leagueName(s
 const rc = resultsConfig(env);
 const rdb = resultsDb(env);
 const results = comp && rdb && rc.comps.includes(comp.id) ? await recentOfComp(rdb, comp.id, now, 8) : [];
+const h2hNext = comp && rdb && rc.comps.includes(comp.id) ? await nextWithH2h(rdb, comp.id, now) : null;
 const crumbs = [{ name: 'Domov', href: '/' }, { name: `${sport.name} online`, href: sportPath(sport.slug) }, { name }];
 const n = live.length + next.length;
 const faq = today ? [
@@ -65,7 +67,8 @@ const desc = today ? `${sport.name} dnes: ${n} ${plural(n, 'zápas', 'zápasy', 
       <div>
         {live.length ? <section class="sec"><div class="sec-h"><h2>Naživo <span class="n live">{live.length}</span></h2></div><LeagueList items={live} now={now} placement={today ? 'today-live' : 'comp-live'} live showSport={false} /></section> : null}
         <section class="sec"><div class="sec-h"><h2>{today ? 'Dnes ešte' : 'Program'} <span class="n">{next.length}</span></h2></div><LeagueList items={next} now={now} placement={today ? 'today' : 'comp'} days={!today} showSport={false} empty={today ? `Dnes už žiadny ďalší zápas ${sport.genitive} nie je. Pozri program na zajtra.` : 'Najbližšie zápasy zatiaľ nie sú v ponuke. Stránka sa aktualizuje automaticky.'} /></section>
-        {results.length ? <section class="sec"><div class="sec-h"><h2>Posledné výsledky</h2><a href="/vysledky/">Všetky výsledky ›</a></div><ResultList rows={results} comps={[comp!.id]} now={now} staleMs={rc.staleMs} showDay /></section> : null}
+        {h2hNext ? <H2hNext r={h2hNext} now={now} /> : null}
+        {results.length ? <section class="sec"><div class="sec-h"><h2>Posledné výsledky</h2><a href={`/vysledky/${sport.slug}/`}>Výsledky – {sport.name.toLowerCase()} ›</a></div><ResultList rows={results} comps={[comp!.id]} now={now} staleMs={rc.staleMs} showDay /></section> : null}
         <div class="sec"><Ticket placement={today ? 'today-mid' : 'comp-mid'} wide /></div>
         <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
       </div>

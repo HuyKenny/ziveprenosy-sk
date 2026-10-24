@@ -1,0 +1,79 @@
+---
+import Base from '../../layouts/Base.astro';
+import ResultList from '../../components/ResultList.astro';
+import Side from '../../components/Side.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import Icon from '../../components/Icon.astro';
+import { getEnv, view, sportCounts, leagues } from '../../lib/page';
+import { dayKey, addDays, longDay, weekday, shortDay } from '../../lib/text';
+import { isDayKey, localDay } from '../../lib/results/time';
+import { resultsConfig, resultsDb } from '../../lib/results/config';
+import { rowsBetween } from '../../lib/results/store';
+import { group } from '../../lib/results/status';
+import { resultSports } from '../../lib/results/sports';
+import { breadcrumbLd, BRAND } from '../../lib/seo';
+
+export const prerender = false;
+const env = getEnv();
+const now = Date.now();
+const rc = resultsConfig(env);
+const sports = resultSports(rc.comps);
+// /vysledky/[<šport>/][vcera/|<dátum>/]
+const segs = (Astro.params.path ?? '').split('/').filter(Boolean);
+const sport = sports.find((s) => s.slug === segs[0]);
+const rest = sport ? segs.slice(1) : segs;
+if (rest.length > 1) return Astro.rewrite('/404/');
+const raw = rest[0] ?? '';
+const keys = Array.from({ length: 8 }, (_, i) => dayKey(addDays(now, -i)));
+const key = !raw ? keys[0] : raw === 'vcera' ? keys[1] : isDayKey(raw) ? raw : '';
+const base = sport ? `/vysledky/${sport.slug}/` : '/vysledky/';
+if (raw && key === keys[0]) return Astro.redirect(base, 301);
+if (raw && raw !== 'vcera' && key === keys[1]) return Astro.redirect(`${base}vcera/`, 301);
+if (!key || !keys.includes(key)) return Astro.rewrite('/404/');
+const pathOf = (k: string, s = sport?.slug) => `/vysledky/${s ? `${s}/` : ''}${k === keys[0] ? '' : k === keys[1] ? 'vcera/' : `${k}/`}`;
+const stav = Astro.url.searchParams.get('stav') ?? '';
+const db = resultsDb(env);
+const rows = db ? await rowsBetween(db, ...localDay(key), sport ? sport.comps : rc.comps, sport?.id) : [];
+const liveRows = rows.filter((r) => group(r.status) === 'live');
+const done = rows.filter((r) => group(r.status) !== 'live' && r.status !== 'scheduled');
+const later = rows.filter((r) => r.status === 'scheduled');
+const ms = Date.parse(`${key}T12:00:00Z`);
+const label = key === keys[0] ? 'dnes' : key === keys[1] ? 'včera' : longDay(ms);
+const what = sport ? `${sport.name.toLowerCase()} – výsledky` : 'Výsledky';
+const crumbs = [{ name: 'Domov', href: '/' }, { name: 'Výsledky', href: '/vysledky/' }, ...(sport ? [{ name: sport.name, href: base }] : []), ...(key !== keys[0] ? [{ name: label }] : [])];
+const v = await view(env);
+const title = sport ? `${sport.name} výsledky ${label} – ${sport.titleComps} | ${BRAND}` : `Výsledky ${label} – Niké liga, Tipsport liga, Liga majstrov, NHL | ${BRAND}`;
+const desc = sport ? `${sport.name}: výsledky zápasov ${label} – ${done.length} odohraných${liveRows.length ? `, ${liveRows.length} práve prebieha` : ''}. ${sport.titleComps}, skóre a strelci.` : `Výsledky zápasov ${label}: ${done.length} odohraných${liveRows.length ? `, ${liveRows.length} práve prebieha` : ''}. Slovenské súťaže, európske poháre, top ligy, NHL a NBA.`;
+const show = (k: 'live' | 'done' | 'later') => !stav || (stav === 'hra' && k === 'live') || (stav === 'koniec' && k === 'done');
+---
+<Base title={title} description={desc} path={pathOf(key)} noindex={!!stav} ld={[breadcrumbLd(crumbs)]} section="vysledky" ttl={key === keys[0] ? 60 : 900}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head">
+      <div class="eyebrow"><span>{longDay(ms)}</span></div>
+      <h1>{sport ? `${sport.name}: výsledky ${label}` : `Výsledky ${label}`}</h1>
+      <p class="lead">{sport ? sport.lead : 'Skóre zápasov slovenských súťaží, európskych pohárov, top futbalových líg, NHL, NBA a Euroligy.'} Výsledok označíme ako konečný, až keď je potvrdený.</p>
+    </section>
+    <div class="chips" aria-label="Šport">
+      <a class="chip" href={pathOf(key, '')} aria-current={!sport ? 'page' : undefined}>Všetky športy</a>
+      {sports.map((s) => <a class="chip" href={pathOf(key, s.slug)} aria-current={sport?.slug === s.slug ? 'page' : undefined}><Icon name={s.slug} />{s.name}</a>)}
+    </div>
+    <nav class="days" aria-label="Deň" style="margin-top:10px">
+      {[...keys].reverse().map((k, i, a) => { const d = Date.parse(`${k}T12:00:00Z`); const j = a.length - 1 - i; return <a href={pathOf(k)} aria-current={k === key ? 'page' : undefined}><small>{j === 0 ? 'dnes' : j === 1 ? 'včera' : weekday(d)}</small>{shortDay(d).replace(/\s/g, '')}</a>; })}
+    </nav>
+    <div class="chips seg" aria-label="Stav zápasu">
+      <a class="chip" href={pathOf(key)} aria-current={!stav ? 'page' : undefined}>Všetko<em>{rows.length}</em></a>
+      <a class="chip" href={`${pathOf(key)}?stav=hra`} aria-current={stav === 'hra' ? 'page' : undefined}><span class="dot"></span>Hrá sa<em>{liveRows.length}</em></a>
+      <a class="chip" href={`${pathOf(key)}?stav=koniec`} aria-current={stav === 'koniec' ? 'page' : undefined}>Skončené<em>{done.length}</em></a>
+    </div>
+    <div class="cols" style="margin-top:14px">
+      <div>
+        {show('live') && liveRows.length ? <section class="sec"><div class="sec-h"><h2>Práve sa hrá <span class="n live">{liveRows.length}</span></h2></div><ResultList rows={liveRows} comps={rc.comps} now={now} staleMs={rc.staleMs} /></section> : null}
+        {show('done') ? <section class="sec"><div class="sec-h"><h2>Odohrané <span class="n">{done.length}</span></h2></div><ResultList rows={done} comps={rc.comps} now={now} staleMs={rc.staleMs} empty={key === keys[0] ? `Dnes sa ešte nedohral žiadny zápas sledovaných súťaží${sport ? ` (${what})` : ''}.` : 'V tento deň sa nehral žiadny zápas sledovaných súťaží.'} /></section> : null}
+        {show('later') && later.length ? <section class="sec"><div class="sec-h"><h2>Ešte sa začne <span class="n">{later.length}</span></h2><a href={sport ? `/${sport.slug}/` : '/program/'}>Program ›</a></div><ResultList rows={later} comps={rc.comps} now={now} staleMs={rc.staleMs} /></section> : null}
+        {stav === 'hra' && !liveRows.length ? <p class="empty">Práve sa nehrá žiadny zápas sledovaných súťaží.</p> : null}
+      </div>
+      <Side sports={sportCounts(v)} leagues={leagues(v, sport?.id)} placement="results-side" current={sport?.slug} />
+    </div>
+  </div>
+</Base>
