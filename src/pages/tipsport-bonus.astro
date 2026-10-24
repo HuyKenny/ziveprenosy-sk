@@ -1,0 +1,64 @@
+---
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import Faq from '../components/Faq.astro';
+import Ticket from '../components/Ticket.astro';
+import LeagueList from '../components/LeagueList.astro';
+import Icon from '../components/Icon.astro';
+import { getEnv, view, featured } from '../lib/page';
+import { breadcrumbLd, faqLd, BRAND } from '../lib/seo';
+import { BONUS } from '../lib/bonus';
+import { regPath } from '../lib/url';
+
+export const prerender = false;
+const v = await view(getEnv());
+const now = Date.now();
+const live = featured(v.live.filter((m) => m.stream)).slice(0, 12);
+const crumbs = [{ name: 'Domov', href: '/' }, { name: 'Tipsport bonus 20 €' }];
+// Facts checked on the registration page (24. 10. 2026); anything not verified there is not claimed here.
+const faq = [
+  { q: 'Koľko dostanem za registráciu na Tipsport.sk?', a: `Noví hráči dostanú 20 € na prvé stávky. K tomu ponúka Tipsport.sk vstupný bonus až 4 000 €. Presné podmienky určuje prevádzkovateľ.` },
+  { q: 'Musím na registráciu niečo vložiť?', a: 'Registrácia je zadarmo. Začína sa e-mailom, potvrdením veku 18+ a súhlasom s podmienkami, potom vyplníš osobné údaje.' },
+  { q: 'Prečo Tipsport overuje totožnosť?', a: 'Vyžaduje to slovenský zákon o hazardných hrách: údaje sa diaľkovo overujú voči registrom verejnej správy vrátane registra osôb vylúčených z hrania. Registrovať sa môžeš len so svojimi údajmi.' },
+  { q: 'Potrebujem účet aj na pozeranie prenosov?', a: 'Áno. Tipsport TV pustí prenos len prihláseným hráčom. Pozeranie je zadarmo a staviť si nemusíš.' },
+  { q: 'Môžem bonus získať, ak už účet mám?', a: 'Bonus za registráciu je určený novým hráčom. Ak účet už máš, stačí sa prihlásiť a prenosy pozeráš rovnako zadarmo.' },
+];
+---
+<Base title={`Tipsport bonus 20 € za registráciu – ako ho získať | ${BRAND}`} description={`Tipsport.sk dáva novým hráčom ${BONUS.detail} Postup registrácie krok za krokom a prečo ju potrebuješ aj na pozeranie Tipsport TV.`} ld={[breadcrumbLd(crumbs), faqLd(faq)]} section="tipsport-bonus" ttl={600}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head">
+      <div class="eyebrow"><span>Tipsport.sk</span><span>overené 24. 10. 2026</span></div>
+      <h1>Tipsport bonus 20 € za registráciu</h1>
+      <p class="lead">Noví hráči Tipsport.sk dostanú <b>20 € na prvé stávky</b> a k tomu vstupný bonus až 4 000 €. Účet zároveň potrebuješ na pozeranie prenosov na Tipsport TV – tak to vybav naraz.</p>
+      <p style="margin-top:14px"><a class="btn lg" href={regPath('bonus-hero')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />{BONUS.cta}</a> <small class="muted">Reklama · 18+</small></p>
+    </section>
+    <div class="cols">
+      <div>
+        <section class="sec">
+          <div class="sec-h"><h2>Ako získať 20 € krok za krokom</h2></div>
+          <ol class="steps">
+            <li><span><b>Otvor registráciu</b>Tlačidlo „{BONUS.cta}“ ťa privedie priamo na registračný formulár Tipsport.sk.</span></li>
+            <li><span><b>Zadaj e-mail a potvrď vek 18+</b>Odsúhlasíš všeobecné podmienky a podmienky vstupného bonusu.</span></li>
+            <li><span><b>Vyplň osobné údaje</b>Tipsport ich podľa zákona overí voči registrom verejnej správy. Použiť môžeš len svoje údaje.</span></li>
+            <li><span><b>Bonus a prenosy</b>Po registrácii dostaneš 20 € na prvé stávky a môžeš pozerať prenosy na Tipsport TV zadarmo.</span></li>
+          </ol>
+          <p style="margin-top:14px"><a class="btn" href={regPath('bonus-steps')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />{BONUS.cta}</a></p>
+        </section>
+        <section class="sec prose">
+          <h2>Čo bonus znamená a na čo si dať pozor</h2>
+          <ul>
+            <li><b>20 € na prvé stávky</b> – bonus pre nových hráčov za registráciu.</li>
+            <li><b>Vstupný bonus až 4 000 €</b> – samostatná ponuka s vlastnými podmienkami na webe Tipsport.sk.</li>
+            <li>Podmienky (napríklad čo treba splniť pred výberom) určuje prevádzkovateľ a môže ich meniť. Pred stávkou si ich prečítaj.</li>
+            <li>Stávkovanie je dobrovoľné a len pre plnoletých. Na pozeranie prenosov si staviť nemusíš.</li>
+          </ul>
+          <p>Viac o pozeraní prenosov je v návode <a href="/tipsport-tv/">Tipsport TV</a>. Hraj zodpovedne – <a href="/zodpovedne-hranie/">zásady a pomoc</a>.</p>
+        </section>
+        {live.length ? <section class="sec"><div class="sec-h"><h2>Na Tipsport TV práve beží</h2><a href="/teraz-nazivo/">Všetko naživo ›</a></div><LeagueList items={live} now={now} placement="bonus-live" live per={3} max={4} /></section> : null}
+        <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
+      </div>
+      <div class="side"><Ticket placement="bonus-side" /></div>
+    </div>
+  </div>
+</Base>

@@ -95,8 +95,8 @@ export function skTeam(name: string): string {
 /** Live clock / period text from the Czech feed ("2.tř. - 34.min", "Za 5 minut", "Přestávka") → Slovak. */
 export function skClock(ti: string): string {
   return ti
-    .replace(/^Za okamžik$/, 'O chvíľu')
-    .replace(/^Za (\d+) minut[uy]?$/, 'O $1 min')
+    .replace(/^Za okamžik$/, 'začne o chvíľu')
+    .replace(/^Za (\d+) minut[uy]?$/, 'začne o $1 min')
     .replace(/\btř\./g, 'tr.').replace(/(\d)\.tř\./g, '$1.tr.')
     .replace(/(\d)\.čt\./g, '$1.štv.')
     .replace(/přestávka/g, 'prestávka').replace(/Přestávka/g, 'Prestávka')

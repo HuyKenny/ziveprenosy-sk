@@ -3,7 +3,7 @@ import Base from '../layouts/Base.astro';
 import LeagueList from '../components/LeagueList.astro';
 import ResultList from '../components/ResultList.astro';
 import Side from '../components/Side.astro';
-import Ticket from '../components/Ticket.astro';
+import HowTo from '../components/HowTo.astro';
 import Tiles from '../components/Tiles.astro';
 import Faq from '../components/Faq.astro';
 import Carousel from '../components/Carousel.astro';
@@ -79,7 +79,8 @@ const ld = [...siteLd(), faqLd(faq), itemListLd([...v.live, ...today], 'Živé p
           <LeagueList items={v.live.filter((m) => !skLive.has(m.id))} now={now} placement="home-live" live per={4} max={6} empty="Práve teraz nebeží žiadny prenos – najbližšie zápasy sú nižšie." />
         </section>
 
-        <div class="sec"><Ticket placement="home-mid" wide /></div>
+        <HowTo placement="home-howto" />
+
 
         <section class="sec">
           <div class="sec-h"><h2>Dnes v programe <span class="n">{today.length}</span></h2><a href="/program/">Celý program ›</a></div>

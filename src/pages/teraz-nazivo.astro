@@ -2,7 +2,7 @@
 import Base from '../layouts/Base.astro';
 import LeagueList from '../components/LeagueList.astro';
 import Side from '../components/Side.astro';
-import Ticket from '../components/Ticket.astro';
+import HowTo from '../components/HowTo.astro';
 import Crumbs from '../components/Crumbs.astro';
 import Icon from '../components/Icon.astro';
 import { getEnv, view, sportCounts, leagues } from '../lib/page';
@@ -34,7 +34,7 @@ const counts = sportCounts(v).filter((s) => s.live);
     <div class="cols" style="margin-top:14px">
       <div>
         <LeagueList items={live} now={now} placement="live" live empty="Práve teraz nebeží žiadny zápas. Najbližšie prenosy nájdeš v programe." />
-        <Ticket placement="live-bottom" wide />
+        <HowTo placement="live-howto" />
       </div>
       <Side sports={sportCounts(v)} leagues={leagues(v)} placement="live-side" />
     </div>

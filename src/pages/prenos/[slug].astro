@@ -5,7 +5,8 @@ import Side from '../../components/Side.astro';
 import Faq from '../../components/Faq.astro';
 import Crumbs from '../../components/Crumbs.astro';
 import Stick from '../../components/Stick.astro';
-import Ticket from '../../components/Ticket.astro';
+import HowTo from '../../components/HowTo.astro';
+import { regPath } from '../../lib/url';
 import Icon from '../../components/Icon.astro';
 import Crest from '../../components/Crest.astro';
 import Stage from '../../components/Stage.astro';
@@ -60,7 +61,7 @@ const faq = !m ? [] : over ? [
   { q: `Ako sa skončil zápas ${title}?`, a: `${resultSentence} Hralo sa ${longDay(m.st)} o ${hhmm(m.st)} (${lgName}).` },
   { q: 'Kde nájdem ďalšie výsledky?', a: 'V prehľade Výsledky alebo na stránke súťaže, kde sú aj ďalšie zápasy.' },
 ] : [
-  { q: `Kde pozerať ${title} naživo?`, a: m.stream ? `Zápas vysiela Tipsport TV. Klikni na „Pozerať“, prihlás sa na Tipsport.sk alebo sa bezplatne zaregistruj a prenos sa spustí. Noví hráči dostanú bonus ${BONUS.amount}.` : 'K tomuto zápasu Tipsport video nevysiela (práva má televízia), ponúka však živé štatistiky a priebežné skóre.' },
+  { q: `Kde pozerať ${title} naživo?`, a: m.stream ? `Zápas vysiela Tipsport TV. Klikni na „Pozerať“, prihlás sa na Tipsport.sk alebo sa bezplatne zaregistruj a prenos sa spustí. Noví hráči dostanú ${BONUS.line}.` : 'K tomuto zápasu Tipsport video nevysiela (práva má televízia), ponúka však živé štatistiky a priebežné skóre.' },
   { q: `Kedy sa začína ${title}?`, a: `${longDay(m.st)} o ${hhmm(m.st)} slovenského času.` },
   { q: 'Je pozeranie zadarmo?', a: 'Pre registrovaných hráčov Tipsport.sk áno. Staviť si nemusíš, stávkovanie je dobrovoľné a len pre osoby od 18 rokov.' },
 ];
@@ -101,8 +102,13 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
           ) : null}
           {detail ? <p class="detail">{detail}{stale ? ' · údaje sa môžu meškať' : ''}</p> : null}
           <div class="sc-cta">
-            <p>{over ? 'Zápas na Tipsport.sk' : m.stream ? BONUS.watch : 'Živé štatistiky a skóre na Tipsport.sk'}<small>Reklama · registrácia a prihlásenie u prevádzkovateľa · 18+</small></p>
-            <a class="btn lg" href={goPath(m, over ? 'detail-final' : 'detail')} rel="sponsored nofollow noopener" target="_blank"><Icon name={m.stream && !over ? 'play' : 'spark'} />{over ? 'Tipsport.sk' : watch}</a>
+            {over ? (<>
+              <p>Zápas sa skončil<small>Pozri, čo sa hrá teraz – alebo si založ účet na ďalšie prenosy.</small></p>
+              <span class="sc-btns"><a class="btn out" href="/teraz-nazivo/"><span class="dot pulse"></span>Práve naživo</a><a class="btn" href={regPath('detail-final')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />{BONUS.cta}</a></span>
+            </>) : (<>
+              <p>{m.stream ? BONUS.watch : 'Živé štatistiky a skóre na Tipsport.sk'}<small>Nemáš účet? <a href={regPath('detail-new')} rel="sponsored nofollow noopener" target="_blank">{BONUS.line} ›</a> · Reklama · 18+</small></p>
+              <a class="btn lg" data-watch href={goPath(m, 'detail')} rel="sponsored nofollow noopener" target="_blank"><Icon name={m.stream ? 'play' : 'spark'} />{watch}</a>
+            </>)}
           </div>
         </section>
 
@@ -124,7 +130,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
             <div class="sec-h"><h2>Ako pozerať {title}</h2><a href="/tipsport-tv/">Návod ›</a></div>
             <ol class="steps">
               <li><span><b>Klikni na „{watch}“</b>Otvorí sa Tipsport.sk.</span></li>
-              <li><span><b>Prihlás sa alebo sa zaregistruj</b>Registrácia je zadarmo, noví hráči dostanú bonus {BONUS.amount}.</span></li>
+              <li><span><b>Prihlás sa alebo sa zaregistruj</b>Registrácia je zadarmo a noví hráči dostanú {BONUS.line}. <a class="btn sm" style="margin-top:8px" href={regPath('detail-steps')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />{BONUS.cta}</a></span></li>
               <li><span><b>{m.stream ? 'Spusti prenos na Tipsport TV' : 'Sleduj živé štatistiky'}</b>{m.stream ? 'Video beží v prehliadači aj v aplikácii, staviť si nemusíš.' : 'Priebežné skóre a štatistiky zápasu sa obnovujú naživo.'}</span></li>
             </ol>
           </section>
@@ -154,7 +160,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
     <section class="head"><h1>Zápas sa už skončil</h1><p class="lead">Tento zápas už nie je v ponuke prenosov. Pozri, čo sa hrá práve teraz alebo dnes.</p></section>
     <div class="cols"><div>
       <section class="sec"><div class="sec-h"><h2>Práve naživo</h2><a href="/teraz-nazivo/">Všetko ›</a></div><LeagueList items={v.live} now={now} placement="gone" live per={4} max={5} /></section>
-      <Ticket placement="gone" wide />
+      <HowTo placement="gone-howto" />
     </div><Side sports={sportCounts(v)} leagues={leagues(v)} placement="gone-side" /></div>
   </div>
 </Base>

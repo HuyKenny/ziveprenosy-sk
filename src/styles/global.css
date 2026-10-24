@@ -478,3 +478,36 @@ footer .legal { margin: 16px 0 0; font-size: 0.8rem; color: #9aa6bb; }
 .h2h-next .hn-top .side { display: flex; flex-direction: column; align-items: center; gap: 6px; font-weight: 800; }
 .h2h-next .hn-top .mid { font-weight: 900; font-size: 1.2rem; }
 .h2h-next .hn-top .mid small { display: block; font-size: 0.74rem; color: var(--ink-3); font-weight: 800; text-transform: uppercase; }
+
+/* ---------- bonus: watch choice dialog, how-to steps ---------- */
+.choice { border: 2px solid var(--ink); border-radius: 10px; box-shadow: 6px 6px 0 var(--ink); padding: 22px 20px 16px; width: min(440px, calc(100vw - 32px)); background: var(--card); color: var(--ink); }
+.choice::backdrop { background: rgba(15, 27, 45, 0.55); }
+.choice h2 { font-size: 1.4rem; margin: 2px 0 8px; }
+.choice .wc-k { margin: 0; font-size: 0.74rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.06em; color: var(--blue); }
+.choice .wc-why { color: var(--ink-2); margin-bottom: 16px; }
+.choice .wc-opts { display: grid; gap: 10px; }
+.choice .wc-opts .btn { justify-content: flex-start; text-align: left; white-space: normal; }
+.choice .wc-opts .btn span { display: grid; line-height: 1.2; }
+.choice .wc-opts .btn small { font-size: 0.8rem; font-weight: 700; opacity: 0.85; }
+.choice .wc-foot { margin: 14px 0 0; font-size: 0.78rem; color: var(--ink-3); }
+.choice .wc-x { position: absolute; top: 10px; right: 10px; margin: 0; }
+.choice .wc-x button { background: none; border: 0; width: 36px; height: 36px; cursor: pointer; color: var(--ink-2); }
+.choice .wc-x svg { width: 20px; height: 20px; }
+@media (max-width: 520px) {
+  .choice { margin: auto 0 0; width: 100vw; max-width: 100vw; border-radius: 14px 14px 0 0; border-width: 2px 0 0; box-shadow: none; padding-bottom: calc(18px + env(safe-area-inset-bottom)); }
+}
+.howto { background: var(--card); border: 2px solid var(--ink); border-radius: var(--r); box-shadow: var(--shadow); padding: 16px 18px; margin: 0 0 26px; }
+.howto h2 { font-size: 1.15rem; margin-bottom: 12px; }
+.howto ol { list-style: none; counter-reset: h; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+.howto li { counter-increment: h; display: grid; gap: 2px; padding-left: 40px; position: relative; font-size: 0.92rem; color: var(--ink-2); }
+.howto li b { color: var(--ink); }
+.howto li::before { content: counter(h); position: absolute; left: 0; top: 0; width: 30px; height: 30px; border-radius: 4px; background: var(--ink); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; }
+.howto li.hl::before { background: var(--red); }
+.howto li.hl b { color: var(--red-dark); }
+.howto-cta { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px; margin-top: 14px; padding-top: 12px; border-top: 1px dashed var(--rule); }
+.howto-cta small { color: var(--ink-3); font-size: 0.74rem; }
+@media (max-width: 720px) { .howto ol { grid-template-columns: 1fr; } }
+.ticket .why { margin: 8px 0 0; font-size: 0.86rem; color: var(--ink-2); }
+.ticket .more { font-size: 0.84rem; font-weight: 700; text-align: center; }
+.sc-btns { display: flex; flex-wrap: wrap; gap: 10px; }
+.scorecard .sc-cta small a { color: var(--red-dark); font-weight: 800; }

@@ -14,7 +14,7 @@ export const prerender = false;
 export const GET = async () => {
   const v = await view(env as unknown as Env);
   const now = Date.now();
-  const urls: Url[] = ['/', '/teraz-nazivo/', '/program/', '/program/zajtra/', '/vysledky/', '/vysledky/vcera/', '/tipsport-tv/'].map((loc) => ({ loc }));
+  const urls: Url[] = ['/', '/teraz-nazivo/', '/program/', '/program/zajtra/', '/vysledky/', '/vysledky/vcera/', '/tipsport-tv/', '/tipsport-bonus/'].map((loc) => ({ loc }));
   for (const s of resultSports(resultsConfig(env as unknown as Env).comps)) urls.push({ loc: `/vysledky/${s.slug}/` }, { loc: `/vysledky/${s.slug}/vcera/` });
   for (let i = 2; i < 7; i++) urls.push({ loc: `/program/${dayKey(addDays(now, i))}/` });
   for (const s of SPORTS) {

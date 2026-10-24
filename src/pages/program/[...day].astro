@@ -2,7 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import LeagueList from '../../components/LeagueList.astro';
 import Side from '../../components/Side.astro';
-import Ticket from '../../components/Ticket.astro';
+import HowTo from '../../components/HowTo.astro';
 import Crumbs from '../../components/Crumbs.astro';
 import Icon from '../../components/Icon.astro';
 import { getEnv, view, sportCounts, leagues } from '../../lib/page';
@@ -48,7 +48,7 @@ const counts = SPORTS.map((s) => ({ s, n: all.filter((m) => m.sp === s.id).lengt
     <div class="cols" style="margin-top:14px">
       <div>
         <LeagueList items={items} now={now} placement="program" showSport={!sp} empty="V tento deň zatiaľ nie sú v ponuke žiadne zápasy." />
-        <Ticket placement="program-bottom" wide />
+        <HowTo placement="program-howto" />
       </div>
       <Side sports={sportCounts(v)} leagues={leagues(v)} placement="program-side" current={sp?.slug} />
     </div>

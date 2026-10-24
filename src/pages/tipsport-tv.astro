@@ -19,7 +19,7 @@ const faq = [
   { q: 'Je Tipsport TV zadarmo?', a: 'Áno. Prenosy sú bezplatné pre registrovaných a prihlásených hráčov Tipsport.sk. Na pozeranie si nemusíš staviť.' },
   { q: 'Čo potrebujem na pozeranie Tipsport TV?', a: 'Účet na Tipsport.sk (registrácia je zadarmo, len pre osoby od 18 rokov) a internetové pripojenie. Prenosy bežia v prehliadači na počítači aj v mobile a v aplikácii Tipsport.' },
   { q: 'Prečo nevidím video pri každom zápase?', a: 'Pri zápasoch, ktorých televízne práva drží iná stanica, Tipsport video nevysiela. Ponúka pri nich živé štatistiky a priebežné skóre – na našom webe majú tlačidlo „Štatistiky“.' },
-  { q: 'Aký bonus dostanem za registráciu?', a: `Noví hráči Tipsport.sk dostanú za registráciu bonus ${BONUS.amount}. Presné podmienky určuje prevádzkovateľ a nájdeš ich na jeho webe.` },
+  { q: 'Aký bonus dostanem za registráciu?', a: `Noví hráči Tipsport.sk dostanú ${BONUS.detail} Presné podmienky určuje prevádzkovateľ. Postup je v návode Tipsport bonus 20 €.` },
   { q: 'Ako nájdem zápas, ktorý chcem pozerať?', a: 'Najrýchlejšie cez náš prehľad: na úvodnej stránke vidíš, čo práve beží, v programe zápasy na 7 dní dopredu. Pri zápase klikni na „Pozerať“ a otvorí sa priamo Tipsport TV.' },
 ];
 ---
@@ -39,7 +39,7 @@ const faq = [
             <li><span><b>Prihlás sa</b>Prenosy sa spúšťajú len prihláseným hráčom. Na mobile to ide najpohodlnejšie v aplikácii Tipsport.</span></li>
             <li><span><b>Vyber zápas</b>Na ŽivéPrenosy.sk klikni pri zápase na „Pozerať“ – otvorí sa Tipsport TV. Staviť si nemusíš.</span></li>
           </ol>
-          <p style="margin-top:14px"><a class="btn lg" href={regPath('tv-guide')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />Registrácia a bonus {BONUS.amount}</a> <small class="muted">Reklama · 18+</small></p>
+          <p style="margin-top:14px"><a class="btn lg" href={regPath('tv-guide')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />Registrácia a bonus {BONUS.amount}</a> <a href="/tipsport-bonus/" style="margin-left:8px">Ako získať bonus ›</a> <small class="muted">Reklama · 18+</small></p>
         </section>
         <section class="sec">
           <div class="sec-h"><h2>Na Tipsport TV práve beží <span class="n live">{withVideo.length}</span></h2><a href="/teraz-nazivo/">Všetko naživo ›</a></div>

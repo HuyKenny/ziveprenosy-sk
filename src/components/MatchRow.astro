@@ -21,8 +21,8 @@ const title = matchTitle(m);
   <div class="act">
     {live && m.sc ? (m.a && sa !== undefined ? <span class="sc" data-s><span>{sh}</span><span>{sa}</span></span> : <span class="sc one" data-s>{m.sc}</span>) : null}
     {!m.stream ? <span class="tag" title="K zápasu nie je video, len živé štatistiky">bez videa</span> : null}
-    <a class:list={['btn sm', !m.stream && 'out']} href={goPath(m, placement)} rel="sponsored nofollow noopener" target="_blank" aria-label={m.stream ? `Pozerať ${title} na Tipsport TV` : `Živé štatistiky ${title} na Tipsport.sk`}>
-      <Icon name={m.stream ? 'play' : 'spark'} /><span class="lbl">{m.stream ? 'Pozerať' : 'Štatistiky'}</span>
+    <a class:list={['btn sm', !m.stream && 'out']} data-watch href={goPath(m, placement)} rel="sponsored nofollow noopener" target="_blank" aria-label={m.stream ? `Pozerať ${title} na Tipsport TV` : `Živé štatistiky ${title} na Tipsport.sk`}>
+      <Icon name={m.stream ? 'play' : 'spark'} /><span class="lbl">{m.stream ? 'Pozerať' : 'Živé štatistiky'}</span>
     </a>
   </div>
 </div>

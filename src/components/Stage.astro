@@ -9,7 +9,7 @@ interface Props { m: Match; state: 'live' | 'pre' | 'recent'; now: number }
 const { m, state, now } = Astro.props;
 const s = sportOf(m);
 ---
-<a class:list={['stage', !m.stream && 'novideo']} href={goPath(m, 'player')} rel="sponsored nofollow noopener" target="_blank" aria-label={m.stream ? `Spustiť prenos ${matchTitle(m)} na Tipsport TV` : `Živé štatistiky ${matchTitle(m)} na Tipsport.sk`}>
+<a class:list={['stage', !m.stream && 'novideo']} data-watch href={goPath(m, 'player')} rel="sponsored nofollow noopener" target="_blank" aria-label={m.stream ? `Spustiť prenos ${matchTitle(m)} na Tipsport TV` : `Živé štatistiky ${matchTitle(m)} na Tipsport.sk`}>
   <Photo sport={s?.slug} eager sizes="(min-width: 1000px) 820px, 100vw" />
   <span class="st-shade"></span>
   <span class="st-play">{m.stream ? <Icon name="play" /> : <Icon name="spark" />}</span>

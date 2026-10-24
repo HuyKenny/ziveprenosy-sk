@@ -1,0 +1,21 @@
+---
+import { BONUS } from '../lib/bonus';
+import { regPath } from '../lib/url';
+import Icon from './Icon.astro';
+/** "Ako pozerať zadarmo" in three steps — the bonus as the step it is, not as a banner. */
+interface Props { placement: string }
+const { placement } = Astro.props;
+---
+<section class="howto" aria-labelledby={`howto-${placement}`}>
+  <h2 id={`howto-${placement}`}>Ako pozerať zadarmo</h2>
+  <ol>
+    <li><b>Vyber zápas</b><span>Klikni na „Pozerať“ pri zápase.</span></li>
+    <li class="hl"><b>Zaregistruj sa na Tipsport.sk</b><span>Zadarmo, za pár minút – {BONUS.line}.</span></li>
+    <li><b>Pozeraj na Tipsport TV</b><span>Prenos sa spustí po prihlásení, staviť si nemusíš.</span></li>
+  </ol>
+  <div class="howto-cta">
+    <a class="btn" href={regPath(placement)} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />{BONUS.cta}</a>
+    <a href="/tipsport-bonus/">Ako to funguje</a>
+    <small>Reklama · 18+</small>
+  </div>
+</section>

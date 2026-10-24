@@ -1,0 +1,45 @@
+---
+import { BONUS } from '../lib/bonus';
+import Icon from './Icon.astro';
+/**
+ * "Máš účet na Tipsport.sk?" — shown on the first click on a watch button (a[data-watch]). The stream only starts for
+ * logged-in players, so a visitor without an account is offered the registration (with the bonus) instead of
+ * hitting a login wall. "Mám účet" is remembered and later clicks go straight to the stream. Without JS the link
+ * works as a plain link.
+ */
+---
+<dialog class="choice" id="watch-choice" aria-labelledby="wc-title">
+  <form method="dialog" class="wc-x"><button aria-label="Zavrieť" value="close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></form>
+  <p class="wc-k">Tipsport TV</p>
+  <h2 id="wc-title">Máš účet na Tipsport.sk?</h2>
+  <p class="wc-why">{BONUS.why}</p>
+  <div class="wc-opts">
+    <a class="btn lg" data-wc-reg href="/go/registracia/?p=choice" rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" /><span>Nemám účet<small>zaregistrovať sa a získať {BONUS.amount} bonus</small></span></a>
+    <a class="btn lg out" data-wc-tv href="/go/tipsport/?p=choice" rel="sponsored nofollow noopener" target="_blank"><Icon name="play" /><span>Mám účet<small>pozerať hneď</small></span></a>
+  </div>
+  <p class="wc-foot"><a href="/tipsport-bonus/">Ako získať bonus</a> · Reklama · Tipsport.sk · 18+</p>
+</dialog>
+<script>
+  const KEY = 'zp-ucet';
+  const dlg = document.getElementById('watch-choice') as HTMLDialogElement | null;
+  const reg = dlg?.querySelector<HTMLAnchorElement>('[data-wc-reg]');
+  const tv = dlg?.querySelector<HTMLAnchorElement>('[data-wc-tv]');
+  const hasAccount = () => { try { return localStorage.getItem(KEY) === '1'; } catch { return false; } };
+  if (dlg && reg && tv && typeof dlg.showModal === 'function') {
+    document.addEventListener('click', (e) => {
+      const a = (e.target as Element).closest<HTMLAnchorElement>('a[data-watch]');
+      if (!a || hasAccount() || e.metaKey || e.ctrlKey || e.shiftKey) return;
+      e.preventDefault();
+      const u = new URL(a.href, location.href);
+      const p = u.searchParams.get('p') ?? 'watch';
+      const m = u.searchParams.get('m');
+      u.searchParams.set('p', `${p}-choice-tv`);
+      tv.href = u.pathname + u.search;
+      reg.href = `/go/registracia/?p=${encodeURIComponent(p)}-choice-reg${m ? `&m=${m}` : ''}`;
+      dlg.showModal();
+    });
+    tv.addEventListener('click', () => { try { localStorage.setItem(KEY, '1'); } catch { /* private mode */ } dlg.close(); });
+    reg.addEventListener('click', () => dlg.close());
+    dlg.addEventListener('click', (e) => { if (e.target === dlg) dlg.close(); });
+  }
+</script>

@@ -26,7 +26,7 @@ const now = Date.now();
           {m.a ? <span class="mid" data-s>{live && m.sc && sc.length === 2 ? <><span>{sc[0]}</span><i>:</i><span>{sc[1]}</span></> : <em>vs</em>}</span> : null}
           {m.a ? <span class="side"><Crest sp={m.sp} name={m.a} size={34} /><b>{away(m)}</b></span> : null}
         </a>
-        <a class="btn sm" href={goPath(m, placement)} rel="sponsored nofollow noopener" target="_blank"><Icon name="play" />Pozerať</a>
+        <a class="btn sm" data-watch href={goPath(m, placement)} rel="sponsored nofollow noopener" target="_blank"><Icon name="play" />Pozerať</a>
       </article>
     );
   })}

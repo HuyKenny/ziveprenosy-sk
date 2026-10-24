@@ -5,7 +5,7 @@ import ResultList from '../../components/ResultList.astro';
 import Side from '../../components/Side.astro';
 import Faq from '../../components/Faq.astro';
 import Crumbs from '../../components/Crumbs.astro';
-import Ticket from '../../components/Ticket.astro';
+import HowTo from '../../components/HowTo.astro';
 import { getEnv, view, sportCounts, leagues } from '../../lib/page';
 import { SPORT_BY_SLUG } from '../../lib/sports';
 import { competitionBySlug, competitionSlug, leagueName } from '../../lib/competitions';
@@ -69,7 +69,7 @@ const desc = today ? `${sport.name} dnes: ${n} ${plural(n, 'zápas', 'zápasy', 
         <section class="sec"><div class="sec-h"><h2>{today ? 'Dnes ešte' : 'Program'} <span class="n">{next.length}</span></h2></div><LeagueList items={next} now={now} placement={today ? 'today' : 'comp'} days={!today} showSport={false} empty={today ? `Dnes už žiadny ďalší zápas ${sport.genitive} nie je. Pozri program na zajtra.` : 'Najbližšie zápasy zatiaľ nie sú v ponuke. Stránka sa aktualizuje automaticky.'} /></section>
         {h2hNext ? <H2hNext r={h2hNext} now={now} /> : null}
         {results.length ? <section class="sec"><div class="sec-h"><h2>Posledné výsledky</h2><a href={`/vysledky/${sport.slug}/`}>Výsledky – {sport.name.toLowerCase()} ›</a></div><ResultList rows={results} comps={[comp!.id]} now={now} staleMs={rc.staleMs} showDay /></section> : null}
-        <div class="sec"><Ticket placement={today ? 'today-mid' : 'comp-mid'} wide /></div>
+        <HowTo placement={today ? 'today-howto' : 'comp-howto'} />
         <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
       </div>
       <Side sports={sportCounts(v)} leagues={leagues(v, sport.id)} placement={today ? 'today-side' : 'comp-side'} current={sport.slug} />
