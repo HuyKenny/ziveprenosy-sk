@@ -43,7 +43,7 @@ const label = key === keys[0] ? 'dnes' : key === keys[1] ? 'včera' : longDay(ms
 const what = sport ? `${sport.name.toLowerCase()} – výsledky` : 'Výsledky';
 const crumbs = [{ name: 'Domov', href: '/' }, { name: 'Výsledky', href: '/vysledky/' }, ...(sport ? [{ name: sport.name, href: base }] : []), ...(key !== keys[0] ? [{ name: label }] : [])];
 const v = await view(env);
-const title = sport ? `${sport.name} výsledky ${label} – ${sport.titleComps} | ${BRAND}` : `Výsledky ${label} – Niké liga, Tipsport liga, Liga majstrov, NHL | ${BRAND}`;
+const title = sport ? `${sport.name}: výsledky ${label} – ${sport.titleComps.split(', ').slice(0, 2).join(', ')} | ${BRAND}` : `Výsledky ${label} – Niké liga, Tipsport liga, NHL | ${BRAND}`;
 const desc = sport ? `${sport.name}: výsledky zápasov ${label} – ${done.length} odohraných${liveRows.length ? `, ${liveRows.length} práve prebieha` : ''}. ${sport.titleComps}, skóre a strelci.` : `Výsledky zápasov ${label}: ${done.length} odohraných${liveRows.length ? `, ${liveRows.length} práve prebieha` : ''}. Slovenské súťaže, európske poháre, top ligy, NHL a NBA.`;
 const show = (k: 'live' | 'done' | 'later') => !stav || (stav === 'hra' && k === 'live') || (stav === 'koniec' && k === 'done');
 ---

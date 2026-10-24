@@ -17,7 +17,7 @@ const soon = /^Za /.test(m.ti ?? '');
   <div class="t">
     {live ? <><span class="dot pulse"></span> {soon ? 'Čoskoro' : 'Naživo'}<small data-t>{skClockShort(m.ti ?? '')}</small></> : <>{hhmm(m.st)}{showDay && dayKey(m.st) !== dayKey(now) ? <small>{shortDay(m.st)}</small> : null}</>}
   </div>
-  <a class="teams" href={matchPath(m)}>
+  <a class="teams" href={matchPath(m)} data-astro-prefetch>
     {m.a ? <><span><Crest sp={m.sp} name={m.h} /><em>{home(m)}</em></span><span><Crest sp={m.sp} name={m.a} /><em>{away(m)}</em></span></> : <span class="one">{home(m)}</span>}
   </a>
   <div class="act">

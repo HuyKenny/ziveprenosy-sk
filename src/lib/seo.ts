@@ -1,6 +1,7 @@
 import type { Match } from './types';
 import { matchPath, matchTitle, sportOf, home, away } from './url';
 import { leagueName } from './competitions';
+import { photoFor } from './photos';
 
 export const SITE = 'https://ziveprenosy.sk';
 export const BRAND = 'ŽivéPrenosy.sk';
@@ -29,7 +30,7 @@ export const itemListLd = (items: Match[], name: string) => ({
 });
 
 export const siteLd = () => [
-  { '@context': 'https://schema.org', '@type': 'WebSite', '@id': `${SITE}/#web`, name: BRAND, url: `${SITE}/`, inLanguage: 'sk', potentialAction: { '@type': 'SearchAction', target: `${SITE}/hladat/?q={q}`, 'query-input': 'required name=q' } },
+  { '@context': 'https://schema.org', '@type': 'WebSite', '@id': `${SITE}/#web`, name: BRAND, url: `${SITE}/`, inLanguage: 'sk-SK', potentialAction: { '@type': 'SearchAction', target: `${SITE}/hladat/?q={q}`, 'query-input': 'required name=q' } },
   { '@context': 'https://schema.org', '@type': 'Organization', '@id': `${SITE}/#org`, name: BRAND, url: `${SITE}/`, logo: `${SITE}/icon-512.png` },
 ];
 
@@ -48,6 +49,8 @@ export function sportsEventLd(m: Match, status?: string, result?: string) {
     eventAttendanceMode: 'https://schema.org/OnlineEventAttendanceMode',
     location: { '@type': 'VirtualLocation', url },
     sport: s?.name,
+    image: [abs(`/img/sport/${photoFor(s?.slug).slug}-800.jpg`)],
+    organizer: { '@type': 'Organization', name: lg },
     superEvent: { '@type': 'SportsEvent', name: lg },
     ...(m.a ? { homeTeam: { '@type': 'SportsTeam', name: home(m) }, awayTeam: { '@type': 'SportsTeam', name: away(m) }, competitor: [{ '@type': 'SportsTeam', name: home(m) }, { '@type': 'SportsTeam', name: away(m) }] } : {}),
   };

@@ -7,7 +7,7 @@ const { items } = Astro.props;
 ---
 <div class="tiles">
   {items.map((l) => (
-    <a class="tile" href={`/${SPORT_BY_ID.get(l.sp)?.slug}/${l.slug}/`}>
+    <a class="tile" data-astro-prefetch href={`/${SPORT_BY_ID.get(l.sp)?.slug}/${l.slug}/`}>
       <span class="badge" style={`background:${l.color ?? '#0f1b2d'}`}>{l.short ?? l.name.slice(0, 2).toUpperCase()}</span>
       <span><b>{l.name}</b>{l.live ? <small class="l">{l.live} naživo</small> : <small>{l.n ? `${l.n} ${plural(l.n, 'zápas', 'zápasy', 'zápasov')}` : 'program čoskoro'}</small>}</span>
     </a>

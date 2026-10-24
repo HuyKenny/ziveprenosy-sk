@@ -26,7 +26,7 @@ const groups = max ? all.slice(0, max) : all;
     <section class="comp">
       <div class="comp-h">
         {c ? <span class="badge" style={`background:${c.color}`}>{c.short}</span> : <span class="badge ico-b"><Icon name={s?.slug ?? 'ball'} /></span>}
-        <a class="name" href={href}>{leagueName(g.sp, g.lg)}</a>
+        <a class="name" href={href} data-astro-prefetch>{leagueName(g.sp, g.lg)}</a>
         {showSport && s ? <span class="sp">{s.name}</span> : null}
         {per && g.items.length > list.length ? <a class="more" href={href}>+{g.items.length - list.length} ›</a> : null}
       </div>

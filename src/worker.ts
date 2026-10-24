@@ -3,6 +3,8 @@ import { SECURITY_HEADERS } from './lib/security';
 
 /** Paths that are never cached: tracked redirects, live score feed, Cloudflare internals. */
 const NO_CACHE = /^\/(go|cdn-cgi)\/|^\/api\/live\.json$/;
+/** Query parameters our pages use: sport filter, results state, search query. */
+const KEEP = ['sport', 'stav', 'q'];
 
 /** Security headers on every SSR response, and an explicit charset on HTML. */
 function finish(res: Response): Response {
@@ -35,6 +37,12 @@ async function serve(request: Request, env: unknown, ctx: ExecutionContext): Pro
     return new Response(null, { status: 301, headers: { Location: url.toString() } });
   }
   if (request.method !== 'GET' || NO_CACHE.test(url.pathname)) return finish(await handle(request, env as never, ctx));
+  // Pages read only these parameters; anything else (utm_*, fbclid, random cache busters) is dropped, so it can
+  // neither create a new cache entry nor force a fresh render.
+  const clean = new URL(url.origin + url.pathname);
+  for (const k of KEEP) for (const v of url.searchParams.getAll(k)) clean.searchParams.append(k, v);
+  clean.searchParams.sort();
+  if (clean.search !== url.search) request = new Request(clean.toString(), request);
   const cache = (caches as unknown as { default: Cache }).default;
   const render = async () => {
     const res = await handle(request, env as never, ctx);

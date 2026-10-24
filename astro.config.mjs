@@ -11,6 +11,9 @@ export default defineConfig({
   trailingSlash: 'always',
   build: { format: 'directory', inlineStylesheets: 'always' },
   compressHTML: true,
+  // Prefetch only links marked data-astro-prefetch (navigation, match rows): never /go/ redirects, which would count
+  // a click that nobody made. 'hover' fires on touchstart on phones.
+  prefetch: { prefetchAll: false, defaultStrategy: 'hover' },
   // Every client script as an external file, so the CSP can drop 'unsafe-inline' for scripts.
   vite: { build: { assetsInlineLimit: 0 } },
 });

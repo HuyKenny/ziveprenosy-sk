@@ -69,7 +69,7 @@ async function fetchPicks() {
     const buf = Buffer.from(await (await fetch(p.src.original)).arrayBuffer());
     const base = sharp(buf).rotate();
     // 16:9 crops; attention keeps the action in frame.
-    for (const w of [1600, 800, 480]) {
+    for (const w of [1600, 800, 640, 480]) {
       if (w === 1600 && slug.endsWith('-2')) continue; // seconds are only used in cards
       const img = base.clone().resize(w, Math.round((w * 9) / 16), { fit: 'cover', position: sharp.strategy.attention });
       await img.clone().avif({ quality: 48 }).toFile(`public/img/sport/${slug}-${w}.avif`);
