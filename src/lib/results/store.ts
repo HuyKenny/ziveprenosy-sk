@@ -29,6 +29,10 @@ export interface ResultRow {
   slug: string;
   checked_at: number;
   final_at: number | null;
+  home_ext: string | null;
+  away_ext: string | null;
+  stats: string | null; // match details (events, statistics, line-ups) as JSON
+  h2h: string | null; // last meetings as JSON
 }
 
 const q = (list: readonly string[]) => list.map((s) => `'${s}'`).join(',');

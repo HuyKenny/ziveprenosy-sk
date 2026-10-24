@@ -3,6 +3,7 @@ import type { Match } from '../lib/types';
 import { hhmm, shortDay, dayKey } from '../lib/text';
 import { goPath, matchPath, matchTitle, home, away } from '../lib/url';
 import Icon from './Icon.astro';
+import Crest from './Crest.astro';
 import { skClockShort } from '../lib/names';
 /** One match: time | both teams stacked | score + "Pozerať" (Tipsport TV) or "Štatistiky" when there is no video. */
 interface Props { m: Match; now: number; placement: string; live?: boolean; showDay?: boolean }
@@ -15,7 +16,7 @@ const title = matchTitle(m);
     {live ? <><span class="dot pulse"></span> Naživo<small data-t>{skClockShort(m.ti ?? '')}</small></> : <>{hhmm(m.st)}{showDay && dayKey(m.st) !== dayKey(now) ? <small>{shortDay(m.st)}</small> : null}</>}
   </div>
   <a class="teams" href={matchPath(m)}>
-    {m.a ? <><span>{home(m)}</span><span>{away(m)}</span></> : <span class="one">{home(m)}</span>}
+    {m.a ? <><span><Crest sp={m.sp} name={m.h} /><em>{home(m)}</em></span><span><Crest sp={m.sp} name={m.a} /><em>{away(m)}</em></span></> : <span class="one">{home(m)}</span>}
   </a>
   <div class="act">
     {live && m.sc ? (m.a && sa !== undefined ? <span class="sc" data-s><span>{sh}</span><span>{sa}</span></span> : <span class="sc one" data-s>{m.sc}</span>) : null}

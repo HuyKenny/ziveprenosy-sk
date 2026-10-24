@@ -110,4 +110,4 @@ export function skClock(ti: string): string {
 }
 
 /** Short clock for list rows: period + minute only ("3.tr. 56'"), without the per-period scores. */
-export const skClockShort = (ti: string) => skClock(ti).replace(/\s*\(.*$/, '').replace(/\s+\d+na\d+$/, '').replace(/ - (\d+(?:\+\d+)?)\.min$/, " $1'");
+export const skClockShort = (ti: string) => /^\d+\.set\b/.test(ti) ? ti.replace(/^(\d+\.set).*/, '$1') : skClock(ti).replace(/\s*\(.*$/, '').replace(/\s+\d+na\d+$/, '').replace(/ - (\d+(?:\+\d+)?)\.min$/, " $1'");

@@ -3,6 +3,7 @@ import type { ResultRow } from './store';
 import { isFinal, isInPlay } from './status';
 import { competitionById } from '../competitions';
 import { matchPath } from '../url';
+import type { Detail, Meeting } from './afdata';
 
 /** Same URL as a live match page, so a match keeps one address before, during and after the game. */
 export const resultPath = (r: ResultRow) => matchPath(asMatch(r));
@@ -58,3 +59,56 @@ export const asMatch = (r: ResultRow): Match => ({
 });
 
 export const compName = (id: string) => competitionById(id)?.name ?? id;
+
+export const STAT_LABELS: Record<string, string> = {
+  'Ball Possession': 'Držanie lopty', 'Total Shots': 'Strely', 'Shots on Goal': 'Strely na bránku', 'Corner Kicks': 'Rohy',
+  Fouls: 'Fauly', Offsides: 'Ofsajdy', 'Yellow Cards': 'Žlté karty', 'Red Cards': 'Červené karty',
+  'Goalkeeper Saves': 'Zákroky brankára', expected_goals: 'Očakávané góly (xG)',
+};
+export const EVENT_LABELS: Record<Detail['events'][number]['kind'], string> = {
+  goal: 'Gól', own: 'Vlastný gól', pen: 'Gól z penalty', missed: 'Nepremenená penalta', red: 'Červená karta', yellowred: 'Druhá žltá a červená', yellow: 'Žltá karta', sub: 'Striedanie', var: 'VAR', pim: 'Vylúčenie',
+};
+/** VAR decisions as the source words them → Slovak. */
+export const VAR_LABELS: Record<string, string> = {
+  'Goal cancelled': 'gól neuznaný', 'Goal Disallowed - offside': 'gól neuznaný – ofsajd', 'Penalty confirmed': 'penalta potvrdená',
+  'Penalty cancelled': 'penalta zrušená', 'Card upgrade': 'karta sprísnená', 'Goal confirmed': 'gól potvrdený',
+};
+/** Hockey: kind of goal and infraction → Slovak (unknown words are left out). */
+export const HOCKEY_NOTES: Record<string, string> = {
+  'Power-play': 'v presilovke', 'Short-handed': 'v oslabení', 'Empty-net': 'do prázdnej bránky', 'Penalty shot': 'trestné strieľanie',
+  Hooking: 'hákovanie', Holding: 'držanie', 'Holding the stick': 'držanie hokejky', Slashing: 'sekanie', Tripping: 'podrazenie',
+  Roughing: 'hrubosť', Interference: 'bránenie v hre', 'High-sticking': 'vysoká hokejka', 'Cross-checking': 'krosček',
+  Fighting: 'bitka', Boarding: 'narazenie na mantinel', Charging: 'napadnutie', Elbowing: 'lakeť', 'Delay of game': 'zdržiavanie hry',
+  Unsportsmanlike: 'nešportové správanie', 'Unsportsmanlike conduct': 'nešportové správanie',
+  Misconduct: 'osobný trest', 'Game misconduct': 'osobný trest do konca zápasu', Kneeing: 'koleno', Diving: 'simulovanie', Spearing: 'pichnutie hokejkou',
+};
+
+/** Stored details, or null when there are none (never an empty shell). */
+export function detailOf(r: Pick<ResultRow, 'stats'>): Detail | null {
+  try {
+    const d = JSON.parse(r.stats ?? 'null');
+    return d && !d.none && (d.events?.length || d.stats?.length || d.lineups?.length) ? (d as Detail) : null;
+  } catch {
+    return null;
+  }
+}
+
+export function meetingsOf(r: Pick<ResultRow, 'h2h'>): Meeting[] {
+  try {
+    const m = JSON.parse(r.h2h ?? 'null');
+    return Array.isArray(m) ? m : [];
+  } catch {
+    return [];
+  }
+}
+
+/** Numeric value of a statistic ("49%" → 49), null when missing. */
+export const statNum = (v: string | null) => (v == null ? null : Number.parseFloat(v.replace('%', '')) || 0);
+
+/** Goals and red cards per side for the scorecard (own goals already carry the scoring side). */
+export function scorers(d: Detail | null): { h: Detail['events']; a: Detail['events']; redH: number; redA: number } {
+  const ev = d?.events ?? [];
+  const goal = (e: Detail['events'][number]) => e.kind === 'goal' || e.kind === 'pen' || e.kind === 'own';
+  const red = (e: Detail['events'][number]) => e.kind === 'red' || e.kind === 'yellowred';
+  return { h: ev.filter((e) => goal(e) && e.side === 'h'), a: ev.filter((e) => goal(e) && e.side === 'a'), redH: ev.filter((e) => red(e) && e.side === 'h').length, redA: ev.filter((e) => red(e) && e.side === 'a').length };
+}

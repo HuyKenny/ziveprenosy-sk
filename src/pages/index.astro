@@ -6,15 +6,16 @@ import Side from '../components/Side.astro';
 import Ticket from '../components/Ticket.astro';
 import Tiles from '../components/Tiles.astro';
 import Faq from '../components/Faq.astro';
-import Icon from '../components/Icon.astro';
-import { getEnv, view, featured, isSlovak, sportCounts, leagues } from '../lib/page';
+import Carousel from '../components/Carousel.astro';
+import { getEnv, view, featured, isSlovak, sportCounts, leagues, tier, mixSports } from '../lib/page';
 import { dayKey, hhmm, longDay } from '../lib/text';
-import { sportPath } from '../lib/url';
 import { faqLd, itemListLd, siteLd, BRAND } from '../lib/seo';
 import { BONUS } from '../lib/bonus';
 import { resultsConfig, resultsDb } from '../lib/results/config';
 import { rowsBetween } from '../lib/results/store';
 import { localDay } from '../lib/results/time';
+import { logoMap, crestOf } from '../lib/results/logos';
+import type { Match } from '../lib/types';
 
 export const prerender = false;
 const env = getEnv();
@@ -24,10 +25,17 @@ const todayKey = dayKey(now);
 const today = v.upcoming.filter((m) => dayKey(m.st) === todayKey);
 const sk = featured([...v.live, ...today].filter(isSlovak));
 const skLive = new Set(v.live.filter(isSlovak).map((m) => m.id));
-const lg = leagues(v);
-const sports = sportCounts(v);
 const rc = resultsConfig(env);
 const rdb = resultsDb(env);
+const lg = leagues(v);
+// Carousel: live matches with video from Slovak/top competitions and main sports; topped up with the next big kick-offs.
+// Matches whose teams have crests go first (they make the best-looking cards).
+const crests = await logoMap(rdb);
+const hasCrest = (m: Match) => !!m.a && !!crestOf(crests, m.sp, m.h) && !!crestOf(crests, m.sp, m.a);
+const withCrestFirst = (list: Match[]) => [...list.filter(hasCrest), ...list.filter((m) => !hasCrest(m))];
+const liveSlides = mixSports(withCrestFirst(featured(v.live.filter((m) => m.stream && tier(m) < 3))), 10);
+const slides = [...liveSlides, ...mixSports(withCrestFirst(featured(today.filter((m) => m.stream && tier(m) < 2))), 10 - liveSlides.length)];
+const sports = sportCounts(v);
 const results = rdb ? (await rowsBetween(rdb, ...localDay(todayKey), rc.comps)).filter((r) => r.status !== 'scheduled') : [];
 const faq = [
   { q: 'Dajú sa zápasy pozerať zadarmo?', a: 'Áno. Prenosy vysiela Tipsport.sk na Tipsport TV svojim registrovaným hráčom a pozeranie je bezplatné, staviť si nemusíš. My videá nevysielame, len ukazujeme, čo kde beží, a posielame ťa rovno na prenos.' },
@@ -52,11 +60,14 @@ const ld = [...siteLd(), faqLd(faq), itemListLd([...v.live, ...today], 'Živé p
       </div>
     </section>
 
-    <div class="chips" aria-label="Športy">
-      {sports.map((s) => <a class="chip" href={sportPath(s.slug)}><Icon name={s.slug} />{s.name}<em>{s.total}</em></a>)}
-    </div>
+    {slides.length ? (
+      <section class="sec">
+        <div class="sec-h"><h2>Pozeraj teraz</h2><a href="/teraz-nazivo/">Všetko naživo ›</a></div>
+        <Carousel items={slides} placement="carousel" eagerFirst />
+      </section>
+    ) : null}
 
-    <div class="cols" style="margin-top:14px">
+    <div class="cols">
       <div>
         <section class="sec" id="slovensko">
           <div class="sec-h"><h2>Slovensko dnes {skLive.size ? <span class="n live">{skLive.size} naživo</span> : null}</h2><a href="/futbal/nike-liga/">Niké liga ›</a></div>

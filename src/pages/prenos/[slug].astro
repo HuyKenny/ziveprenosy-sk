@@ -7,6 +7,10 @@ import Crumbs from '../../components/Crumbs.astro';
 import Stick from '../../components/Stick.astro';
 import Ticket from '../../components/Ticket.astro';
 import Icon from '../../components/Icon.astro';
+import Crest from '../../components/Crest.astro';
+import Stage from '../../components/Stage.astro';
+import MatchFacts from '../../components/MatchFacts.astro';
+import EventIcon from '../../components/EventIcon.astro';
 import { getEnv, view, sportCounts, leagues } from '../../lib/page';
 import { hhmm, longDay, dayLabel, shortDay } from '../../lib/text';
 import { matchTitle, matchPath, sportOf, goPath, sportPath, leaguePathOf, home, away } from '../../lib/url';
@@ -16,7 +20,7 @@ import { BONUS } from '../../lib/bonus';
 import { breadcrumbLd, faqLd, sportsEventLd, clip, BRAND } from '../../lib/seo';
 import { resultsConfig, resultsDb } from '../../lib/results/config';
 import { rowByExt } from '../../lib/results/store';
-import { asMatch, scoreText, detailText, isStale } from '../../lib/results/view';
+import { asMatch, scoreText, detailText, isStale, detailOf, scorers, EVENT_LABELS } from '../../lib/results/view';
 import { isFinal, isInPlay, statusLabel } from '../../lib/results/status';
 
 export const prerender = false;
@@ -47,7 +51,7 @@ const lgName = m ? leagueName(m.sp, m.lg) : '';
 const pool = [...v.live, ...v.upcoming].filter((x) => m && x.id !== m.id);
 const same = m ? pool.filter((x) => x.sp === m.sp && competitionSlug(x.sp, x.lg) === competitionSlug(m.sp, m.lg)).slice(0, 8) : [];
 const watch = m?.stream ? (state === 'live' ? 'Pozerať naživo' : 'Pozerať prenos') : 'Živé štatistiky';
-const ini = (s: string) => s.split(/\s+/).filter((w) => /^\p{L}/u.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || s.slice(0, 2).toUpperCase();
+const goals = scorers(r ? detailOf(r) : null);
 const resultSentence = r && m ? (final
   ? `Zápas ${title} sa skončil ${sc ?? 'bez zverejneného skóre'}${r.status === 'aet' ? ' po predĺžení' : r.status === 'pen' ? (r.sport === 23 ? ' po nájazdoch' : ' po penaltách') : ''}${detail ? ` (${detail})` : ''}.`
   : r.status === 'cancelled' ? `Zápas ${title} bol zrušený.`
@@ -78,19 +82,31 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
         <section class="scorecard sec" data-id={state === 'live' ? m.id : undefined}>
           <div class="sc-top"><a href={leaguePathOf(m)}>{lgName}</a><span>{sport.name} · {longDay(m.st)}</span></div>
           <div class="sc-mid">
-            <div class="team"><div class="mono">{ini(home(m))}</div>{home(m)}</div>
+            <div class="team"><Crest sp={m.sp} name={m.h} size={56} />{home(m)}</div>
             <div>
               {sc ? <div class="big" data-s>{sc}</div> : <div class="big time">{hhmm(m.st)}</div>}
               <div class:list={['when', state === 'live' && 'l']}>{over && r ? statusLabel(r.status, r.sport) : state === 'live' ? <><span class="dot pulse"></span> Naživo <span data-t>{skClock(m.ti ?? '')}</span></> : state === 'pre' ? dayLabel(m.st, now) : 'Odohrané'}</div>
             </div>
-            {m.a ? <div class="team b"><div class="mono">{ini(away(m))}</div>{away(m)}</div> : <div></div>}
+            {m.a ? <div class="team b"><Crest sp={m.sp} name={m.a} size={56} />{away(m)}</div> : <div></div>}
           </div>
+          {goals.h.length || goals.a.length || goals.redH || goals.redA ? (
+            <div class="goals" aria-label="Góly a vylúčenia">
+              {(['h', 'a'] as const).map((side) => (
+                <ul class={side === 'a' ? 'b' : ''}>
+                  {(side === 'h' ? goals.h : goals.a).map((e) => <li><EventIcon kind={e.kind} label={EVENT_LABELS[e.kind]} />{e.player} {e.min}{e.kind === 'pen' ? ' (pen.)' : e.kind === 'own' ? ' (vl.)' : ''}</li>)}
+                  {Array.from({ length: side === 'h' ? goals.redH : goals.redA }, () => <li><EventIcon kind="red" label="Červená karta" />vylúčenie</li>)}
+                </ul>
+              ))}
+            </div>
+          ) : null}
           {detail ? <p class="detail">{detail}{stale ? ' · údaje sa môžu meškať' : ''}</p> : null}
           <div class="sc-cta">
             <p>{over ? 'Zápas na Tipsport.sk' : m.stream ? BONUS.watch : 'Živé štatistiky a skóre na Tipsport.sk'}<small>Reklama · registrácia a prihlásenie u prevádzkovateľa · 18+</small></p>
             <a class="btn lg" href={goPath(m, over ? 'detail-final' : 'detail')} rel="sponsored nofollow noopener" target="_blank"><Icon name={m.stream && !over ? 'play' : 'spark'} />{over ? 'Tipsport.sk' : watch}</a>
           </div>
         </section>
+
+        {over ? null : <div class="sec"><Stage m={m} state={state} now={now} /></div>}
 
         <section class="sec">
           <dl class="facts">
@@ -100,6 +116,8 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
             <div><dt>{over ? 'Výsledok' : 'Prenos'}</dt><dd>{over ? (final && sc ? sc : statusLabel(r!.status, r!.sport)) : m.stream ? 'Video · Tipsport TV' : 'Štatistiky · Tipsport.sk'}</dd></div>
           </dl>
         </section>
+
+        {r ? <MatchFacts r={r} /> : null}
 
         {over ? null : (
           <section class="sec">

@@ -1,0 +1,14 @@
+---
+import { getEnv } from '../lib/page';
+import { resultsDb } from '../lib/results/config';
+import { logoMap, crestOf } from '../lib/results/logos';
+import { skTeam } from '../lib/names';
+/** Team crest when the team is linked, otherwise its initials in a badge (keeps rows aligned). `name` = feed name. */
+interface Props { sp: number; name: string; size?: number }
+const { sp, name, size = 22 } = Astro.props;
+let src: string | null = null;
+try { src = crestOf(await logoMap(resultsDb(getEnv())), sp, name); } catch { /* no env (prerender) */ }
+const ini = skTeam(name).replace(/\(.*?\)/g, '').split(/[\s-]+/).filter((w) => /^\p{L}/u.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '•';
+---
+{src ? <img class="crest" src={src} width={size} height={size} alt="" loading="lazy" decoding="async" style={`width:${size}px;height:${size}px`} />
+  : <span class="crest ini" style={`width:${size}px;height:${size}px;font-size:${Math.round(size * 0.4)}px`} aria-hidden="true">{ini}</span>}

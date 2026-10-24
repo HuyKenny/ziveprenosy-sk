@@ -6,6 +6,8 @@ import IconSprite from '../components/IconSprite.astro';
 import { BONUS } from '../lib/bonus';
 import { BRAND } from '../lib/seo';
 import { regPath } from '../lib/url';
+import { getEnv, view, sportCounts, type SportCount } from '../lib/page';
+import { SPORTS } from '../lib/sports';
 import fontLatin from '../assets/fonts/schibsted-grotesk-latin.woff2?url';
 import fontExt from '../assets/fonts/schibsted-grotesk-latin-ext.woff2?url';
 interface Props {
@@ -16,41 +18,43 @@ interface Props {
   ld?: object[];
   ttl?: number;
   section?: string;
-  /** Detail pages add a sticky CTA bar on phones. */
+  /** Detail pages show a sticky CTA bar on phones instead of the bottom tab bar. */
   stick?: boolean;
 }
 const { title, description, path = Astro.url.pathname, noindex = false, ld = [], ttl = 60, section = '', stick = false } = Astro.props;
 const canonical = new URL(path, Astro.site).toString();
 const og = new URL('/og.png', Astro.site).toString();
 if (ttl > 0) Astro.response.headers.set('Cache-Control', `public, max-age=0, s-maxage=${ttl}, stale-while-revalidate=${ttl * 4}`);
-const MAIN = [
-  { href: '/teraz-nazivo/', label: 'Naživo', k: 'nazivo', live: true },
-  { href: '/program/', label: 'Program', k: 'program' },
-  { href: '/vysledky/', label: 'Výsledky', k: 'vysledky' },
-  { href: '/futbal/', label: 'Futbal', k: 'futbal' },
-  { href: '/hokej/', label: 'Hokej', k: 'hokej' },
-  { href: '/tenis/', label: 'Tenis', k: 'tenis' },
+// Live counts for the navigation. Prerendered pages (legal) have no env: they simply show no numbers.
+let live = 0;
+let counts: SportCount[] = [];
+try {
+  const v = await view(getEnv());
+  live = v.live.length;
+  counts = sportCounts(v);
+} catch { /* prerender */ }
+const count = (slug: string) => counts.find((c) => c.slug === slug);
+// The sport bar: what Slovaks open most, then the rest that has something on today.
+const BAR = ['futbal', 'hokej', 'tenis', 'mma', 'basketbal', 'volejbal', 'hadzana', 'sipky', 'florbal', 'esporty', 'stolny-tenis', 'box'];
+const bar = BAR.map((s) => SPORTS.find((x) => x.slug === s)!).filter(Boolean);
+const SK = [
+  { href: '/futbal/nike-liga/', label: 'Niké liga', k: 'nike-liga' },
+  { href: '/hokej/tipsport-liga/', label: 'Tipsport liga', k: 'tipsport-liga' },
+  { href: '/mma/oktagon/', label: 'Oktagon MMA', k: 'oktagon' },
+  { href: '/futbal/2-liga/', label: '2. liga', k: '2-liga' },
 ];
-// Slovak competitions first (marked), then what Slovaks search for most.
-const SUB = [
-  { href: '/futbal/nike-liga/', label: 'Niké liga', k: 'nike-liga', sk: true },
-  { href: '/hokej/tipsport-liga/', label: 'Tipsport liga', k: 'tipsport-liga', sk: true },
-  { href: '/mma/oktagon/', label: 'Oktagon', k: 'oktagon', sk: true },
-  null,
-  { href: '/futbal/liga-majstrov/', label: 'Liga majstrov', k: 'liga-majstrov' },
-  { href: '/futbal/premier-league/', label: 'Premier League', k: 'premier-league' },
-  { href: '/hokej/nhl/', label: 'NHL', k: 'nhl' },
-  { href: '/hokej/ceska-extraliga/', label: 'Česká extraliga', k: 'ceska-extraliga' },
-  { href: '/basketbal/nba/', label: 'NBA', k: 'nba' },
-  null,
-  { href: '/mma/', label: 'MMA', k: 'mma' },
-  { href: '/basketbal/', label: 'Basketbal', k: 'basketbal' },
-  { href: '/volejbal/', label: 'Volejbal', k: 'volejbal' },
-  { href: '/hadzana/', label: 'Hádzaná', k: 'hadzana' },
-  { href: '/sipky/', label: 'Šípky', k: 'sipky' },
-  { href: '/tipsport-tv/', label: 'Tipsport TV', k: 'tipsport-tv' },
+const COMPS = [
+  { href: '/futbal/liga-majstrov/', label: 'Liga majstrov' },
+  { href: '/futbal/premier-league/', label: 'Premier League' },
+  { href: '/futbal/konferencna-liga/', label: 'Konferenčná liga' },
+  { href: '/futbal/la-liga/', label: 'La Liga' },
+  { href: '/futbal/serie-a/', label: 'Serie A' },
+  { href: '/hokej/nhl/', label: 'NHL' },
+  { href: '/hokej/ceska-extraliga/', label: 'Česká extraliga' },
+  { href: '/basketbal/nba/', label: 'NBA' },
+  { href: '/mma/ufc/', label: 'UFC' },
 ];
-const DRAWER_SPORTS = [['futbal', 'Futbal'], ['hokej', 'Hokej'], ['tenis', 'Tenis'], ['mma', 'MMA'], ['basketbal', 'Basketbal'], ['volejbal', 'Volejbal'], ['hadzana', 'Hádzaná'], ['florbal', 'Florbal'], ['sipky', 'Šípky'], ['esporty', 'E-športy'], ['box', 'Box'], ['stolny-tenis', 'Stolný tenis']];
+const sportSection = SPORTS.some((s) => s.slug === section);
 ---
 <!doctype html>
 <html lang="sk">
@@ -61,7 +65,7 @@ const DRAWER_SPORTS = [['futbal', 'Futbal'], ['hokej', 'Hokej'], ['tenis', 'Teni
   <meta name="description" content={description} />
   <link rel="canonical" href={canonical} />
   <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1'} />
-  <meta name="theme-color" content="#0f1b2d" />
+  <meta name="theme-color" content="#ffffff" />
   <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
   <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
@@ -80,29 +84,55 @@ const DRAWER_SPORTS = [['futbal', 'Futbal'], ['hokej', 'Hokej'], ['tenis', 'Teni
   <meta name="twitter:card" content="summary_large_image" />
   {ld.map((o) => <script type="application/ld+json" set:html={JSON.stringify(o).replace(/</g, '\\u003c')} />)}
 </head>
-<body class:list={[stick && 'has-stick']}>
+<body class:list={[stick ? 'has-stick' : 'has-dock']}>
   <IconSprite />
-  <header class="top">
+  <a class="skip" href="#obsah">Preskočiť na obsah</a>
+  <header class="top" data-top>
     <div class="wrap">
       <a class="logo" href="/" aria-label={`${BRAND} – úvodná stránka`}>
         <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="4" fill="#e1251b" stroke="#0f1b2d" stroke-width="2"/><path d="M12.5 9.5v13l10-6.5z" fill="#fff"/><circle cx="25" cy="7" r="3" fill="#fff" stroke="#0f1b2d" stroke-width="1.5"/></svg>
         <span>živé<em>prenosy</em><small>.sk</small></span>
       </a>
       <nav class="mainnav" aria-label="Hlavná navigácia">
-        {MAIN.map((n) => <a href={n.href} aria-current={section === n.k ? 'page' : undefined}>{n.live ? <span class="dot pulse"></span> : null}{n.label}</a>)}
+        <a href="/teraz-nazivo/" aria-current={section === 'nazivo' ? 'page' : undefined}><span class="dot pulse"></span>Naživo{live ? <b class="badge-live">{live}</b> : null}</a>
+        <a href="/program/" aria-current={section === 'program' ? 'page' : undefined}>Program</a>
+        <a href="/vysledky/" aria-current={section === 'vysledky' ? 'page' : undefined}>Výsledky</a>
+        <button type="button" class="megabtn" data-mega-btn aria-expanded="false" aria-controls="mega" aria-current={sportSection ? 'page' : undefined}>Športy a súťaže<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
       </nav>
       <div class="grow"></div>
-      <div class="search"><Search id="hq" /></div>
-      <a class="btn sm" href={regPath('header')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />{BONUS.amount}</a>
-      <button type="button" class="navbtn" data-open aria-controls="drawer" aria-expanded="false" aria-label="Otvoriť menu"><Icon name="menu" /></button>
+      <div class="search hsearch"><Search id="hq" /></div>
+      <button type="button" class="iconbtn sbtn" data-sbtn aria-controls="msearch" aria-expanded="false" aria-label="Hľadať zápas"><Icon name="search" /></button>
+      <a class="bonus" href={regPath('header')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" /><span>Bonus </span>{BONUS.amount}<small>Reklama</small></a>
+      <button type="button" class="iconbtn navbtn" data-open aria-controls="drawer" aria-expanded="false" aria-label="Otvoriť menu"><Icon name="menu" /></button>
+    </div>
+    <div class="msearch" id="msearch" hidden><div class="wrap"><Search id="mq" /></div></div>
+    <div class="mega" id="mega" hidden data-mega>
+      <div class="wrap">
+        <div>
+          <h3>Športy</h3>
+          <ul class="mega-sports">{SPORTS.filter((s) => s.main || count(s.slug)).slice(0, 16).map((s) => { const c = count(s.slug); return <li><a href={`/${s.slug}/`}><Icon name={s.slug} />{s.name}{c?.live ? <em class="l">{c.live} naživo</em> : c ? <em>{c.total}</em> : null}</a></li>; })}</ul>
+        </div>
+        <div>
+          <h3>Slovensko</h3>
+          <ul>{SK.map((n) => <li><a href={n.href}>{n.label}</a></li>)}</ul>
+          <h3>Prehľady</h3>
+          <ul><li><a href="/program/zajtra/">Program na zajtra</a></li><li><a href="/vysledky/vcera/">Včerajšie výsledky</a></li><li><a href="/tipsport-tv/">Tipsport TV – návod</a></li></ul>
+        </div>
+        <div>
+          <h3>Súťaže</h3>
+          <ul>{COMPS.map((n) => <li><a href={n.href}>{n.label}</a></li>)}</ul>
+        </div>
+      </div>
     </div>
   </header>
-  <nav class="subnav" aria-label="Súťaže a športy">
+  <nav class="sportbar" aria-label="Športy">
     <div class="wrap">
-      {SUB.map((n) => n ? <a href={n.href} class:list={[n.sk && 'sk']} aria-current={section === n.k ? 'page' : undefined}>{n.label}</a> : <span class="sep"></span>)}
+      {SK.slice(0, 3).map((n) => <a href={n.href} class="skc" aria-current={section === n.k ? 'page' : undefined}><span class="flag" aria-hidden="true"></span>{n.label}</a>)}
+      <span class="sep" aria-hidden="true"></span>
+      {bar.map((s) => { const c = count(s.slug); return <a href={`/${s.slug}/`} aria-current={section === s.slug ? 'page' : undefined}><Icon name={s.slug} />{s.name}{c?.live ? <em>{c.live}</em> : null}</a>; })}
     </div>
   </nav>
-  <main><slot /></main>
+  <main id="obsah"><slot /></main>
   <footer>
     <div class="wrap">
       <div class="grid">
@@ -110,34 +140,77 @@ const DRAWER_SPORTS = [['futbal', 'Futbal'], ['hokej', 'Hokej'], ['tenis', 'Teni
         <div><h4>Dnes</h4><a href="/futbal/dnes/">Futbal dnes</a><a href="/hokej/dnes/">Hokej dnes</a><a href="/tenis/dnes/">Tenis dnes</a><a href="/basketbal/dnes/">Basketbal dnes</a><a href="/teraz-nazivo/">Práve naživo</a><a href="/program/zajtra/">Program na zajtra</a></div>
         <div><h4>Súťaže</h4><a href="/futbal/nike-liga/">Niké liga</a><a href="/hokej/tipsport-liga/">Tipsport liga</a><a href="/futbal/liga-majstrov/">Liga majstrov</a><a href="/futbal/premier-league/">Premier League</a><a href="/hokej/nhl/">NHL</a><a href="/mma/oktagon/">Oktagon MMA</a><a href="/basketbal/nba/">NBA</a></div>
         <div><h4>Prehľady</h4><a href="/program/">Program prenosov</a><a href="/vysledky/">Výsledky</a><a href="/tipsport-tv/">Tipsport TV</a><a href="/hladat/">Hľadať zápas</a></div>
-        <div><h4>O webe</h4><a href="/o-nas/">O nás</a><a href="/zodpovedne-hranie/">Zodpovedné hranie</a><a href="/ochrana-osobnych-udajov/">Ochrana osobných údajov</a><a href="/podmienky/">Podmienky používania</a><a href="/kontakt/">Kontakt</a></div>
+        <div><h4>O webe</h4><a href="/o-nas/">O nás</a><a href="/zodpovedne-hranie/">Zodpovedné hranie</a><a href="/ochrana-osobnych-udajov/">Ochrana osobných údajov</a><a href="/podmienky/">Podmienky používania</a><a href="/zdroje-fotiek/">Zdroje fotiek</a><a href="/kontakt/">Kontakt</a></div>
       </div>
       <div class="warn"><b>18+</b><span>{BONUS.warn} Pomoc a informácie: <a href="https://www.urhh.sk" rel="noopener nofollow">Úrad pre reguláciu hazardných hier</a>.</span></div>
       <p class="legal">{BRAND} je nezávislý prehľad športových prenosov. Videá nevysielame ani neukladáme – odkazy vedú na Tipsport.sk, licencovaného prevádzkovateľa na Slovensku, od ktorého môžeme dostať províziu, ak sa zaregistruješ. Pozeranie prenosov je viazané na registráciu a prihlásenie u prevádzkovateľa. Reklama je označená.</p>
     </div>
   </footer>
+  {stick ? null : (
+    <nav class="dock" aria-label="Rýchla navigácia">
+      <a href="/" aria-current={section === 'home' ? 'page' : undefined}><Icon name="home" />Domov</a>
+      <a href="/teraz-nazivo/" aria-current={section === 'nazivo' ? 'page' : undefined}><span class="ic"><Icon name="live" />{live ? <b>{live > 99 ? '99+' : live}</b> : null}</span>Naživo</a>
+      <a href="/program/" aria-current={section === 'program' ? 'page' : undefined}><Icon name="calendar" />Program</a>
+      <a href="/vysledky/" aria-current={section === 'vysledky' ? 'page' : undefined}><Icon name="trophy" />Výsledky</a>
+      <button type="button" data-open aria-controls="drawer" aria-expanded="false"><Icon name="menu" />Menu</button>
+    </nav>
+  )}
   <div class="drawer" id="drawer" data-drawer>
     <div class="panel" role="dialog" aria-modal="true" aria-label="Menu">
-      <button type="button" class="navbtn close" data-close aria-label="Zavrieť menu" style="display:inline-flex">✕</button>
+      <div class="dr-top"><b>Menu</b><button type="button" class="iconbtn" data-close aria-label="Zavrieť menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>
       <Search id="dq" />
-      <h3>Prehľady</h3>
-      <div class="links"><a href="/teraz-nazivo/"><span class="dot pulse"></span>Naživo</a><a href="/program/"><Icon name="calendar" />Program</a><a href="/vysledky/"><Icon name="trophy" />Výsledky</a><a href="/tipsport-tv/"><Icon name="tv" />Tipsport TV</a></div>
+      <div class="links quick"><a href="/teraz-nazivo/"><span class="dot pulse"></span>Naživo{live ? <em>{live}</em> : null}</a><a href="/program/"><Icon name="calendar" />Program</a><a href="/vysledky/"><Icon name="trophy" />Výsledky</a><a href="/tipsport-tv/"><Icon name="tv" />Tipsport TV</a></div>
       <h3>Slovensko</h3>
-      <div class="links"><a href="/futbal/nike-liga/">Niké liga</a><a href="/hokej/tipsport-liga/">Tipsport liga</a><a href="/mma/oktagon/">Oktagon</a><a href="/futbal/2-liga/">2. liga</a></div>
+      <div class="links">{SK.map((n) => <a href={n.href}><span class="flag" aria-hidden="true"></span>{n.label}</a>)}</div>
       <h3>Športy</h3>
-      <div class="links">{DRAWER_SPORTS.map(([s, n]) => <a href={`/${s}/`}><Icon name={s} />{n}</a>)}</div>
+      <div class="links">{bar.map((s) => { const c = count(s.slug); return <a href={`/${s.slug}/`}><Icon name={s.slug} />{s.name}{c?.live ? <em class="l">{c.live}</em> : null}</a>; })}</div>
       <h3>Súťaže</h3>
-      <div class="links"><a href="/futbal/liga-majstrov/">Liga majstrov</a><a href="/futbal/premier-league/">Premier League</a><a href="/hokej/nhl/">NHL</a><a href="/basketbal/nba/">NBA</a><a href="/futbal/la-liga/">La Liga</a><a href="/futbal/serie-a/">Serie A</a><a href="/hokej/ceska-extraliga/">Česká extraliga</a><a href="/mma/ufc/">UFC</a></div>
+      <div class="links">{COMPS.map((n) => <a href={n.href}>{n.label}</a>)}</div>
+      <a class="btn" style="width:100%;margin-top:18px" href={regPath('drawer')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />Bonus {BONUS.amount} za registráciu</a>
+      <p class="muted" style="font-size:.74rem;margin:6px 0 0">Reklama · Tipsport.sk · 18+</p>
     </div>
   </div>
   <script>
-    const d = document.querySelector<HTMLElement>('[data-drawer]')!;
-    const btns = document.querySelectorAll<HTMLElement>('[data-open]');
-    const set = (open: boolean) => { d.classList.toggle('open', open); btns.forEach((b) => b.setAttribute('aria-expanded', String(open))); document.body.style.overflow = open ? 'hidden' : ''; };
-    btns.forEach((b) => b.addEventListener('click', () => set(true)));
-    d.querySelector('[data-close]')!.addEventListener('click', () => set(false));
-    d.addEventListener('click', (e) => { if (e.target === d) set(false); });
-    addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+    const $ = <T extends HTMLElement>(s: string) => document.querySelector<T>(s);
+    // Drawer (phone menu): open from the header or the tab bar, close on ✕, Escape or a tap outside; page scroll locked.
+    const d = $('[data-drawer]')!;
+    const openers = document.querySelectorAll<HTMLElement>('[data-open]');
+    const setDrawer = (open: boolean) => {
+      d.classList.toggle('open', open);
+      openers.forEach((b) => b.setAttribute('aria-expanded', String(open)));
+      document.body.style.overflow = open ? 'hidden' : '';
+      if (open) d.querySelector<HTMLElement>('[data-close]')?.focus();
+    };
+    openers.forEach((b) => b.addEventListener('click', () => setDrawer(true)));
+    d.querySelector('[data-close]')!.addEventListener('click', () => setDrawer(false));
+    d.addEventListener('click', (e) => { if (e.target === d) setDrawer(false); });
+    // Mega panel (desktop "Športy a súťaže").
+    const mb = $('[data-mega-btn]')!;
+    const mega = $('[data-mega]')!;
+    const setMega = (open: boolean) => { mega.hidden = !open; mb.setAttribute('aria-expanded', String(open)); };
+    mb.addEventListener('click', (e) => { e.stopPropagation(); setMega(mega.hidden === true); });
+    document.addEventListener('click', (e) => { if (!mega.hidden && !mega.contains(e.target as Node)) setMega(false); });
+    // Phone search: the magnifier opens a full-width field under the header.
+    const sb = $('[data-sbtn]')!;
+    const ms = $('#msearch')!;
+    sb.addEventListener('click', () => { ms.hidden = !ms.hidden; sb.setAttribute('aria-expanded', String(!ms.hidden)); if (!ms.hidden) ms.querySelector('input')?.focus(); });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') { setDrawer(false); setMega(false); } });
+    // Phones: hide the sticky header while scrolling down, show it on the way up (transform only).
+    const top = $('[data-top]')!;
+    if (matchMedia('(max-width: 999px)').matches) {
+      let last = scrollY;
+      let ticking = false;
+      addEventListener('scroll', () => {
+        if (ticking) return;
+        ticking = true;
+        requestAnimationFrame(() => {
+          const y = scrollY;
+          if (Math.abs(y - last) > 8) top.classList.toggle('is-hidden', y > last && y > 140 && ms.hidden === true);
+          last = y;
+          ticking = false;
+        });
+      }, { passive: true });
+    }
   </script>
   <script>
     // Live scores: refresh score + minute in place every 30 s while the tab is visible.

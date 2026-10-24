@@ -24,6 +24,6 @@ export const GET = async () => {
     const loc = `/${SPORT_BY_ID.get(l.sp)!.slug}/${l.slug}/`;
     if (l.n >= 2 && !seen.has(loc)) { seen.add(loc); urls.push({ loc }); }
   }
-  for (const p of ['/o-nas/', '/kontakt/', '/zodpovedne-hranie/', '/ochrana-osobnych-udajov/', '/podmienky/']) urls.push({ loc: p });
+  for (const p of ['/o-nas/', '/kontakt/', '/zodpovedne-hranie/', '/ochrana-osobnych-udajov/', '/podmienky/', '/zdroje-fotiek/']) urls.push({ loc: p });
   return xml(urlset(urls), 900);
 };

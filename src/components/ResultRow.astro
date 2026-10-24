@@ -4,6 +4,7 @@ import { group, statusShort } from '../lib/results/status';
 import { resultPath, scoreText, isStale } from '../lib/results/view';
 import { skTeam } from '../lib/names';
 import { hhmm, shortDay, dayKey } from '../lib/text';
+import Crest from './Crest.astro';
 /** One result: status is always written out; a missing score is "–", never 0:0. */
 interface Props { r: ResultRow; now: number; staleMs: number; showDay?: boolean }
 const { r, now, staleMs, showDay = false } = Astro.props;
@@ -19,8 +20,8 @@ const aw = fin && r.sa! > r.sh!;
     {r.status === 'scheduled' ? hhmm(r.start_utc) : <>{statusShort(r.status, r.sport)}<small>{showDay && dayKey(r.start_utc) !== dayKey(now) ? shortDay(r.start_utc) : hhmm(r.start_utc)}</small></>}
   </div>
   <a class="teams" href={resultPath(r)}>
-    <span class:list={[hw && 'win', aw && 'lose']}>{skTeam(r.home)}</span>
-    <span class:list={[aw && 'win', hw && 'lose']}>{skTeam(r.away)}</span>
+    <span class:list={[hw && 'win', aw && 'lose']}><Crest sp={r.sport} name={r.home} /><em>{skTeam(r.home)}</em></span>
+    <span class:list={[aw && 'win', hw && 'lose']}><Crest sp={r.sport} name={r.away} /><em>{skTeam(r.away)}</em></span>
   </a>
   <div class="act">
     {stale ? <span class="tag" title="Zdroj zápas dlhšie nepotvrdil">{hhmm(r.checked_at)}</span> : null}

@@ -1,0 +1,9 @@
+---
+import Page from '../layouts/Page.astro';
+import { allPhotos } from '../lib/photos';
+export const prerender = true;
+const photos = allPhotos();
+---
+<Page title="Zdroje fotiek" description="Autori ilustračných fotografií použitých na webe." h1="Zdroje fotiek" lead="Ilustračné fotografie športov pochádzajú z Pexels a používame ich podľa licencie Pexels.">
+  <ul>{photos.map((p) => <li><a href={p.url} rel="noopener nofollow">Foto {p.slug.replace(/-2$/, ' (2)')}</a> – <a href={p.authorUrl} rel="noopener nofollow">{p.author}</a></li>)}</ul>
+</Page>

@@ -1,0 +1,35 @@
+---
+import type { Match } from '../lib/types';
+import { hhmm, dayLabel } from '../lib/text';
+import { goPath, sportOf, matchTitle } from '../lib/url';
+import Photo from './Photo.astro';
+import Icon from './Icon.astro';
+/** The "player": a 16:9 photo frame that is one link to the match on Tipsport TV (the real stream plays there after login). */
+interface Props { m: Match; state: 'live' | 'pre' | 'recent'; now: number }
+const { m, state, now } = Astro.props;
+const s = sportOf(m);
+---
+<a class:list={['stage', !m.stream && 'novideo']} href={goPath(m, 'player')} rel="sponsored nofollow noopener" target="_blank" aria-label={m.stream ? `Spustiť prenos ${matchTitle(m)} na Tipsport TV` : `Živé štatistiky ${matchTitle(m)} na Tipsport.sk`}>
+  <Photo sport={s?.slug} eager sizes="(min-width: 1000px) 820px, 100vw" />
+  <span class="st-shade"></span>
+  <span class="st-play">{m.stream ? <Icon name="play" /> : <Icon name="spark" />}</span>
+  <span class="st-bar">
+    <span>{state === 'live' ? <span class="live-tag"><span class="dot pulse"></span>Naživo</span> : state === 'pre' ? <span data-cd={m.st}>{dayLabel(m.st, now)} o {hhmm(m.st)}</span> : 'Odohrané'}</span>
+    <span>{m.stream ? 'Tipsport TV · HD prenos' : 'Bez videa · živé štatistiky'}</span>
+  </span>
+</a>
+<script>
+  // Countdown to the start ("Začína o 2 h 14 min"), refreshed every 20 s; only within 24 hours.
+  const el = document.querySelector<HTMLElement>('[data-cd]');
+  if (el) {
+    const st = Number(el.dataset.cd);
+    const tick = () => {
+      const s = Math.round((st - Date.now()) / 1000);
+      if (s <= 0) { el.textContent = 'Práve sa začína – klikni a pozeraj'; return; }
+      const h = Math.floor(s / 3600), mi = Math.floor((s % 3600) / 60);
+      if (h < 24) el.textContent = `Začína o ${h ? `${h} h ` : ''}${mi} min`;
+    };
+    tick();
+    setInterval(tick, 20_000);
+  }
+</script>

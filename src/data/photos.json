@@ -1,0 +1,149 @@
+{
+ "stadion": {
+  "id": 28827841,
+  "author": "Siarhei Nester",
+  "authorUrl": "https://www.pexels.com/@siarhei-nester-318033361",
+  "url": "https://www.pexels.com/photo/illuminated-soccer-stadium-at-night-28827841/",
+  "alt": "Brightly lit empty soccer stadium with green field under spotlights during night time."
+ },
+ "futbal": {
+  "id": 29719243,
+  "author": "Franco Monsalvo",
+  "authorUrl": "https://www.pexels.com/@franco-monsalvo-252430633",
+  "url": "https://www.pexels.com/photo/intense-soccer-match-with-players-competing-29719243/",
+  "alt": "Dynamic action shot of two soccer players vying for control of the ball on the field."
+ },
+ "hokej": {
+  "id": 13978860,
+  "author": "Luke Miller",
+  "authorUrl": "https://www.pexels.com/@bylukemiller",
+  "url": "https://www.pexels.com/photo/man-in-black-and-red-ice-hockey-jersey-playing-hockey-13978860/",
+  "alt": "Dynamic action shot of a hockey player skating on an ice rink during a game."
+ },
+ "tenis": {
+  "id": 171568,
+  "author": "Raj Tatavarthy",
+  "authorUrl": "https://www.pexels.com/@rajtatavarthy",
+  "url": "https://www.pexels.com/photo/people-sitting-on-bench-watching-tennis-event-on-field-during-daytime-171568/",
+  "alt": "Thrilling tennis match at the US Open with a full stadium of enthusiastic fans."
+ },
+ "basketbal": {
+  "id": 30555531,
+  "author": "RODOLPHE ASENSI",
+  "authorUrl": "https://www.pexels.com/@rodolphe-asensi-1884149264",
+  "url": "https://www.pexels.com/photo/exciting-basketball-match-action-shot-30555531/",
+  "alt": "A player jumps to score during a thrilling basketball game with a full crowd."
+ },
+ "volejbal": {
+  "id": 6203587,
+  "author": "Pavel Danilyuk",
+  "authorUrl": "https://www.pexels.com/@pavel-danilyuk",
+  "url": "https://www.pexels.com/photo/men-playing-volleyball-6203587/",
+  "alt": "Two male athletes playing a competitive volleyball game indoors."
+ },
+ "hadzana": {
+  "id": 37097043,
+  "author": "Mohamed Ayman Marso",
+  "authorUrl": "https://www.pexels.com/@mohamed-ayman-marso-644769205",
+  "url": "https://www.pexels.com/photo/exciting-indoor-handball-match-in-action-37097043/",
+  "alt": "Dynamic handball match with player making a powerful jump shot indoors."
+ },
+ "florbal": {
+  "id": 29804128,
+  "author": "Miťo",
+  "authorUrl": "https://www.pexels.com/@mito-2147872920",
+  "url": "https://www.pexels.com/photo/two-teenagers-playing-floorball-in-indoor-gym-29804128/",
+  "alt": "Two teenagers face off in a floorball match inside a sports gym with equipment visible in the background."
+ },
+ "futsal": {
+  "id": 13521967,
+  "author": "Sergio Geller",
+  "authorUrl": "https://www.pexels.com/@sergio-geller-301814034",
+  "url": "https://www.pexels.com/photo/men-playing-indoor-soccer-13521967/",
+  "alt": "Goalkeeper watches incoming players in an intense indoor soccer match."
+ },
+ "stolny-tenis": {
+  "id": 32843102,
+  "author": "Oliver Wagenblatt",
+  "authorUrl": "https://www.pexels.com/@oliver-wagenblatt-238537059",
+  "url": "https://www.pexels.com/photo/close-up-action-shot-of-table-tennis-serve-32843102/",
+  "alt": "Dynamic close-up of table tennis player serving, capturing the motion and focus of the game."
+ },
+ "esporty": {
+  "id": 7849511,
+  "author": "Ron Lach",
+  "authorUrl": "https://www.pexels.com/@ron-lach",
+  "url": "https://www.pexels.com/photo/man-with-curly-hair-wearing-black-headset-7849511/",
+  "alt": "Man with headset engaged in intense gaming session under neon lights."
+ },
+ "snooker": {
+  "id": 13036112,
+  "author": "Boys in Bristol Photography",
+  "authorUrl": "https://www.pexels.com/@lebele",
+  "url": "https://www.pexels.com/photo/close-up-shot-of-a-person-playing-billiards-13036112/",
+  "alt": "A detailed shot of a player's hand and cue hitting black and yellow billiard balls on a green table."
+ },
+ "sipky": {
+  "id": 32623458,
+  "author": "Ab  Pixels",
+  "authorUrl": "https://www.pexels.com/@ab-pixels-ng",
+  "url": "https://www.pexels.com/photo/bullseye-on-dartboard-with-red-and-green-darts-32623458/",
+  "alt": "Close-up of a dartboard with red and green darts hitting various spots, indoors setting."
+ },
+ "mma": {
+  "id": 5616855,
+  "author": "Bruno Bueno",
+  "authorUrl": "https://www.pexels.com/@brunogobofoto",
+  "url": "https://www.pexels.com/photo/two-boxers-boxing-in-a-boxing-ring-5616855/",
+  "alt": "Two male fighters engaged in an MMA match demonstrating strength and agility."
+ },
+ "box": {
+  "id": 28304202,
+  "author": "Franco Monsalvo",
+  "authorUrl": "https://www.pexels.com/@franco-monsalvo-252430633",
+  "url": "https://www.pexels.com/photo/two-boxers-in-the-ring-fighting-each-other-28304202/",
+  "alt": "Two boxers in a high-energy match inside an arena showcasing intense combat and skill."
+ },
+ "motorsport": {
+  "id": 10342587,
+  "author": "Telmo Antunes",
+  "authorUrl": "https://www.pexels.com/@telmo-antunes-141443644",
+  "url": "https://www.pexels.com/photo/racing-cars-with-spoilers-on-a-race-track-10342587/",
+  "alt": "Volkswagen Beetles racing on a colorful, challenging racetrack curve under a clear sky."
+ },
+ "futbal-2": {
+  "id": 3651672,
+  "author": "Alexander Nadrilyanski",
+  "authorUrl": "https://www.pexels.com/@aleksandar069",
+  "url": "https://www.pexels.com/photo/photo-of-man-playing-soccer-during-daytime-3651672/",
+  "alt": "Two male soccer players in action during a competitive match on a grass field."
+ },
+ "hokej-2": {
+  "id": 11135751,
+  "author": "Vlad Nazarov",
+  "authorUrl": "https://www.pexels.com/@vlad-nazarov-157991376",
+  "url": "https://www.pexels.com/photo/photo-of-men-playing-hockey-11135751/",
+  "alt": "Players in action during an ice hockey game outdoors, wearing colorful uniforms."
+ },
+ "tenis-2": {
+  "id": 13602337,
+  "author": "David Iglesias",
+  "authorUrl": "https://www.pexels.com/@iglp11",
+  "url": "https://www.pexels.com/photo/two-men-playing-tennis-together-13602337/",
+  "alt": "Dynamic scene of players in action at the US Open on a bright tennis court."
+ },
+ "basketbal-2": {
+  "id": 71103,
+  "author": "Pixabay",
+  "authorUrl": "https://www.pexels.com/@pixabay",
+  "url": "https://www.pexels.com/photo/white-and-grey-basketball-jersey-uniform-71103/",
+  "alt": "Intense basketball game with athletes in action on an outdoor court during nighttime."
+ },
+ "volejbal-2": {
+  "id": 6180399,
+  "author": "Kampus Production",
+  "authorUrl": "https://www.pexels.com/@kampus",
+  "url": "https://www.pexels.com/photo/people-playing-volleyball-6180399/",
+  "alt": "Group of adults playing beach volleyball under a bright blue sky."
+ }
+}

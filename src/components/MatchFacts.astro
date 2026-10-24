@@ -1,0 +1,107 @@
+---
+import type { ResultRow } from '../lib/results/store';
+import { detailOf, meetingsOf, STAT_LABELS, EVENT_LABELS, VAR_LABELS, HOCKEY_NOTES, statNum } from '../lib/results/view';
+import { skTeam } from '../lib/names';
+import { shortDay } from '../lib/text';
+import EventIcon from './EventIcon.astro';
+import Icon from './Icon.astro';
+import Crest from './Crest.astro';
+/** Stored match details: timeline, statistics, line-ups, head-to-head. Only the parts that have data are rendered. */
+interface Props { r: ResultRow }
+const { r } = Astro.props;
+const d = detailOf(r);
+const meet = meetingsOf(r);
+const home = skTeam(r.home);
+const away = skTeam(r.away);
+const team = (side: 'h' | 'a') => (side === 'h' ? home : away);
+// Running score next to each goal, from the events themselves (own goals already carry the scoring side).
+let gh = 0;
+let ga = 0;
+const events = (d?.events ?? []).map((e) => {
+  const goal = e.kind === 'goal' || e.kind === 'pen' || e.kind === 'own';
+  if (goal) e.side === 'h' ? gh++ : ga++;
+  return { ...e, score: goal ? `${gh}:${ga}` : '' };
+});
+const STAT_ICON: Record<string, string> = {
+  'Ball Possession': 'pie', 'Total Shots': 'target', 'Shots on Goal': 'target', 'Corner Kicks': 'flag', Fouls: 'whistle',
+  Offsides: 'flag', 'Goalkeeper Saves': 'glove', expected_goals: 'spark',
+};
+const CARD_STAT: Record<string, 'yellow' | 'red'> = { 'Yellow Cards': 'yellow', 'Red Cards': 'red' };
+const share = (h: string | null, a: string | null) => {
+  const x = statNum(h);
+  const y = statNum(a);
+  if (x == null || y == null || x + y === 0) return null;
+  return Math.round((x / (x + y)) * 100);
+};
+const year = (ms: number) => new Date(ms).getUTCFullYear();
+---
+{events.length ? (
+  <section class="sec">
+    <div class="sec-h"><h2>Priebeh zápasu</h2></div>
+    <div class="tl-box">
+      <div class="tl-head" aria-hidden="true"><span><Crest sp={r.sport} name={r.home} size={20} />{home}</span><span>{away}<Crest sp={r.sport} name={r.away} size={20} /></span></div>
+      <ol class="tl">
+        {events.map((e) => (
+          <li class:list={['tl-ev', e.side === 'a' ? 'tl-a' : 'tl-h', `k-${e.kind}`]}>
+            <span class="tl-m">{e.min}</span>
+            <div class="tl-body">
+              <EventIcon kind={e.kind} label={EVENT_LABELS[e.kind]} />
+              <div class="tl-txt">
+                {e.kind === 'sub' ? (<>
+                  <span class="tl-in"><span class="sr">Na ihrisko: </span>{e.assist ?? '–'}</span>
+                  <span class="tl-out"><span class="sr">Z ihriska: </span>{e.player}</span>
+                </>) : (<>
+                  <b>{e.player}</b>{e.score ? <span class="tl-sc">{e.score}</span> : null}
+                  <small>{EVENT_LABELS[e.kind]}{e.kind === 'var' && e.note ? `: ${VAR_LABELS[e.note] ?? e.note}` : ''}{(e.kind === 'goal' || e.kind === 'pim') && e.note && HOCKEY_NOTES[e.note] ? ` · ${HOCKEY_NOTES[e.note]}` : ''}{e.assist && e.kind !== 'var' ? ` · asistencia ${e.assist}` : ''}<span class="sr"> · {team(e.side)}</span></small>
+                </>)}
+              </div>
+            </div>
+          </li>
+        ))}
+      </ol>
+    </div>
+  </section>
+) : null}
+{d?.stats.length ? (
+  <section class="sec">
+    <div class="sec-h"><h2>Štatistiky zápasu</h2></div>
+    <div class="mst" role="table" aria-label="Štatistiky zápasu">
+      <div class="mst-head" role="row"><span role="columnheader"><Crest sp={r.sport} name={r.home} size={20} />{home}</span><span role="columnheader"><span class="sr">Štatistika</span></span><span role="columnheader">{away}<Crest sp={r.sport} name={r.away} size={20} /></span></div>
+      {d.stats.map((s) => {
+        const p = share(s.h, s.a);
+        const hi = p == null ? '' : p > 50 ? 'h' : p < 50 ? 'a' : '';
+        return (
+          <div class="mst-row" role="row">
+            <span role="cell" class:list={['mst-v', hi === 'h' && 'lead']}>{s.h ?? '–'}</span>
+            <span role="rowheader" class="mst-l">{CARD_STAT[s.key] ? <EventIcon kind={CARD_STAT[s.key]} label={STAT_LABELS[s.key]} /> : <Icon name={STAT_ICON[s.key] ?? 'ball'} />}{STAT_LABELS[s.key] ?? s.key}</span>
+            <span role="cell" class:list={['mst-v', 'b', hi === 'a' && 'lead']}>{s.a ?? '–'}</span>
+            {p != null ? <span class="mst-bar" aria-hidden="true"><i style={`width:${p}%`}></i><i style={`width:${100 - p}%`}></i></span> : null}
+          </div>
+        );
+      })}
+    </div>
+  </section>
+) : null}
+{d?.lineups.length ? (
+  <section class="sec">
+    <div class="sec-h"><h2>Základné zostavy</h2></div>
+    <div class="lineups">
+      {d.lineups.map((l) => <div class:list={['lu', `lu-${l.side}`]}><h3><Crest sp={r.sport} name={l.side === 'h' ? r.home : r.away} size={22} />{team(l.side)}{l.formation ? <small>{l.formation}</small> : null}</h3><ol>{l.xi.map((p) => <li>{p}</li>)}</ol>{l.coach ? <p class="muted">Tréner: {l.coach}</p> : null}</div>)}
+    </div>
+  </section>
+) : null}
+{meet.length ? (
+  <section class="sec">
+    <div class="sec-h"><h2>Vzájomné zápasy</h2></div>
+    <div class="comp">
+      {meet.map((x) => (
+        <div class="m res final">
+          <div class="t">{year(x.date)}<small>{shortDay(x.date)}</small></div>
+          <div class="teams"><span>{x.home}</span><span>{x.away}</span><small class="muted">{x.league}</small></div>
+          <div class="act"><span class="sc"><span>{x.sh}</span><span>{x.sa}</span></span></div>
+        </div>
+      ))}
+    </div>
+    <p class="muted" style="font-size:.84rem">Posledných {meet.length} odohraných vzájomných zápasov.</p>
+  </section>
+) : null}

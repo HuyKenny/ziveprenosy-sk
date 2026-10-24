@@ -1,0 +1,33 @@
+---
+import type { Match } from '../lib/types';
+import { hhmm } from '../lib/text';
+import { goPath, matchPath, sportOf, home, away } from '../lib/url';
+import { leagueName } from '../lib/competitions';
+import { skClockShort } from '../lib/names';
+import Photo from './Photo.astro';
+import Icon from './Icon.astro';
+import Crest from './Crest.astro';
+/** "Pozeraj teraz": horizontal cards of matches with video (photo of the sport, crests, score, watch button). */
+interface Props { items: Match[]; placement: string; eagerFirst?: boolean }
+const { items, placement, eagerFirst = false } = Astro.props;
+const now = Date.now();
+---
+<div class="car" role="list">
+  {items.map((m, i) => {
+    const s = sportOf(m);
+    const live = m.st <= now;
+    const sc = (m.sc ?? '').split(':');
+    return (
+      <article class="slide" role="listitem" data-id={live ? m.id : undefined}>
+        <a class="ph" href={matchPath(m)} tabindex="-1" aria-hidden="true"><Photo sport={s?.slug} seed={i} sizes="(min-width: 900px) 320px, 80vw" eager={eagerFirst && i === 0} /></a>
+        <div class="tag">{live ? <span class="live-tag"><span class="dot pulse"></span>Naživo <span data-t>{skClockShort(m.ti ?? '')}</span></span> : <span>{hhmm(m.st)}</span>}<span class="lgn">{leagueName(m.sp, m.lg)}</span></div>
+        <a class="vs" href={matchPath(m)}>
+          <span class="side"><Crest sp={m.sp} name={m.h} size={34} /><b>{home(m)}</b></span>
+          {m.a ? <span class="mid" data-s>{live && m.sc && sc.length === 2 ? <><span>{sc[0]}</span><i>:</i><span>{sc[1]}</span></> : <em>vs</em>}</span> : null}
+          {m.a ? <span class="side"><Crest sp={m.sp} name={m.a} size={34} /><b>{away(m)}</b></span> : null}
+        </a>
+        <a class="btn sm" href={goPath(m, placement)} rel="sponsored nofollow noopener" target="_blank"><Icon name="play" />Pozerať</a>
+      </article>
+    );
+  })}
+</div>
