@@ -81,3 +81,20 @@ export async function nextWithH2h(db: Db, comp: string, now: number): Promise<Re
     .bind(comp, now)
     .first<ResultRow>();
 }
+
+/** Latest finished (or in play) matches of a team, newest first — matched by the feed name in this sport. */
+export async function rowsOfTeam(db: Db, sport: number, name: string, now: number, limit = 8): Promise<ResultRow[]> {
+  const r = await db
+    .prepare(`SELECT * FROM matches WHERE ${PUBLIC} AND sport = ? AND (home = ? OR away = ?) AND start_utc < ? AND status NOT IN ('scheduled', 'postponed') ORDER BY start_utc DESC LIMIT ?`)
+    .bind(sport, name, name, now, limit)
+    .all<ResultRow>();
+  return r.results;
+}
+
+/** The team's next scheduled match that has its head-to-head stored. */
+export async function nextOfTeamWithH2h(db: Db, sport: number, name: string, now: number): Promise<ResultRow | null> {
+  return db
+    .prepare(`SELECT * FROM matches WHERE ${PUBLIC} AND sport = ? AND (home = ? OR away = ?) AND status = 'scheduled' AND start_utc > ? AND h2h IS NOT NULL AND h2h <> '[]' ORDER BY start_utc LIMIT 1`)
+    .bind(sport, name, name, now)
+    .first<ResultRow>();
+}

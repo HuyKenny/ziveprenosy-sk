@@ -14,7 +14,8 @@ import MatchFacts from '../../components/MatchFacts.astro';
 import EventIcon from '../../components/EventIcon.astro';
 import { getEnv, view, sportCounts, leagues } from '../../lib/page';
 import { hhmm, longDay, dayLabel, shortDay } from '../../lib/text';
-import { matchTitle, matchPath, sportOf, goPath, sportPath, leaguePathOf, home, away } from '../../lib/url';
+import { matchTitle, matchPath, sportOf, goPath, sportPath, leaguePathOf, home, away, teamPath } from '../../lib/url';
+import { teamOf } from '../../lib/teams';
 import { competitionSlug, leagueName } from '../../lib/competitions';
 import { skClockShort } from '../../lib/names';
 import { BONUS } from '../../lib/bonus';
@@ -41,6 +42,8 @@ if (!m) {
 const canonicalPath = m ? matchPath(m) : '';
 if (m && Astro.url.pathname !== canonicalPath) return Astro.redirect(canonicalPath, 301);
 const sport = m ? sportOf(m) : undefined;
+const teamH = m ? teamOf(m.sp, m.h) : undefined;
+const teamA = m && m.a ? teamOf(m.sp, m.a) : undefined;
 const over = !!r && (isFinal(r.status) || r.status === 'unconfirmed' || r.status === 'cancelled');
 const final = !!r && isFinal(r.status);
 const state: 'live' | 'pre' | 'recent' = !m ? 'recent' : over ? 'recent' : r && isInPlay(r.status) ? 'live' : v.live.includes(m) ? 'live' : m.st > now ? 'pre' : 'recent';
@@ -83,12 +86,12 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
         <section class="scorecard sec" data-id={state === 'live' ? m.id : undefined}>
           <div class="sc-top"><a href={leaguePathOf(m)}>{lgName}</a><span>{sport.name} · {longDay(m.st)}</span></div>
           <div class="sc-mid">
-            <div class="team"><Crest sp={m.sp} name={m.h} size={56} />{home(m)}</div>
+            <div class="team"><Crest sp={m.sp} name={m.h} size={56} />{teamH ? <a href={teamPath(sport.slug, teamH.slug)}>{home(m)}</a> : home(m)}</div>
             <div>
               {sc ? <div class="big" data-s>{sc}</div> : <div class="big time">{hhmm(m.st)}</div>}
               <div class:list={['when', state === 'live' && 'l']}>{over && r ? statusLabel(r.status, r.sport) : state === 'live' ? (/^Za /.test(m.ti ?? '') ? <span data-t>{skClockShort(m.ti ?? '')}</span> : <><span class="dot pulse"></span> Naživo <span class="clk" data-t>{skClockShort(m.ti ?? '')}</span></>) : state === 'pre' ? dayLabel(m.st, now) : 'Odohrané'}</div>
             </div>
-            {m.a ? <div class="team b"><Crest sp={m.sp} name={m.a} size={56} />{away(m)}</div> : <div></div>}
+            {m.a ? <div class="team b"><Crest sp={m.sp} name={m.a} size={56} />{teamA ? <a href={teamPath(sport.slug, teamA.slug)}>{away(m)}</a> : away(m)}</div> : <div></div>}
           </div>
           {goals.h.length || goals.a.length || goals.redH || goals.redA ? (
             <div class="goals" aria-label="Góly a vylúčenia">

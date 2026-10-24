@@ -18,14 +18,18 @@ export interface Competition {
   intro: string;
   top?: boolean; // in "Populárne súťaže"
   sk?: boolean; // Slovak competition: first on the homepage
+  /** Search-led title and extra FAQ (Marketing Miner sk, 24. 10. 2026). */
+  seo?: { title: string; faq?: { q: string; a: string }[] };
 }
 
 export const COMPETITIONS: Competition[] = [
   { id: 'nike-liga', slug: 'nike-liga', name: 'Niké liga', sp: 16, match: /^1\. slovenská liga$/, short: 'NL', color: '#0b4ea2', top: true, sk: true,
+    seo: { title: 'Niké liga – zápasy dnes, výsledky a program', faq: [{ q: 'Kedy sa hrá Niké liga?', a: "Kolá Niké ligy sa hrajú najmä v sobotu a v nedeľu popoludní a večer. Presné časy zápasov aktuálneho kola sú v programe na tejto stránke." }, { q: 'Kde nájdem výsledky Niké ligy?', a: "Na stránke Niké liga výsledky – zápasy za posledný týždeň aj so strelcami gólov." }] },
     intro: 'Niké liga je najvyššia slovenská futbalová súťaž. Kolá sa hrajú hlavne cez víkend, v sobotu a v nedeľu popoludní a večer, pri európskych pohároch aj v iné dni. Pri každom zápase nájdeš čas výkopu a odkaz na prenos alebo živé štatistiky.' },
   { id: '2-slovenska-liga', slug: '2-liga', name: '2. liga', sp: 16, match: /^2\. slovenská liga$/, short: '2L', color: '#3a6fb8', sk: true,
     intro: 'Druhá najvyššia slovenská futbalová súťaž. Zápasy sa hrajú najmä v sobotu a v nedeľu, niektoré kolá aj v strede týždňa.' },
   { id: 'slovenska-extraliga', slug: 'tipsport-liga', name: 'Tipsport liga', sp: 23, match: /^Slovenská Tipsport liga$/, short: 'TL', color: '#c8102e', top: true, sk: true,
+    seo: { title: 'Tipsport liga (hokejová extraliga) – zápasy a výsledky', faq: [{ q: 'Je Tipsport liga to isté čo hokejová extraliga?', a: "Áno. Tipsport liga je súčasný názov najvyššej slovenskej hokejovej súťaže, ľudovo extraligy." }, { q: 'Kde nájdem výsledky Tipsport ligy?', a: "Na stránke Tipsport liga výsledky – zápasy za posledný týždeň aj so skóre po tretinách." }] },
     intro: 'Tipsport liga je najvyššia slovenská hokejová súťaž. Hrá sa viackrát do týždňa, najviac zápasov býva v piatok a v nedeľu. Program kola, živé skóre a odkaz na zápas nájdeš tu.' },
   { id: 'slovenska-1-liga-hokej', slug: '1-liga', name: '1. hokejová liga', sp: 23, match: /^Slovensk\S* 1\. ?liga/, short: '1L', color: '#e0606f', sk: true,
     intro: 'Druhá najvyššia slovenská hokejová súťaž. Program, živé skóre a výsledky zápasov nájdeš tu.' },
@@ -34,6 +38,7 @@ export const COMPETITIONS: Competition[] = [
   { id: 'slovenska-extraliga-hazena', slug: 'extraliga', name: 'Extraliga hádzanej', sp: 20, match: /^Slovensk\S* .*extraliga(?!.*(Ž|žen))/, short: 'EH', color: '#0b4ea2', sk: true,
     intro: 'Najvyššia slovenská hádzanárska súťaž mužov. Program zápasov, živé skóre a výsledky.' },
   { id: 'liga-mistru', slug: 'liga-majstrov', name: 'Liga majstrov', sp: 16, match: /^Liga mistrů$/, short: 'LM', color: '#1b2a6b', top: true,
+    seo: { title: 'Liga majstrov – zápasy dnes, výsledky a program', faq: [{ q: 'Kedy sa hrá Liga majstrov?', a: "Ligová fáza Ligy majstrov sa hrá v utorok a v stredu, výkopy sú o 18:45 a o 21:00 nášho času." }, { q: 'Kde nájdem výsledky Ligy majstrov?', a: "Na stránke Liga majstrov výsledky – všetky zápasy za posledný týždeň so strelcami." }] },
     intro: 'Liga majstrov UEFA je najprestížnejšia klubová súťaž Európy. Zápasy ligovej fázy sa hrajú v utorok a v stredu, výkopy sú o 18:45 a o 21:00.' },
   { id: 'evropska-liga', slug: 'europska-liga', name: 'Európska liga', sp: 16, match: /^Evropská liga$/, short: 'EL', color: '#b25a00', top: true,
     intro: 'Európska liga UEFA sa hrá vo štvrtok v dvoch blokoch, o 18:45 a o 21:00.' },
@@ -54,6 +59,7 @@ export const COMPETITIONS: Competition[] = [
   { id: 'chance-liga', slug: 'chance-liga', name: 'Chance Liga (CZ)', sp: 16, match: /^Česká Chance Liga$/, short: 'CZ', color: '#1f6f43',
     intro: 'Česká Chance Liga – Slavia, Sparta, Plzeň a ďalšie kluby, v ktorých pôsobí aj množstvo Slovákov. Hrá sa od piatka do pondelka.' },
   { id: 'nhl', slug: 'nhl', name: 'NHL', sp: 23, match: /^NHL$/, short: 'NHL', color: '#111111', top: true,
+    seo: { title: 'NHL dnes – zápasy, výsledky a program', faq: [{ q: 'Kedy sa hrajú zápasy NHL?', a: "Väčšina zápasov NHL sa u nás začína medzi polnocou a druhou hodinou ráno, víkendové zápasy aj popoludní a večer. Časy sú prepočítané na slovenský čas." }, { q: 'Kde nájdem výsledky NHL?', a: "Na stránke NHL výsledky – zápasy za posledný týždeň, skóre po tretinách a strelci." }, { q: 'Hrajú v NHL Slováci?', a: "Áno, v NHL pravidelne hrajú slovenskí hokejisti. Ich zápasy nájdeš v programe NHL na tejto stránke." }] },
     intro: 'NHL je najlepšia hokejová liga sveta a hrajú v nej aj slovenskí hokejisti. Zápasy sa u nás začínajú väčšinou medzi polnocou a druhou hodinou ráno, víkendové zápasy aj popoludní a večer.' },
   { id: 'tipsport-extraliga', slug: 'ceska-extraliga', name: 'Česká extraliga', sp: 23, match: /^Česká Tipsport extraliga$/, short: 'CZ', color: '#0f3d7a',
     intro: 'Najvyššia česká hokejová súťaž, v ktorej hrá veľa slovenských hráčov. Hrá sa v utorok, piatok a v nedeľu, najčastejšie od 17:30 a 18:00.' },
@@ -77,6 +83,7 @@ export const COMPETITIONS: Competition[] = [
   { id: 'wta', slug: 'wta', name: 'WTA', sp: 43, match: /^WTA /, short: 'WTA', color: '#6b2c91', top: true,
     intro: 'Turnaje WTA vrátane zápasov slovenských tenistiek. Poradie zápasov sa zostavuje deň vopred.' },
   { id: 'oktagon', slug: 'oktagon', name: 'Oktagon', sp: 208, match: /^Oktagon/, short: 'OKT', color: '#8a1414', top: true, sk: true,
+    seo: { title: 'Oktagon MMA – zápasy, výsledky a kde pozerať', faq: [{ q: 'Kde pozerať Oktagon?', a: "Galavečery Oktagonu sa predávajú ako PPV na oficiálnej platforme OKTAGON.TV. K zápasom v ponuke stávkových kancelárií nájdeš u nás čas a živé štatistiky." }] },
     intro: 'Oktagon MMA je najväčšia MMA organizácia v strednej Európe, založená na Slovensku. Galavečery sa konajú približne raz do mesiaca na Slovensku, v Česku aj v zahraničí, hlavné zápasy sa začínajú vo večerných hodinách.' },
   { id: 'ufc', slug: 'ufc', name: 'UFC', sp: 208, match: /^UFC/, short: 'UFC', color: '#b30b0b', top: true,
     intro: 'UFC je najvyššia súťaž MMA na svete. Hlavné karty v amerických časoch sú u nás v noci a skoro ráno, európske podujatia večer.' },

@@ -48,6 +48,8 @@ const SK = [
   { href: '/futbal/2-liga/', label: '2. liga', k: '2-liga', sp: 'futbal' },
   { href: '/hokej/1-liga/', label: '1. liga', k: '1-liga', sp: 'hokej' },
   { href: '/volejbal/extraliga/', label: 'Extraliga', k: 'extraliga', sp: 'volejbal' },
+  { href: '/hokej/tim/slovensko/', label: 'Reprezentácia', k: 'repre-hokej', sp: 'hokej' },
+  { href: '/futbal/tim/slovensko/', label: 'Reprezentácia', k: 'repre-futbal', sp: 'futbal' },
 ];
 const COMPS = [
   { href: '/futbal/liga-majstrov/', label: 'Liga majstrov' },
@@ -169,7 +171,7 @@ const sportSection = SPORTS.some((s) => s.slug === section);
       <Search id="dq" />
       <div class="links quick"><a href="/teraz-nazivo/"><span class="dot pulse"></span>Naživo{live ? <em>{live}</em> : null}</a><a href="/program/"><Icon name="calendar" />Program</a><a href="/vysledky/"><Icon name="trophy" />Výsledky</a><a href="/tipsport-tv/"><Icon name="tv" />Ako pozerať</a></div>
       <h3>Slovensko</h3>
-      <div class="links">{SK.map((n) => <a href={n.href}><span class="flag" aria-hidden="true"></span>{n.label}{/^\d|Extraliga/.test(n.label) ? <em class="sp">{n.sp}</em> : null}</a>)}</div>
+      <div class="links">{SK.map((n) => <a href={n.href}><span class="flag" aria-hidden="true"></span>{n.label}{/^\d|Extraliga|Reprezent/.test(n.label) ? <em class="sp">{n.sp}</em> : null}</a>)}</div>
       <h3>Športy</h3>
       <div class="links">{bar.map((s) => { const c = count(s.slug); return <a href={`/${s.slug}/`}><Icon name={s.slug} />{s.name}{c?.live ? <em class="l">{c.live}</em> : null}</a>; })}</div>
       <h3>Súťaže</h3>

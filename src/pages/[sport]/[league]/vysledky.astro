@@ -1,0 +1,60 @@
+---
+import Base from '../../../layouts/Base.astro';
+import ResultList from '../../../components/ResultList.astro';
+import Side from '../../../components/Side.astro';
+import Crumbs from '../../../components/Crumbs.astro';
+import Ticket from '../../../components/Ticket.astro';
+import Faq from '../../../components/Faq.astro';
+import { getEnv, view, sportCounts, leagues } from '../../../lib/page';
+import { SPORT_BY_SLUG } from '../../../lib/sports';
+import { competitionBySlug } from '../../../lib/competitions';
+import { dayKey, longDay, dayLabel } from '../../../lib/text';
+import { sportPath } from '../../../lib/url';
+import { breadcrumbLd, faqLd, BRAND } from '../../../lib/seo';
+import { resultsConfig, resultsDb } from '../../../lib/results/config';
+import { recentOfComp } from '../../../lib/results/store';
+import { scoreText } from '../../../lib/results/view';
+
+export const prerender = false;
+const sport = SPORT_BY_SLUG.get(Astro.params.sport ?? '');
+const comp = sport ? competitionBySlug(sport.id, Astro.params.league ?? '') : undefined;
+const env = getEnv();
+const rc = resultsConfig(env);
+const db = resultsDb(env);
+// Only competitions whose results are synced get a results page.
+if (!sport || !comp || !db || !rc.comps.includes(comp.id)) return Astro.rewrite('/404/');
+const now = Date.now();
+const rows = (await recentOfComp(db, comp.id, now, 60)).filter((r) => now - r.start_utc < 8 * 86_400_000);
+const days = [...new Set(rows.map((r) => dayKey(r.start_utc)))];
+const latest = rows[0];
+const v = await view(env);
+const crumbs = [{ name: 'Domov', href: '/' }, { name: `${sport.name} online`, href: sportPath(sport.slug) }, { name: comp.name, href: `/${sport.slug}/${comp.slug}/` }, { name: 'Výsledky' }];
+const faq = [
+  { q: `Kde nájdem výsledky ${comp.name} dnes?`, a: `Na tejto stránke: výsledky ${comp.name} za posledný týždeň, zoradené od najnovších, aj so strelcami. Bežiace zápasy sa obnovujú samy.` },
+  { q: `Aký bol posledný výsledok ${comp.name}?`, a: latest ? `${latest.home} – ${latest.away} ${scoreText(latest) ?? ''} (${longDay(latest.start_utc)}).` : 'Výsledky sa tu objavia po odohraní prvých zápasov.' },
+  { q: 'Kedy je výsledok konečný?', a: 'Výsledok označíme ako konečný, až keď ho zdroj potvrdí. Dovtedy ukazujeme priebežné skóre.' },
+];
+---
+<Base title={`${comp.name} výsledky – dnes, včera a za týždeň | ${BRAND}`} description={`${comp.name} výsledky: ${rows.length} zápasov za posledný týždeň so strelcami${latest ? `, naposledy ${latest.home} – ${latest.away} ${scoreText(latest) ?? ''}` : ''}. Program a prenosy ${comp.name}.`.slice(0, 158)} ld={[breadcrumbLd(crumbs), faqLd(faq)]} section={comp.slug} ttl={300}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head">
+      <div class="eyebrow"><span class="badge" style={`background:${comp.color};color:#fff;padding:2px 7px;border-radius:3px`}>{comp.short}</span><span>{sport.name}</span></div>
+      <h1>{comp.name} výsledky</h1>
+      <p class="lead">Výsledky zápasov {comp.name} za posledný týždeň, najnovšie navrchu, so strelcami a odkazom na detail. <a href={`/${sport.slug}/${comp.slug}/`}>Program a zápasy {comp.name} ›</a></p>
+    </section>
+    <div class="cols">
+      <div>
+        {days.length ? days.map((d) => (
+          <section class="sec">
+            <div class="sec-h"><h2>{dayLabel(Date.parse(`${d}T12:00:00Z`), now) === 'Dnes' ? 'Dnes' : longDay(Date.parse(`${d}T12:00:00Z`))}</h2></div>
+            <ResultList rows={rows.filter((r) => dayKey(r.start_utc) === d).reverse()} comps={[comp.id]} now={now} staleMs={rc.staleMs} />
+          </section>
+        )) : <p class="empty">Za posledný týždeň sa v súťaži {comp.name} nehral žiadny zápas.</p>}
+        <div class="sec"><Ticket placement="comp-results" wide /></div>
+        <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
+      </div>
+      <Side sports={sportCounts(v)} leagues={leagues(v, sport.id)} placement="comp-results-side" current={sport.slug} />
+    </div>
+  </div>
+</Base>

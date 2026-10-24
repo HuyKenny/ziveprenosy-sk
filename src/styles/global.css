@@ -539,3 +539,10 @@ footer .legal { margin: 16px 0 0; font-size: 0.8rem; color: #9aa6bb; }
 
 /* ---------- performance: skip rendering what is off screen (phones have slow CPUs) ---------- */
 main .comp, main .prose, main .faq, main .tiles { content-visibility: auto; contain-intrinsic-size: auto 420px; }
+
+/* team pages */
+.team-head { display: flex; align-items: center; gap: 16px; }
+.team-head > .crest { flex: none; }
+.wrap-chips { flex-wrap: wrap; overflow: visible; }
+.scorecard .team a { color: inherit; text-decoration: none; }
+.scorecard .team a:hover { text-decoration: underline; }

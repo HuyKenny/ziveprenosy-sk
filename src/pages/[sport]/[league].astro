@@ -10,6 +10,9 @@ import { getEnv, view, sportCounts, leagues } from '../../lib/page';
 import { SPORT_BY_SLUG } from '../../lib/sports';
 import { competitionBySlug, competitionSlug, leagueName } from '../../lib/competitions';
 import { TODAY_SPORTS } from '../../lib/sport-text';
+import { teamsOfComp } from '../../lib/teams';
+import { teamPath } from '../../lib/url';
+import Crest from '../../components/Crest.astro';
 import { plural, dayKey, longDay, hhmm } from '../../lib/text';
 import { breadcrumbLd, faqLd, itemListLd, BRAND } from '../../lib/seo';
 import { sportPath } from '../../lib/url';
@@ -54,7 +57,12 @@ const faq = today ? [
   { q: `Kde pozerať ${name} online?`, a: `Zápasy s videom sa vysielajú registrovaným hráčom. Pri zápasoch bez videa sú k dispozícii živé štatistiky a priebežné skóre. Registrácia je zadarmo, noví hráči dostanú bonus ${BONUS.amount}.` },
   { q: `Kedy sa hrá ďalší zápas – ${name}?`, a: next[0] ? `Najbližší zápas je ${longDay(next[0].st)} o ${hhmm(next[0].st)}. Celý program je na tejto stránke.` : 'Ďalšie zápasy sa tu objavia, len čo budú v ponuke.' },
 ];
-const title = today ? `${sport.name} dnes: zápasy a prenosy naživo | ${BRAND}` : `${name} online – zápasy, program a prenosy | ${BRAND}`;
+if (comp?.seo?.faq) faq.push(...comp.seo.faq);
+// "hokej dnes" 71k, "futbal dnes" 30k, "hokej dnes live" 11k (Marketing Miner sk, 24. 10. 2026)
+const TODAY_TITLE: Record<string, string> = { hokej: 'Hokej dnes – zápasy naživo, výsledky a program', futbal: 'Futbal dnes – zápasy, výsledky a prenosy' };
+const title = today ? `${TODAY_TITLE[sport.slug] ?? `${sport.name} dnes: zápasy a prenosy naživo`} | ${BRAND}` : `${comp?.seo?.title ?? `${name} online – zápasy, program a prenosy`} | ${BRAND}`;
+const clubs = comp ? teamsOfComp(comp.id) : [];
+const hasResults = !!comp && !!rdb && rc.comps.includes(comp.id);
 const desc = today ? `${sport.name} dnes: ${n} ${plural(n, 'zápas', 'zápasy', 'zápasov')}, ${live.length} práve naživo. Časy v slovenskom čase a odkaz na prenos.` : `${name}: ${live.length} naživo, ${next.length} v programe. Časy zápasov, živé skóre${results.length ? ', výsledky' : ''} a kde pozerať online.`;
 ---
 <Base title={title} description={desc} ld={[breadcrumbLd(crumbs), faqLd(faq), itemListLd([...live, ...next], name)]} section={comp?.slug ?? sport.slug} noindex={!today && !comp && !sample} ttl={today ? 60 : 120}>
@@ -63,6 +71,7 @@ const desc = today ? `${sport.name} dnes: ${n} ${plural(n, 'zápas', 'zápasy', 
     <section class="head">
       <div class="eyebrow">{comp ? <span class="badge" style={`background:${comp.color};color:#fff;padding:2px 7px;border-radius:3px`}>{comp.short}</span> : null}<span>{sport.name}</span>{today ? <span>{longDay(now)}</span> : null}</div>
       <h1>{today ? `${sport.name} dnes` : `${name} online`}</h1>
+      {hasResults ? <p style="margin:8px 0 0"><a class="btn sm out" href={`/${sport.slug}/${comp!.slug}/vysledky/`} data-astro-prefetch>Výsledky {comp!.name} ›</a></p> : null}
       <p class="lead">{today ? `Všetky dnešné zápasy ${sport.genitive} podľa súťaží – slovenské navrchu. Klikni na „Pozerať“ a prenos sa otvorí.` : comp?.intro ?? (sample ? `${name}: zápasy, ktoré sú práve v ponuke, s časom začiatku a odkazom na prenos alebo živé štatistiky.` : 'Táto súťaž už nemá žiadne zápasy v ponuke.')}</p>
       {sister ? <p class="muted" style="margin:8px 0 0;font-size:.92rem" set:html={sister.html} /> : null}
     </section>
@@ -71,8 +80,9 @@ const desc = today ? `${sport.name} dnes: ${n} ${plural(n, 'zápas', 'zápasy', 
         {live.length ? <section class="sec"><div class="sec-h"><h2>Naživo <span class="n live">{live.length}</span></h2></div><LeagueList items={live} now={now} placement={today ? 'today-live' : 'comp-live'} live showSport={false} /></section> : null}
         <section class="sec"><div class="sec-h"><h2>{today ? 'Dnes ešte' : 'Program'} <span class="n">{next.length}</span></h2></div><LeagueList items={next} now={now} placement={today ? 'today' : 'comp'} days={!today} showSport={false} empty={today ? `Dnes už žiadny ďalší zápas ${sport.genitive} nie je. Pozri program na zajtra.` : 'Najbližšie zápasy zatiaľ nie sú v ponuke. Stránka sa aktualizuje automaticky.'} /></section>
         {h2hNext ? <H2hNext r={h2hNext} now={now} /> : null}
-        {results.length ? <section class="sec"><div class="sec-h"><h2>Posledné výsledky</h2><a href={`/vysledky/${sport.slug}/`}>Výsledky – {sport.name.toLowerCase()} ›</a></div><ResultList rows={results} comps={[comp!.id]} now={now} staleMs={rc.staleMs} showDay /></section> : null}
+        {results.length ? <section class="sec"><div class="sec-h"><h2>Posledné výsledky</h2><a href={`/${sport.slug}/${comp!.slug}/vysledky/`}>Všetky výsledky {comp!.name} ›</a></div><ResultList rows={results} comps={[comp!.id]} now={now} staleMs={rc.staleMs} showDay /></section> : null}
         <div class="sec"><Ticket placement={today ? 'today-mid' : 'comp-mid'} wide /></div>
+        {clubs.length ? <section class="sec"><div class="sec-h"><h2>Kluby · {comp!.name}</h2></div><div class="chips wrap-chips">{clubs.map((t) => <a class="chip" href={teamPath(sport.slug, t.slug)} data-astro-prefetch><Crest sp={t.sp} name={t.feed} size={18} />{t.name}</a>)}</div></section> : null}
         <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
       </div>
       <Side sports={sportCounts(v)} leagues={leagues(v, sport.id)} placement={today ? 'today-side' : 'comp-side'} current={sport.slug} />

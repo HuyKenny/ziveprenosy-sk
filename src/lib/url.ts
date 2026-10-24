@@ -16,3 +16,4 @@ export const sportOf = (m: Match) => SPORT_BY_ID.get(m.sp);
 /** Tracked redirect to Tipsport.sk (TV link; registration link for the bonus). */
 export const goPath = (m: Match | null, placement: string) => `/go/tipsport/?${m ? `m=${m.id}&` : ''}p=${placement}`;
 export const regPath = (placement: string) => `/go/registracia/?p=${placement}`;
+export const teamPath = (sportSlug: string, slug: string) => `/${sportSlug}/tim/${slug}/`;

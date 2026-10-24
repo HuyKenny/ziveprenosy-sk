@@ -1,0 +1,98 @@
+---
+import Base from '../../../layouts/Base.astro';
+import LeagueList from '../../../components/LeagueList.astro';
+import ResultList from '../../../components/ResultList.astro';
+import H2hNext from '../../../components/H2hNext.astro';
+import Side from '../../../components/Side.astro';
+import Faq from '../../../components/Faq.astro';
+import Crumbs from '../../../components/Crumbs.astro';
+import Ticket from '../../../components/Ticket.astro';
+import Crest from '../../../components/Crest.astro';
+import Icon from '../../../components/Icon.astro';
+import { getEnv, view, sportCounts, leagues } from '../../../lib/page';
+import { SPORT_BY_SLUG } from '../../../lib/sports';
+import { teamBySlug, plays, TEAMS } from '../../../lib/teams';
+import { competitionById } from '../../../lib/competitions';
+import { hhmm, longDay, dayLabel } from '../../../lib/text';
+import { sportPath, matchPath, goPath, matchTitle, teamPath, home, away } from '../../../lib/url';
+import { breadcrumbLd, faqLd, itemListLd, BRAND, SITE } from '../../../lib/seo';
+import { BONUS } from '../../../lib/bonus';
+import { resultsConfig, resultsDb } from '../../../lib/results/config';
+import { rowsOfTeam, nextOfTeamWithH2h } from '../../../lib/results/store';
+import { scoreText } from '../../../lib/results/view';
+
+export const prerender = false;
+const sport = SPORT_BY_SLUG.get(Astro.params.sport ?? '');
+const team = sport ? teamBySlug(sport.id, Astro.params.team ?? '') : undefined;
+if (!sport || !team) return Astro.rewrite('/404/');
+const env = getEnv();
+const v = await view(env);
+const now = Date.now();
+const live = v.live.filter((m) => plays(team, m));
+const next = v.upcoming.filter((m) => plays(team, m));
+const first = live[0] ?? next[0];
+const rc = resultsConfig(env);
+const db = resultsDb(env);
+const results = db ? await rowsOfTeam(db, team.sp, team.feed, now, 8) : [];
+const h2h = db ? await nextOfTeamWithH2h(db, team.sp, team.feed, now) : null;
+const comp = team.comp ? competitionById(team.comp) : undefined;
+const last = results.find((r) => r.status === 'ft' || r.status === 'aet' || r.status === 'pen');
+const isHockey = team.sp === 23;
+const who = team.national ? `Slovensko (${sport.name.toLowerCase()})` : team.name;
+const title = team.national ? `${sport.name} Slovensko dnes – zápasy, program a výsledky | ${BRAND}` : `${team.name} dnes online – program, zápasy a výsledky | ${BRAND}`;
+const desc = first
+  ? `${who}: ${live.length ? 'práve hrá' : `najbližší zápas ${dayLabel(first.st, now).toLowerCase()} o ${hhmm(first.st)}`} – ${matchTitle(first)}. Program, výsledky a kde pozerať online.`
+  : `${who}: program zápasov, posledné výsledky${last ? ` (naposledy ${last.home} – ${last.away} ${scoreText(last) ?? ''})` : ''} a kde pozerať zápasy online.`;
+const faq = [
+  { q: `Kedy hrá ${who}?`, a: first ? `${live.length ? 'Práve teraz' : `${longDay(first.st)} o ${hhmm(first.st)}`}: ${matchTitle(first)}. Ďalšie zápasy sú v programe na tejto stránke.` : 'Najbližší zápas zatiaľ nie je v ponuke. Program sa tu objaví, len čo bude zverejnený.' },
+  { q: `Kde pozerať ${who} online?`, a: `Zápasy s videom môžu registrovaní hráči pozerať zadarmo – klikni pri zápase na „Pozerať“. Pri zápasoch, ku ktorým nie je video, sú k dispozícii živé štatistiky a priebežné skóre. Noví hráči dostanú ${BONUS.line}.` },
+  { q: `Aké sú posledné výsledky ${team.national ? 'Slovenska' : team.name}?`, a: last ? `Naposledy: ${last.home} – ${last.away} ${scoreText(last) ?? ''} (${longDay(last.start_utc)}). Ďalšie výsledky sú v prehľade nižšie.` : 'Výsledky zápasov zobrazujeme od začiatku sezóny v sledovaných súťažiach.' },
+];
+const crumbs = [{ name: 'Domov', href: '/' }, { name: `${sport.name} online`, href: sportPath(sport.slug) }, ...(comp ? [{ name: comp.name, href: `/${sport.slug}/${comp.slug}/` }] : []), { name: who }];
+const teamLd = { '@context': 'https://schema.org', '@type': 'SportsTeam', name: team.name, sport: sport.name, url: `${SITE}${teamPath(sport.slug, team.slug)}`, ...(comp ? { memberOf: { '@type': 'SportsOrganization', name: comp.name } } : {}) };
+const siblings = TEAMS.filter((t) => t.sp === team.sp && t.comp && t.comp === team.comp && t.slug !== team.slug);
+---
+<Base title={title} description={desc} ld={[breadcrumbLd(crumbs), faqLd(faq), teamLd, itemListLd([...live, ...next], `${who} – zápasy`)]} section={sport.slug} ttl={live.length ? 30 : 120}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head team-head">
+      <Crest sp={team.sp} name={team.feed} size={64} />
+      <div>
+        <div class="eyebrow"><span>{sport.name}</span>{comp ? <span>{comp.name}</span> : team.national ? <span>reprezentácia</span> : null}</div>
+        <h1>{team.national ? `${sport.name} Slovensko dnes` : `${team.name} dnes online`}</h1>
+        <p class="lead">{team.national ? `Zápasy slovenskej ${isHockey ? 'hokejovej' : 'futbalovej'} reprezentácie: program, živé skóre, výsledky a kde ich pozerať online.` : `Program zápasov ${team.name}, živé skóre, výsledky a kde pozerať zápasy online.`}</p>
+      </div>
+    </section>
+    <div class="cols">
+      <div>
+        {first ? (
+          <section class="scorecard sec" data-id={live.length ? first.id : undefined}>
+            <div class="sc-top"><span>{live.length ? 'Práve sa hrá' : 'Najbližší zápas'}</span><span>{longDay(first.st)}</span></div>
+            <div class="sc-mid">
+              <div class="team"><Crest sp={first.sp} name={first.h} size={56} />{home(first)}</div>
+              <div>{live.length && first.sc ? <div class="big" data-s>{first.sc}</div> : <div class="big time">{hhmm(first.st)}</div>}<div class:list={['when', live.length && 'l']}>{live.length ? 'Naživo' : dayLabel(first.st, now)}</div></div>
+              <div class="team b"><Crest sp={first.sp} name={first.a} size={56} />{away(first)}</div>
+            </div>
+            <div class="sc-cta">
+              <p><a href={matchPath(first)}>Detail zápasu ›</a><small>Nemáš účet? {BONUS.line} · Reklama · 18+</small></p>
+              <a class="btn lg" data-watch href={goPath(first, 'team')} rel="sponsored nofollow noopener" target="_blank"><Icon name={first.stream ? 'play' : 'spark'} />{first.stream ? 'Pozerať' : 'Živé štatistiky'}</a>
+            </div>
+          </section>
+        ) : <p class="empty">{who} teraz nemá v ponuke žiadny zápas. Program sa tu objaví, len čo bude zverejnený.</p>}
+
+        {next.length > (live.length ? 0 : 1) ? <section class="sec"><div class="sec-h"><h2>Program</h2></div><LeagueList items={live.length ? next : next.slice(1)} now={now} placement="team" days showSport={false} /></section> : null}
+        {results.length ? <section class="sec"><div class="sec-h"><h2>Posledné výsledky</h2></div><ResultList rows={results} comps={[...new Set(results.map((r) => r.comp))]} now={now} staleMs={rc.staleMs} showDay /></section> : null}
+        {h2h ? <H2hNext r={h2h} now={now} /> : null}
+        <div class="sec"><Ticket placement="team-mid" wide /></div>
+        <section class="sec prose">
+          <h2>Kde pozerať {who} online</h2>
+          <p>Pri každom zápase {team.national ? 'reprezentácie' : team.name} uvidíš čas začiatku, súťaž a tlačidlo na prenos. Zápasy s videom sa vysielajú registrovaným hráčom zadarmo, k ostatným sú živé štatistiky a priebežné skóre, ktoré sa na stránke samo obnovuje. Výsledky odohraných zápasov sú aj so strelcami{isHockey ? ' a skóre po tretinách' : ''}.</p>
+          {comp ? <p>Celý program a výsledky súťaže nájdeš na stránke <a href={`/${sport.slug}/${comp.slug}/`}>{comp.name}</a>{siblings.length ? ', ďalšie kluby nižšie' : ''}.</p> : null}
+        </section>
+        {siblings.length ? <section class="sec"><div class="sec-h"><h2>Ďalšie kluby · {comp?.name}</h2></div><div class="chips wrap-chips">{siblings.map((t) => <a class="chip" href={teamPath(sport.slug, t.slug)} data-astro-prefetch><Crest sp={t.sp} name={t.feed} size={18} />{t.name}</a>)}</div></section> : null}
+        <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
+      </div>
+      <Side sports={sportCounts(v)} leagues={leagues(v, sport.id)} placement="team-side" current={sport.slug} />
+    </div>
+  </div>
+</Base>
