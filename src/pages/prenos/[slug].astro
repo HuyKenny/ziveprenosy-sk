@@ -86,7 +86,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
             <div class="team"><Crest sp={m.sp} name={m.h} size={56} />{home(m)}</div>
             <div>
               {sc ? <div class="big" data-s>{sc}</div> : <div class="big time">{hhmm(m.st)}</div>}
-              <div class:list={['when', state === 'live' && 'l']}>{over && r ? statusLabel(r.status, r.sport) : state === 'live' ? <><span class="dot pulse"></span> Naživo <span data-t>{skClock(m.ti ?? '')}</span></> : state === 'pre' ? dayLabel(m.st, now) : 'Odohrané'}</div>
+              <div class:list={['when', state === 'live' && 'l']}>{over && r ? statusLabel(r.status, r.sport) : state === 'live' ? (/^Za /.test(m.ti ?? '') ? <span data-t>{skClock(m.ti ?? '')}</span> : <><span class="dot pulse"></span> Naživo <span data-t>{skClock(m.ti ?? '')}</span></>) : state === 'pre' ? dayLabel(m.st, now) : 'Odohrané'}</div>
             </div>
             {m.a ? <div class="team b"><Crest sp={m.sp} name={m.a} size={56} />{away(m)}</div> : <div></div>}
           </div>
@@ -125,7 +125,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
 
         {r ? <MatchFacts r={r} /> : null}
 
-        {over ? null : <div class="sec bonus-box"><Ticket placement="detail-bonus" /></div>}
+        {over ? null : <div class="sec"><Ticket placement="detail-bonus" wide /></div>}
 
         {same.length ? (<section class="sec"><div class="sec-h"><h2>Ďalšie zápasy · {lgName}</h2><a href={leaguePathOf(m)}>Všetko ›</a></div><LeagueList items={same} now={now} placement="detail-same" days showSport={false} /></section>) : null}
 
