@@ -39,9 +39,9 @@ const slides = [...liveSlides, ...mixSports(withCrestFirst(featured(today.filter
 const sports = sportCounts(v);
 const results = rdb ? (await rowsBetween(rdb, ...localDay(todayKey), rc.comps)).filter((r) => group(r.status) === 'final') : [];
 const faq = [
-  { q: 'Dajú sa zápasy pozerať zadarmo?', a: 'Áno. Prenosy vysiela Tipsport.sk na Tipsport TV svojim registrovaným hráčom a pozeranie je bezplatné, staviť si nemusíš. My videá nevysielame, len ukazujeme, čo kde beží, a posielame ťa rovno na prenos.' },
-  { q: 'Prečo sa musím zaregistrovať?', a: 'Prevádzkovateľ so slovenskou licenciou smie vysielať len overeným zákazníkom starším ako 18 rokov. Registrácia je bezplatná a noví hráči Tipsport.sk k nej dostanú bonus ' + BONUS.amount + '.' },
-  { q: 'Čo znamená „bez videa“?', a: 'K zápasu nemá Tipsport video (práva drží televízia), ponúka však živé štatistiky a priebežné skóre. Také zápasy nájdeš v zozname s tlačidlom „Štatistiky“.' },
+  { q: 'Dajú sa zápasy pozerať zadarmo?', a: 'Áno. Prenosy vysiela licencovaný prevádzkovateľ svojim registrovaným hráčom a pozeranie je bezplatné, staviť si nemusíš. My videá nevysielame, len ukazujeme, čo kde beží, a posielame ťa rovno na prenos.' },
+  { q: 'Prečo sa musím zaregistrovať?', a: 'Prevádzkovateľ so slovenskou licenciou smie vysielať len overeným zákazníkom starším ako 18 rokov. Registrácia je bezplatná a noví hráči k nej dostanú bonus ' + BONUS.amount + '.' },
+  { q: 'Čo znamená „bez videa“?', a: 'K zápasu nie je video (práva drží televízia), k dispozícii sú živé štatistiky a priebežné skóre. Také zápasy nájdeš v zozname s tlačidlom „Štatistiky“.' },
   { q: 'V akom čase sú uvedené zápasy?', a: 'Všetky časy sú v slovenskom (stredoeurópskom) čase, vrátane zámorských zápasov NHL a NBA.' },
   { q: 'Ako nájdem konkrétny tím?', a: 'Napíš jeho názov do vyhľadávania – stačí časť názvu aj bez diakritiky. Uvidíš všetky jeho zápasy na 7 dní dopredu.' },
 ];
@@ -102,11 +102,11 @@ const ld = [...siteLd(), faqLd(faq), itemListLd([...v.live, ...today], 'Živé p
 
         <section class="sec prose">
           <h2>Živé prenosy online na jednom mieste</h2>
-          <p>ŽivéPrenosy.sk sleduje ponuku živých prenosov Tipsport TV a ukazuje ju podľa súťaží: čo práve beží, čo sa začne dnes a čo sa hrá v ďalších dňoch. Pri každom zápase vidíš čas začiatku a pri bežiacich zápasoch aj priebežné skóre, ktoré sa na stránke samo obnovuje.</p>
+          <p>ŽivéPrenosy.sk sleduje ponuku živých prenosov a ukazuje ju podľa súťaží: čo práve beží, čo sa začne dnes a čo sa hrá v ďalších dňoch. Pri každom zápase vidíš čas začiatku a pri bežiacich zápasoch aj priebežné skóre, ktoré sa na stránke samo obnovuje.</p>
           <h3>Slovenské súťaže navrchu</h3>
           <p>Zápasy <a href="/futbal/nike-liga/">Niké ligy</a>, hokejovej <a href="/hokej/tipsport-liga/">Tipsport ligy</a>, galavečery <a href="/mma/oktagon/">Oktagonu</a> a zápasy slovenskej reprezentácie dávame vždy na začiatok zoznamu. Nasledujú európske poháry – <a href="/futbal/liga-majstrov/">Liga majstrov</a> a <a href="/futbal/konferencna-liga/">Konferenčná liga</a> – a top ligy ako <a href="/futbal/premier-league/">Premier League</a> či <a href="/hokej/nhl/">NHL</a>.</p>
           <h3>Ako pozerať zápas</h3>
-          <p>Vyber zápas, klikni na „Pozerať“ a prihlás sa na Tipsport.sk. Ak účet ešte nemáš, registrácia trvá pár minút a noví hráči dostanú bonus {BONUS.amount}. Podrobný postup je v návode <a href="/tipsport-tv/">Tipsport TV</a>. Stávkovanie je dobrovoľné a len pre plnoletých.</p>
+          <p>Vyber zápas, klikni na „Pozerať“ a prihlás sa. Ak účet ešte nemáš, registrácia trvá pár minút a noví hráči dostanú bonus {BONUS.amount}. Podrobný postup je v návode <a href="/tipsport-tv/">ako pozerať zadarmo</a>. Stávkovanie je dobrovoľné a len pre plnoletých.</p>
         </section>
         <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
       </div>

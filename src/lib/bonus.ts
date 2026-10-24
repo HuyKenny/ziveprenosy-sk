@@ -11,7 +11,7 @@ export const BONUS = {
   why: 'Prenos sa spustí len prihláseným. Registrácia je zadarmo a dostaneš 20 € na prvé stávky.',
   detail: '20 € na prvé stávky za registráciu, k tomu vstupný bonus až 4 000 €.',
   book: 'Tipsport.sk',
-  watch: 'Prenos beží na Tipsport TV – stačí bezplatný účet',
-  terms: 'Bonus pre nových hráčov Tipsport.sk po registrácii a overení totožnosti. Podmienky určuje prevádzkovateľ. Len 18+.',
+  watch: 'Prenos je zadarmo – stačí bezplatný účet',
+  terms: 'Bonus pre nových hráčov po registrácii a overení totožnosti. Podmienky určuje prevádzkovateľ. Len 18+.',
   warn: 'Hazardné hry sú len pre osoby staršie ako 18 rokov. Účasť na hazardných hrách môže viesť k závislosti.',
 } as const;

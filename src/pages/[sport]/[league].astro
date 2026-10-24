@@ -46,10 +46,10 @@ const h2hNext = comp && rdb && rc.comps.includes(comp.id) ? await nextWithH2h(rd
 const crumbs = [{ name: 'Domov', href: '/' }, { name: `${sport.name} online`, href: sportPath(sport.slug) }, { name }];
 const n = live.length + next.length;
 const faq = today ? [
-  { q: `Aký ${sport.name.toLowerCase()} je dnes v telke a online?`, a: `Dnes je v ponuke ${n} ${plural(n, 'zápas', 'zápasy', 'zápasov')} ${sport.genitive}${live.length ? `, z toho ${live.length} práve beží` : ''}. Zápasy s videom vysiela Tipsport TV registrovaným hráčom Tipsport.sk zadarmo.` },
+  { q: `Aký ${sport.name.toLowerCase()} je dnes v telke a online?`, a: `Dnes je v ponuke ${n} ${plural(n, 'zápas', 'zápasy', 'zápasov')} ${sport.genitive}${live.length ? `, z toho ${live.length} práve beží` : ''}. Zápasy s videom môžu registrovaní hráči pozerať zadarmo.` },
   { q: 'V akom čase sú zápasy?', a: 'Všetky časy sú v slovenskom čase.' },
 ] : [
-  { q: `Kde pozerať ${name} online?`, a: `Zápasy s videom vysiela Tipsport TV registrovaným hráčom Tipsport.sk. Pri zápasoch bez videa ponúka živé štatistiky a priebežné skóre. Registrácia je zadarmo, noví hráči dostanú bonus ${BONUS.amount}.` },
+  { q: `Kde pozerať ${name} online?`, a: `Zápasy s videom sa vysielajú registrovaným hráčom. Pri zápasoch bez videa sú k dispozícii živé štatistiky a priebežné skóre. Registrácia je zadarmo, noví hráči dostanú bonus ${BONUS.amount}.` },
   { q: `Kedy sa hrá ďalší zápas – ${name}?`, a: next[0] ? `Najbližší zápas je ${longDay(next[0].st)} o ${hhmm(next[0].st)}. Celý program je na tejto stránke.` : 'Ďalšie zápasy sa tu objavia, len čo budú v ponuke.' },
 ];
 const title = today ? `${sport.name} dnes: zápasy a prenosy naživo | ${BRAND}` : `${name} online – zápasy, program a prenosy | ${BRAND}`;
@@ -61,7 +61,7 @@ const desc = today ? `${sport.name} dnes: ${n} ${plural(n, 'zápas', 'zápasy', 
     <section class="head">
       <div class="eyebrow">{comp ? <span class="badge" style={`background:${comp.color};color:#fff;padding:2px 7px;border-radius:3px`}>{comp.short}</span> : null}<span>{sport.name}</span>{today ? <span>{longDay(now)}</span> : null}</div>
       <h1>{today ? `${sport.name} dnes` : `${name} online`}</h1>
-      <p class="lead">{today ? `Všetky dnešné zápasy ${sport.genitive} podľa súťaží – slovenské navrchu. Klikni na „Pozerať“ a prenos sa otvorí na Tipsport TV.` : comp?.intro ?? (sample ? `${name}: zápasy, ktoré sú práve v ponuke, s časom začiatku a odkazom na prenos alebo živé štatistiky.` : 'Táto súťaž už nemá žiadne zápasy v ponuke.')}</p>
+      <p class="lead">{today ? `Všetky dnešné zápasy ${sport.genitive} podľa súťaží – slovenské navrchu. Klikni na „Pozerať“ a prenos sa otvorí.` : comp?.intro ?? (sample ? `${name}: zápasy, ktoré sú práve v ponuke, s časom začiatku a odkazom na prenos alebo živé štatistiky.` : 'Táto súťaž už nemá žiadne zápasy v ponuke.')}</p>
     </section>
     <div class="cols">
       <div>

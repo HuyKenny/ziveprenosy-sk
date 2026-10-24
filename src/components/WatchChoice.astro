@@ -10,14 +10,14 @@ import Icon from './Icon.astro';
 ---
 <dialog class="choice" id="watch-choice" aria-labelledby="wc-title">
   <form method="dialog" class="wc-x"><button aria-label="Zavrieť" value="close"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></form>
-  <p class="wc-k">Tipsport TV</p>
+  <p class="wc-k">Živý prenos</p>
   <h2 id="wc-title">Máš účet na Tipsport.sk?</h2>
   <p class="wc-why">{BONUS.why}</p>
   <div class="wc-opts">
     <a class="btn lg" data-wc-reg href="/go/registracia/?p=choice" rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" /><span>Nemám účet<small>zaregistrovať sa a získať {BONUS.amount} bonus</small></span></a>
     <a class="btn lg out" data-wc-tv href="/go/tipsport/?p=choice" rel="sponsored nofollow noopener" target="_blank"><Icon name="play" /><span>Mám účet<small>pozerať hneď</small></span></a>
   </div>
-  <p class="wc-foot"><a href="/tipsport-bonus/">Ako získať bonus</a> · Reklama · Tipsport.sk · 18+</p>
+  <p class="wc-foot"><a href="/tipsport-bonus/">Ako získať bonus</a> · Reklama · 18+</p>
 </dialog>
 <script>
   const KEY = 'zp-ucet';

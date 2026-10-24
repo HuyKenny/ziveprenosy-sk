@@ -61,15 +61,15 @@ const faq = !m ? [] : over ? [
   { q: `Ako sa skončil zápas ${title}?`, a: `${resultSentence} Hralo sa ${longDay(m.st)} o ${hhmm(m.st)} (${lgName}).` },
   { q: 'Kde nájdem ďalšie výsledky?', a: 'V prehľade Výsledky alebo na stránke súťaže, kde sú aj ďalšie zápasy.' },
 ] : [
-  { q: `Kde pozerať ${title} naživo?`, a: m.stream ? `Zápas vysiela Tipsport TV. Klikni na „Pozerať“, prihlás sa na Tipsport.sk alebo sa bezplatne zaregistruj a prenos sa spustí. Noví hráči dostanú ${BONUS.line}.` : 'K tomuto zápasu Tipsport video nevysiela (práva má televízia), ponúka však živé štatistiky a priebežné skóre.' },
+  { q: `Kde pozerať ${title} naživo?`, a: m.stream ? `Zápas sa vysiela naživo. Klikni na „Pozerať“, prihlás sa alebo sa bezplatne zaregistruj a prenos sa spustí. Noví hráči dostanú ${BONUS.line}.` : 'K tomuto zápasu nie je video (práva má televízia), k dispozícii sú však živé štatistiky a priebežné skóre.' },
   { q: `Kedy sa začína ${title}?`, a: `${longDay(m.st)} o ${hhmm(m.st)} slovenského času.` },
-  { q: 'Je pozeranie zadarmo?', a: 'Pre registrovaných hráčov Tipsport.sk áno. Staviť si nemusíš, stávkovanie je dobrovoľné a len pre osoby od 18 rokov.' },
+  { q: 'Je pozeranie zadarmo?', a: 'Pre registrovaných hráčov áno. Staviť si nemusíš, stávkovanie je dobrovoľné a len pre osoby od 18 rokov.' },
 ];
 const crumbs = m && sport ? [{ name: 'Domov', href: '/' }, { name: `${sport.name} online`, href: sportPath(sport.slug) }, { name: lgName, href: leaguePathOf(m) }, { name: title }] : [];
 const date = m ? shortDay(m.st).replace(/\s/g, '') : '';
 const base = !m ? '' : final && sc ? `${title} ${sc} – výsledok ${date}` : over ? `${title} ${date} – výsledok` : `${title} naživo ${date} – kde pozerať online`;
 const pageTitle = !m ? `Zápas sa skončil | ${BRAND}` : base.length <= 44 ? `${base} | ${BRAND}` : clip(base, 62);
-const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)}. Ďalšie zápasy a program súťaže.`, 158) : clip(`${title} (${lgName}) – ${state === 'live' ? 'práve sa hrá' : `${dayLabel(m.st, now).toLowerCase()} o ${hhmm(m.st)}`}. ${m.stream ? 'Živý prenos na Tipsport TV zadarmo po registrácii' : 'Živé štatistiky a skóre na Tipsport.sk'}, bonus ${BONUS.amount}.`, 158);
+const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)}. Ďalšie zápasy a program súťaže.`, 158) : clip(`${title} (${lgName}) – ${state === 'live' ? 'práve sa hrá' : `${dayLabel(m.st, now).toLowerCase()} o ${hhmm(m.st)}`}. ${m.stream ? 'Živý prenos zadarmo po registrácii' : 'Živé štatistiky a priebežné skóre'}, bonus ${BONUS.amount}.`, 158);
 ---
 {m && sport ? (
 <Base title={pageTitle} description={desc} path={canonicalPath} ld={[sportsEventLd(m, r?.status, final && sc ? sc : undefined), breadcrumbLd(crumbs), faqLd(faq)]} section={sport.slug} ttl={over ? 3600 : state === 'live' ? 30 : 60} stick={!over}>
@@ -106,7 +106,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
               <p>Zápas sa skončil<small>Pozri, čo sa hrá teraz – alebo si založ účet na ďalšie prenosy.</small></p>
               <span class="sc-btns"><a class="btn out" href="/teraz-nazivo/"><span class="dot pulse"></span>Práve naživo</a><a class="btn" href={regPath('detail-final')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />{BONUS.cta}</a></span>
             </>) : (<>
-              <p>{m.stream ? BONUS.watch : 'Živé štatistiky a skóre na Tipsport.sk'}<small>Nemáš účet? <a href={regPath('detail-new')} rel="sponsored nofollow noopener" target="_blank">{BONUS.line} ›</a> · Reklama · 18+</small></p>
+              <p>{m.stream ? BONUS.watch : 'Živé štatistiky a priebežné skóre'}<small>Nemáš účet? <a href={regPath('detail-new')} rel="sponsored nofollow noopener" target="_blank">{BONUS.line} ›</a> · Reklama · 18+</small></p>
               <a class="btn lg" data-watch href={goPath(m, 'detail')} rel="sponsored nofollow noopener" target="_blank"><Icon name={m.stream ? 'play' : 'spark'} />{watch}</a>
             </>)}
           </div>
@@ -119,7 +119,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
             <div><dt>{over ? 'Hralo sa' : 'Začiatok'}</dt><dd>{hhmm(m.st)} · {shortDay(m.st)}</dd></div>
             <div><dt>Šport</dt><dd><a href={sportPath(sport.slug)}>{sport.name}</a></dd></div>
             <div><dt>Súťaž</dt><dd><a href={leaguePathOf(m)}>{lgName}</a></dd></div>
-            <div><dt>{over ? 'Výsledok' : 'Prenos'}</dt><dd>{over ? (final && sc ? sc : statusLabel(r!.status, r!.sport)) : m.stream ? 'Video · Tipsport TV' : 'Štatistiky · Tipsport.sk'}</dd></div>
+            <div><dt>{over ? 'Výsledok' : 'Prenos'}</dt><dd>{over ? (final && sc ? sc : statusLabel(r!.status, r!.sport)) : m.stream ? 'Video naživo' : 'Živé štatistiky'}</dd></div>
           </dl>
         </section>
 
@@ -135,7 +135,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
             <p>{resultSentence} Zápas sa hral {longDay(m.st)} o {hhmm(m.st)} v súťaži {lgName}. Ďalšie výsledky nájdeš v <a href="/vysledky/">prehľade výsledkov</a>, nadchádzajúce zápasy na stránke <a href={leaguePathOf(m)}>{lgName}</a>.</p>
           </>) : (<>
             <h2>{title} – živý prenos</h2>
-            <p>{state === 'live' ? `Zápas ${title} sa práve hrá` : `Zápas ${title} sa začína ${longDay(m.st)} o ${hhmm(m.st)}`} v súťaži {lgName}. {m.stream ? 'Tipsport TV ho vysiela naživo registrovaným hráčom – stačí sa prihlásiť a prenos spustiť.' : 'Video k nemu Tipsport nevysiela, naživo však ukazuje štatistiky a priebežné skóre.'} Ďalšie zápasy nájdeš na stránke <a href={leaguePathOf(m)}>{lgName}</a> alebo v <a href="/program/">programe prenosov</a>.</p>
+            <p>{state === 'live' ? `Zápas ${title} sa práve hrá` : `Zápas ${title} sa začína ${longDay(m.st)} o ${hhmm(m.st)}`} v súťaži {lgName}. {m.stream ? 'Vysiela sa naživo registrovaným hráčom – stačí sa prihlásiť a prenos spustiť.' : 'Video k nemu nie je, naživo však sleduješ štatistiky a priebežné skóre.'} Ďalšie zápasy nájdeš na stránke <a href={leaguePathOf(m)}>{lgName}</a> alebo v <a href="/program/">programe prenosov</a>.</p>
           </>)}
         </section>
         <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>

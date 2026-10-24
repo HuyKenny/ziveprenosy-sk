@@ -15,7 +15,7 @@ const s = sportOf(m);
   <span class="st-play">{m.stream ? <Icon name="play" /> : <Icon name="spark" />}</span>
   <span class="st-bar">
     <span>{state === 'live' ? <span class="live-tag"><span class="dot pulse"></span>Naživo</span> : state === 'pre' ? <span data-cd={m.st}>{dayLabel(m.st, now)} o {hhmm(m.st)}</span> : 'Odohrané'}</span>
-    <span>{m.stream ? 'Tipsport TV · HD prenos' : 'Bez videa · živé štatistiky'}</span>
+    <span>{m.stream ? 'HD prenos' : 'Bez videa · živé štatistiky'}</span>
   </span>
 </a>
 <script>

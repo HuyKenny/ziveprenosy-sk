@@ -119,7 +119,7 @@ const sportSection = SPORTS.some((s) => s.slug === section);
           <h3>Slovensko</h3>
           <ul>{SK.map((n) => <li><a href={n.href}>{n.label}<em>{n.sp}</em></a></li>)}</ul>
           <h3>Prehľady</h3>
-          <ul><li><a href="/program/zajtra/">Program na zajtra</a></li><li><a href="/vysledky/vcera/">Včerajšie výsledky</a></li><li><a href="/tipsport-tv/">Tipsport TV – návod</a></li><li><a href="/tipsport-bonus/">Tipsport bonus 20 €</a></li></ul>
+          <ul><li><a href="/program/zajtra/">Program na zajtra</a></li><li><a href="/vysledky/vcera/">Včerajšie výsledky</a></li><li><a href="/tipsport-tv/">Ako pozerať zadarmo</a></li><li><a href="/tipsport-bonus/">Bonus 20 € za registráciu</a></li></ul>
         </div>
         <div>
           <h3>Súťaže</h3>
@@ -144,7 +144,7 @@ const sportSection = SPORTS.some((s) => s.slug === section);
         <div><h4>Športy online</h4><a href="/futbal/">Futbal online</a><a href="/hokej/">Hokej online</a><a href="/tenis/">Tenis online</a><a href="/mma/">MMA online</a><a href="/basketbal/">Basketbal online</a><a href="/volejbal/">Volejbal online</a><a href="/hadzana/">Hádzaná online</a><a href="/sipky/">Šípky online</a></div>
         <div><h4>Dnes</h4><a href="/futbal/dnes/">Futbal dnes</a><a href="/hokej/dnes/">Hokej dnes</a><a href="/tenis/dnes/">Tenis dnes</a><a href="/basketbal/dnes/">Basketbal dnes</a><a href="/teraz-nazivo/">Práve naživo</a><a href="/program/zajtra/">Program na zajtra</a></div>
         <div><h4>Súťaže</h4><a href="/futbal/nike-liga/">Niké liga</a><a href="/hokej/tipsport-liga/">Tipsport liga</a><a href="/futbal/liga-majstrov/">Liga majstrov</a><a href="/futbal/premier-league/">Premier League</a><a href="/hokej/nhl/">NHL</a><a href="/mma/oktagon/">Oktagon MMA</a><a href="/basketbal/nba/">NBA</a></div>
-        <div><h4>Prehľady</h4><a href="/program/">Program prenosov</a><a href="/vysledky/">Výsledky</a><a href="/tipsport-tv/">Tipsport TV</a><a href="/tipsport-bonus/">Tipsport bonus 20 €</a><a href="/hladat/">Hľadať zápas</a></div>
+        <div><h4>Prehľady</h4><a href="/program/">Program prenosov</a><a href="/vysledky/">Výsledky</a><a href="/tipsport-tv/">Ako pozerať zadarmo</a><a href="/tipsport-bonus/">Bonus 20 €</a><a href="/hladat/">Hľadať zápas</a></div>
         <div><h4>O webe</h4><a href="/o-nas/">O nás</a><a href="/zodpovedne-hranie/">Zodpovedné hranie</a><a href="/ochrana-osobnych-udajov/">Ochrana osobných údajov</a><a href="/podmienky/">Podmienky používania</a><a href="/zdroje-fotiek/">Zdroje fotiek</a><a href="/kontakt/">Kontakt</a></div>
       </div>
       <div class="warn"><b>18+</b><span>{BONUS.warn} Pomoc a informácie: <a href="https://www.urhh.sk" rel="noopener nofollow">Úrad pre reguláciu hazardných hier</a>.</span></div>
@@ -164,7 +164,7 @@ const sportSection = SPORTS.some((s) => s.slug === section);
     <div class="panel" role="dialog" aria-modal="true" aria-label="Menu">
       <div class="dr-top"><b>Menu</b><button type="button" class="iconbtn" data-close aria-label="Zavrieť menu"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"/></svg></button></div>
       <Search id="dq" />
-      <div class="links quick"><a href="/teraz-nazivo/"><span class="dot pulse"></span>Naživo{live ? <em>{live}</em> : null}</a><a href="/program/"><Icon name="calendar" />Program</a><a href="/vysledky/"><Icon name="trophy" />Výsledky</a><a href="/tipsport-tv/"><Icon name="tv" />Tipsport TV</a></div>
+      <div class="links quick"><a href="/teraz-nazivo/"><span class="dot pulse"></span>Naživo{live ? <em>{live}</em> : null}</a><a href="/program/"><Icon name="calendar" />Program</a><a href="/vysledky/"><Icon name="trophy" />Výsledky</a><a href="/tipsport-tv/"><Icon name="tv" />Ako pozerať</a></div>
       <h3>Slovensko</h3>
       <div class="links">{SK.map((n) => <a href={n.href}><span class="flag" aria-hidden="true"></span>{n.label}{/^\d|Extraliga/.test(n.label) ? <em class="sp">{n.sp}</em> : null}</a>)}</div>
       <h3>Športy</h3>
