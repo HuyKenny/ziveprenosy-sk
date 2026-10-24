@@ -547,3 +547,24 @@ main .comp, main .prose, main .faq, main .tiles { content-visibility: auto; cont
 .wrap-chips { flex-wrap: wrap; overflow: visible; }
 .scorecard .team a { color: inherit; text-decoration: none; }
 .scorecard .team a:hover { text-decoration: underline; }
+
+/* sport bar: one row on desktop, "Viac" for the rest; scrollable on phones */
+.sportbar .viac { display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; border: 1px solid var(--rule); border-radius: 999px; background: var(--card); color: var(--ink); font: inherit; font-weight: 800; font-size: 0.88rem; cursor: pointer; white-space: nowrap; flex: none; }
+.sportbar .viac:hover { background: var(--blue-soft); }
+.sportbar .viac .ico { width: 16px; height: 16px; }
+@media (min-width: 1000px) {
+  .sportbar .wrap { overflow: visible; -webkit-mask-image: none; mask-image: none; padding-right: 16px; }
+  .sportbar .more-sport { display: none; }
+  .sportbar .viac { margin-left: auto; }
+}
+@media (max-width: 999px) {
+  .sportbar .wrap { gap: 2px; }
+  .sportbar a { padding: 6px 9px; }
+}
+@media (min-width: 1000px) and (max-width: 1239px) { .sportbar a.ex:not([aria-current]) { display: none; } }
+@media (min-width: 1000px) { .sportbar .wrap { overflow: hidden; } }
+@media (min-width: 1000px) {
+  .sportbar .wrap { gap: 2px; }
+  .sportbar a { padding: 6px 9px; }
+  .sportbar .sep { margin: 0 4px; }
+}

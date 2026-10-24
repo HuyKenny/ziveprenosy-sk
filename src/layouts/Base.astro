@@ -41,6 +41,9 @@ const count = (slug: string) => counts.find((c) => c.slug === slug);
 // The sport bar: what Slovaks open most, then the rest that has something on today.
 const BAR = ['futbal', 'hokej', 'tenis', 'mma', 'basketbal', 'volejbal', 'hadzana', 'sipky', 'florbal', 'esporty', 'stolny-tenis', 'box'];
 const bar = BAR.map((s) => SPORTS.find((x) => x.slug === s)!).filter(Boolean);
+// Sport bar: the four big sports always; the rest only when something is on, in BAR order (what Slovaks watch most,
+// so basketball comes before e-sports). Desktop shows as many as fit (CSS by width), the rest sit behind "Viac".
+const extra = bar.slice(4).filter((x) => count(x.slug)?.total || section === x.slug);
 const SK = [
   { href: '/futbal/nike-liga/', label: 'Niké liga', k: 'nike-liga', sp: 'futbal' },
   { href: '/hokej/tipsport-liga/', label: 'Tipsport liga', k: 'tipsport-liga', sp: 'hokej' },
@@ -139,7 +142,8 @@ const sportSection = SPORTS.some((s) => s.slug === section);
       <span class="sep" aria-hidden="true"></span>
       {SK.slice(0, 3).map((n) => <a href={n.href} class="skc" data-astro-prefetch aria-current={section === n.k ? 'page' : undefined}><span class="flag" aria-hidden="true"></span>{n.label}</a>)}
       <span class="sep" aria-hidden="true"></span>
-      {bar.slice(4).map((s) => { const c = count(s.slug); return <a href={`/${s.slug}/`} data-astro-prefetch aria-current={section === s.slug ? 'page' : undefined}><Icon name={s.slug} />{s.name}{c?.live ? <em>{c.live}</em> : null}</a>; })}
+      {extra.map((s, i) => { const c = count(s.slug); return <a href={`/${s.slug}/`} class:list={['ex', i >= 2 && section !== s.slug && 'more-sport']} data-astro-prefetch aria-current={section === s.slug ? 'page' : undefined}><Icon name={s.slug} />{s.name}{c?.live ? <em>{c.live}</em> : null}</a>; })}
+      <button type="button" class="viac" data-viac aria-controls="mega drawer"><Icon name="menu" />Viac</button>
     </div>
   </nav>
   <main id="obsah"><slot /></main>
@@ -202,6 +206,12 @@ const sportSection = SPORTS.some((s) => s.slug === section);
     const setMega = (open: boolean) => { mega.hidden = !open; mb.setAttribute('aria-expanded', String(open)); };
     mb.addEventListener('click', (e) => { e.stopPropagation(); setMega(mega.hidden === true); });
     document.addEventListener('click', (e) => { if (!mega.hidden && !mega.contains(e.target as Node)) setMega(false); });
+    // "Viac" at the end of the sport bar: the mega panel on desktop, the menu on phones.
+    $('[data-viac]')?.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (matchMedia('(min-width: 1000px)').matches) { setMega(true); mb.focus(); }
+      else setDrawer(true);
+    });
     // Phone search: the magnifier opens a full-width field under the header.
     const sb = $('[data-sbtn]')!;
     const ms = $('#msearch')!;
