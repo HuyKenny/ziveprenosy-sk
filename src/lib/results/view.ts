@@ -4,6 +4,7 @@ import { isFinal, isInPlay } from './status';
 import { competitionById } from '../competitions';
 import { matchPath } from '../url';
 import type { Detail, Meeting } from './afdata';
+import { lgOf } from '../names';
 
 /** Same URL as a live match page, so a match keeps one address before, during and after the game. */
 export const resultPath = (r: ResultRow) => matchPath(asMatch(r));
@@ -48,7 +49,7 @@ export const asMatch = (r: ResultRow): Match => ({
   h: r.home,
   a: r.away,
   sp: r.sport,
-  lg: r.lg,
+  lg: lgOf(r.lg, r.home, r.away),
   lid: 0,
   st: r.start_utc,
   stream: !!r.stream,

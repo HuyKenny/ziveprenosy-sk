@@ -14,6 +14,7 @@ import { breadcrumbLd, faqLd, BRAND } from '../../../lib/seo';
 import { resultsConfig, resultsDb } from '../../../lib/results/config';
 import { recentOfComp } from '../../../lib/results/store';
 import { scoreText } from '../../../lib/results/view';
+import { isWomen } from '../../../lib/names';
 
 export const prerender = false;
 const sport = SPORT_BY_SLUG.get(Astro.params.sport ?? '');
@@ -24,7 +25,7 @@ const db = resultsDb(env);
 // Only competitions whose results are synced get a results page.
 if (!sport || !comp || !db || !rc.comps.includes(comp.id)) return Astro.rewrite('/404/');
 const now = Date.now();
-const rows = (await recentOfComp(db, comp.id, now, 60)).filter((r) => now - r.start_utc < 8 * 86_400_000);
+const rows = (await recentOfComp(db, comp.id, now, 80)).filter((r) => now - r.start_utc < 8 * 86_400_000 && !isWomen(r.home, r.away));
 const days = [...new Set(rows.map((r) => dayKey(r.start_utc)))];
 const latest = rows[0];
 const v = await view(env);

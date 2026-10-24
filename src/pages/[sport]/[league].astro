@@ -11,6 +11,7 @@ import { SPORT_BY_SLUG } from '../../lib/sports';
 import { competitionBySlug, competitionSlug, leagueName } from '../../lib/competitions';
 import { TODAY_SPORTS } from '../../lib/sport-text';
 import { teamsOfComp } from '../../lib/teams';
+import { isWomen } from '../../lib/names';
 import { teamPath } from '../../lib/url';
 import Crest from '../../components/Crest.astro';
 import { plural, dayKey, longDay, hhmm } from '../../lib/text';
@@ -46,7 +47,7 @@ const name = today ? `${sport.name} dnes` : comp?.name ?? (sample ? leagueName(s
 const sister = comp ? SISTER_COMPETITION[comp.id] : undefined;
 const rc = resultsConfig(env);
 const rdb = resultsDb(env);
-const results = comp && rdb && rc.comps.includes(comp.id) ? await recentOfComp(rdb, comp.id, now, 8) : [];
+const results = comp && rdb && rc.comps.includes(comp.id) ? (await recentOfComp(rdb, comp.id, now, 16)).filter((r) => !isWomen(r.home, r.away)).slice(0, 8) : [];
 const h2hNext = comp && rdb && rc.comps.includes(comp.id) ? await nextWithH2h(rdb, comp.id, now) : null;
 const crumbs = [{ name: 'Domov', href: '/' }, { name: `${sport.name} online`, href: sportPath(sport.slug) }, { name }];
 const n = live.length + next.length;

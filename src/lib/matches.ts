@@ -2,6 +2,7 @@ import type { Env, Match, Snapshot } from './types';
 import { dayKey, addDays } from './text';
 import { SPORTS } from './sports';
 import { competitionOf } from './competitions';
+import { lgOf } from './names';
 
 export interface View {
   /** In play now: start has passed and the live feed still has it. */
@@ -40,8 +41,8 @@ export async function view(env: Env, now = Date.now()): Promise<View> {
   const [l, p] = await Promise.all([env.DATA.get<Snapshot<Match>>('live', 'json'), env.DATA.get<Snapshot<Match>>('pre', 'json')]);
   const liveFeed = new Map((l?.items ?? []).map((m) => [m.id, m]));
   const all = new Map<number, Match>();
-  for (const m of p?.items ?? []) all.set(m.id, m);
-  for (const m of liveFeed.values()) all.set(m.id, { ...all.get(m.id), ...m });
+  for (const m of p?.items ?? []) all.set(m.id, { ...m, lg: lgOf(m.lg, m.h, m.a) });
+  for (const m of liveFeed.values()) all.set(m.id, { ...all.get(m.id), ...m, lg: lgOf(m.lg, m.h, m.a) });
   const live: Match[] = [];
   const upcoming: Match[] = [];
   const recent: Match[] = [];

@@ -66,6 +66,11 @@ const ADJ_RE = new RegExp(`(^|[\\s(.-])(${Object.keys(ADJ).sort((a, b) => b.leng
 /** Czech letters Slovak does not have — last resort for anything the maps above missed. */
 const CZ_ONLY: Record<string, string> = { ě: 'e', Ě: 'E', ř: 'r', Ř: 'R', ů: 'ú', Ů: 'Ú' };
 
+/** Women's sides carry "(ž)" in the feed; their competition often has the men's name ("1. slovenská liga"). */
+export const isWomen = (h: string, a: string) => / \(ž\)$/.test(h) || / \(ž\)$/.test(a);
+/** Competition name with women's matches split off, so they never land on the men's competition page. */
+export const lgOf = (lg: string, h: string, a: string) => (isWomen(h, a) && !/žen| Ž$|\(ž\)/i.test(lg) ? `${lg} (ženy)` : lg);
+
 /** Competition name from the feed → Slovak. */
 export function skLeague(lg: string): string {
   let s = lg;
