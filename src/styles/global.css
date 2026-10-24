@@ -105,7 +105,8 @@ button { font: inherit; color: inherit; }
 .sportbar a[aria-current='page'] em { color: #ffb4ae; }
 .sportbar .skc { border-color: var(--rule); }
 .sportbar .sep { width: 1px; height: 22px; background: var(--rule); margin: 0 6px; flex: none; }
-.flag { width: 14px; height: 10px; border-radius: 2px; flex: none; background: linear-gradient(#fff 0 33%, var(--blue) 33% 66%, var(--red) 66%); box-shadow: 0 0 0 1px rgba(15, 27, 45, 0.25); }
+/* Slovak flag with the coat of arms (plain white-blue-red stripes read as the Russian flag) */
+.flag { width: 18px; height: 12px; border-radius: 2px; flex: none; background: url('/flag-sk.svg') center / cover no-repeat; box-shadow: 0 0 0 1px rgba(15, 27, 45, 0.25); }
 
 @media (max-width: 999px) {
   .mainnav, .hsearch, .mega { display: none !important; }
