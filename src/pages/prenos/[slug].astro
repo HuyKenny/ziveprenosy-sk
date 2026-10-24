@@ -5,7 +5,7 @@ import Side from '../../components/Side.astro';
 import Faq from '../../components/Faq.astro';
 import Crumbs from '../../components/Crumbs.astro';
 import Stick from '../../components/Stick.astro';
-import HowTo from '../../components/HowTo.astro';
+import Ticket from '../../components/Ticket.astro';
 import { regPath } from '../../lib/url';
 import Icon from '../../components/Icon.astro';
 import Crest from '../../components/Crest.astro';
@@ -125,16 +125,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
 
         {r ? <MatchFacts r={r} /> : null}
 
-        {over ? null : (
-          <section class="sec">
-            <div class="sec-h"><h2>Ako pozerať {title}</h2><a href="/tipsport-tv/">Návod ›</a></div>
-            <ol class="steps">
-              <li><span><b>Klikni na „{watch}“</b>Otvorí sa Tipsport.sk.</span></li>
-              <li><span><b>Prihlás sa alebo sa zaregistruj</b>Registrácia je zadarmo a noví hráči dostanú {BONUS.line}. <a class="btn sm" style="margin-top:8px" href={regPath('detail-steps')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />{BONUS.cta}</a></span></li>
-              <li><span><b>{m.stream ? 'Spusti prenos na Tipsport TV' : 'Sleduj živé štatistiky'}</b>{m.stream ? 'Video beží v prehliadači aj v aplikácii, staviť si nemusíš.' : 'Priebežné skóre a štatistiky zápasu sa obnovujú naživo.'}</span></li>
-            </ol>
-          </section>
-        )}
+        {over ? null : <div class="sec bonus-box"><Ticket placement="detail-bonus" /></div>}
 
         {same.length ? (<section class="sec"><div class="sec-h"><h2>Ďalšie zápasy · {lgName}</h2><a href={leaguePathOf(m)}>Všetko ›</a></div><LeagueList items={same} now={now} placement="detail-same" days showSport={false} /></section>) : null}
 
@@ -160,7 +151,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
     <section class="head"><h1>Zápas sa už skončil</h1><p class="lead">Tento zápas už nie je v ponuke prenosov. Pozri, čo sa hrá práve teraz alebo dnes.</p></section>
     <div class="cols"><div>
       <section class="sec"><div class="sec-h"><h2>Práve naživo</h2><a href="/teraz-nazivo/">Všetko ›</a></div><LeagueList items={v.live} now={now} placement="gone" live per={4} max={5} /></section>
-      <HowTo placement="gone-howto" />
+      <Ticket placement="gone-bonus" wide />
     </div><Side sports={sportCounts(v)} leagues={leagues(v)} placement="gone-side" /></div>
   </div>
 </Base>

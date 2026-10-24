@@ -9,8 +9,8 @@ const { placement, wide = false } = Astro.props;
 <aside class:list={['ticket', wide && 'wide']} aria-label="Reklama Tipsport.sk">
   <div class="stripe"><span>Tipsport.sk</span><small>Reklama · 18+</small></div>
   <div class="body">
-    <div class="amount">{BONUS.amount}<small>bonus za registráciu – na prvé stávky</small></div>
-    <p class="why">{BONUS.why}</p>
+    <div class="amount">{BONUS.amount}<small>bonus za registráciu</small></div>
+    <p class="why">Zaregistruj sa na Tipsport.sk, pozeraj prenosy zadarmo a k tomu 20 € na prvé stávky.</p>
   </div>
   <div class="foot">
     <a class="btn" href={regPath(placement)} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />{BONUS.cta}</a>
