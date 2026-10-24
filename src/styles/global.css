@@ -520,3 +520,19 @@ footer .legal { margin: 16px 0 0; font-size: 0.8rem; color: #9aa6bb; }
   .scorecard .team { font-size: 1rem; hyphens: manual; overflow-wrap: normal; }
   .scorecard .when { font-size: 0.74rem; }
 }
+
+/* ---------- header/menu/footer UX pass ---------- */
+/* the sport bar scrolls: fade the right edge so it reads as "more" */
+.sportbar .wrap { -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent); mask-image: linear-gradient(90deg, #000 calc(100% - 48px), transparent); padding-right: 48px; }
+.drawer .links a em.sp { color: var(--ink-3); font-weight: 700; font-size: 0.7rem; }
+@media (max-width: 999px) {
+  /* the tab bar carries the bonus on phones; one bonus button in view is enough */
+  .top .bonus { display: none; }
+  /* footer: two columns instead of one long list, and no light strip above the tab bar */
+  footer .grid { grid-template-columns: 1fr 1fr; gap: 18px 16px; }
+  footer .grid > div:first-child { grid-column: 1 / -1; columns: 2; column-gap: 16px; }
+  footer .grid > div:first-child h4 { column-span: all; }
+  body.has-dock { padding-bottom: 0; }
+  body.has-dock footer { padding-bottom: calc(30px + 64px + env(safe-area-inset-bottom)); }
+  footer { margin-top: 30px; }
+}
