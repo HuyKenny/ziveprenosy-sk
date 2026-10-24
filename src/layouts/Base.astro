@@ -4,6 +4,7 @@ import Icon from '../components/Icon.astro';
 import Search from '../components/Search.astro';
 import IconSprite from '../components/IconSprite.astro';
 import WatchChoice from '../components/WatchChoice.astro';
+import Souhlas from '../components/Souhlas.astro';
 import { BONUS } from '../lib/bonus';
 import { BRAND } from '../lib/seo';
 import { regPath } from '../lib/url';
@@ -147,7 +148,7 @@ const sportSection = SPORTS.some((s) => s.slug === section);
         <div><h2 class="fh">Dnes</h2><a href="/futbal/dnes/">Futbal dnes</a><a href="/hokej/dnes/">Hokej dnes</a><a href="/tenis/dnes/">Tenis dnes</a><a href="/basketbal/dnes/">Basketbal dnes</a><a href="/teraz-nazivo/">Práve naživo</a><a href="/program/zajtra/">Program na zajtra</a></div>
         <div><h2 class="fh">Súťaže</h2><a href="/futbal/nike-liga/">Niké liga</a><a href="/hokej/tipsport-liga/">Tipsport liga</a><a href="/futbal/liga-majstrov/">Liga majstrov</a><a href="/futbal/premier-league/">Premier League</a><a href="/hokej/nhl/">NHL</a><a href="/mma/oktagon/">Oktagon MMA</a><a href="/basketbal/nba/">NBA</a></div>
         <div><h2 class="fh">Prehľady</h2><a href="/program/">Program prenosov</a><a href="/vysledky/">Výsledky</a><a href="/tipsport-tv/">Ako pozerať zadarmo</a><a href="/tipsport-bonus/">Bonus 20 €</a><a href="/hladat/">Hľadať zápas</a></div>
-        <div><h2 class="fh">O webe</h2><a href="/o-nas/">O nás</a><a href="/zodpovedne-hranie/">Zodpovedné hranie</a><a href="/ochrana-osobnych-udajov/">Ochrana osobných údajov</a><a href="/podmienky/">Podmienky používania</a><a href="/zdroje-fotiek/">Zdroje fotiek</a><a href="/kontakt/">Kontakt</a></div>
+        <div><h2 class="fh">O webe</h2><a href="/o-nas/">O nás</a><a href="/zodpovedne-hranie/">Zodpovedné hranie</a><a href="/ochrana-osobnych-udajov/">Ochrana osobných údajov</a><a href="/podmienky/">Podmienky používania</a><a href="/zdroje-fotiek/">Zdroje fotiek</a><button type="button" class="pata-cookies" data-souhlas-otevri>Nastavenie cookies</button><a href="/kontakt/">Kontakt</a></div>
       </div>
       <div class="warn"><b>18+</b><span>{BONUS.warn} Pomoc a informácie: <a href="https://www.urhh.sk" rel="noopener nofollow">Úrad pre reguláciu hazardných hier</a>.</span></div>
       <p class="legal">{BRAND} je nezávislý prehľad športových prenosov. Videá nevysielame ani neukladáme – odkazy vedú na Tipsport.sk, licencovaného prevádzkovateľa na Slovensku, od ktorého môžeme dostať províziu, ak sa zaregistruješ. Pozeranie prenosov je viazané na registráciu a prihlásenie u prevádzkovateľa. Reklama je označená.</p>
@@ -178,6 +179,7 @@ const sportSection = SPORTS.some((s) => s.slug === section);
     </div>
   </div>
   <WatchChoice />
+  <Souhlas />
   <script>
     const $ = <T extends HTMLElement>(s: string) => document.querySelector<T>(s);
     // Drawer (phone menu): open from the header or the tab bar, close on ✕, Escape or a tap outside; page scroll locked.

@@ -1,0 +1,142 @@
+---
+// Cookie bar + Google Analytics only after consent (same rules as sportstreamy.cz and spinydnes.cz):
+// - Decision in localStorage `zp-suhlas` {v, stat, t}, valid 6 months; HTML is cached, so the bar is always
+//   in the markup and the script shows it only to visitors who have not decided yet.
+// - GA4 is not loaded at all without consent to statistics (no consent mode); withdrawing consent deletes _ga* cookies.
+// - "Odmietnuť všetko" is as prominent as "Prijať všetko", nothing pre-ticked, Escape = refuse.
+// - The script is a bundled file (the CSP has no 'unsafe-inline'), the measurement ID is in it.
+---
+<div id="ss-souhlas" class="souhlas" role="dialog" aria-modal="false" aria-labelledby="ss-souhlas-nadpis" hidden>
+  <p id="ss-souhlas-nadpis" class="souhlas__nadpis">Cookies a meranie návštevnosti</p>
+  <p class="souhlas__text">Na fungovanie webu stačí nevyhnutné úložisko. So súhlasom navyše meriame návštevnosť a prekliky (Google Analytics), aby sme vedeli, ktoré zápasy a sekcie ťa zaujímajú. Bez tvojho áno sa nič nemeria. <a href="/ochrana-osobnych-udajov/#cookies">Zásady cookies</a></p>
+  <div class="souhlas__nastaveni" hidden>
+    <label class="souhlas__radek"><input type="checkbox" checked disabled /> <span><strong>Nevyhnutné</strong> – zapamätanie tvojej voľby, vždy zapnuté.</span></label>
+    <label class="souhlas__radek"><input type="checkbox" id="ss-souhlas-stat" /> <span><strong>Štatistika</strong> – Google Analytics (cookies <code>_ga</code>, <code>_ga_*</code>), meranie návštevnosti a preklikov.</span></label>
+  </div>
+  <div class="souhlas__tlacitka">
+    <button type="button" class="souhlas__btn" data-souhlas="ne">Odmietnuť všetko</button>
+    <button type="button" class="souhlas__btn souhlas__btn--ano" data-souhlas="ano">Prijať všetko</button>
+    <button type="button" class="souhlas__odkaz" data-souhlas="nastaveni">Nastavenia</button>
+    <button type="button" class="souhlas__odkaz" data-souhlas="ulozit" hidden>Uložiť výber</button>
+  </div>
+</div>
+<script>
+  const ID = 'G-K2NR9QSFD4';
+  const KLIC = 'zp-suhlas';
+  const VER = 1;
+  const PLATNOST = 183 * 864e5;
+  type Rozhodnuti = { v: number; stat: number; t: number };
+  const w = window as unknown as Record<string, unknown> & { dataLayer: unknown[]; gtag?: (...a: unknown[]) => void };
+  const lista = document.getElementById('ss-souhlas') as HTMLElement;
+  let nacteno = false;
+
+  function precti(): Rozhodnuti | null | 'nelze' {
+    try {
+      const d = JSON.parse(localStorage.getItem(KLIC) || 'null') as Rozhodnuti | null;
+      if (d && d.v === VER && d.t && Date.now() - d.t < PLATNOST) return d;
+    } catch {
+      return 'nelze';
+    }
+    return null;
+  }
+  function zapis(stat: boolean) {
+    try { localStorage.setItem(KLIC, JSON.stringify({ v: VER, stat: stat ? 1 : 0, t: Date.now() })); } catch { /* storage blocked */ }
+  }
+  function smazGa() {
+    const host = location.hostname.replace(/^www\./, '');
+    for (const c of document.cookie.split(';')) {
+      const j = c.split('=')[0].trim();
+      if (j === '_ga' || j.startsWith('_ga_') || j === '_gid' || j.startsWith('_gat')) {
+        for (const d of ['', `; domain=${host}`, `; domain=.${host}`, `; domain=www.${host}`]) document.cookie = `${j}=; expires=Thu, 01 Jan 1970 00:00:00 GMT; path=/${d}`;
+      }
+    }
+  }
+  // Right after "accept" load at once; on later visits gtag.js waits for interaction or 3.5 s so it does not slow phones.
+  function nactiGa(hned: boolean) {
+    if (nacteno) return;
+    nacteno = true;
+    w[`ga-disable-${ID}`] = false;
+    w.dataLayer = w.dataLayer || [];
+    w.gtag = function () { w.dataLayer.push(arguments); };
+    w.gtag('js', new Date());
+    w.gtag('config', ID, { allow_google_signals: false, allow_ad_personalization_signals: false });
+    let hotovo = false;
+    const l = () => {
+      if (hotovo) return;
+      hotovo = true;
+      const s = document.createElement('script');
+      s.async = true;
+      s.src = `https://www.googletagmanager.com/gtag/js?id=${ID}`;
+      document.head.appendChild(s);
+    };
+    if (hned) { l(); return; }
+    for (const e of ['pointerdown', 'keydown', 'touchstart', 'scroll']) addEventListener(e, l, { once: true, passive: true });
+    if (document.readyState === 'complete') setTimeout(l, 3500); else addEventListener('load', () => setTimeout(l, 3500));
+  }
+  function vypniGa() { w[`ga-disable-${ID}`] = true; smazGa(); }
+  function ukaz(rozbalene: boolean) {
+    const d = precti();
+    (lista.querySelector('#ss-souhlas-stat') as HTMLInputElement).checked = !!(d && d !== 'nelze' && d.stat);
+    (lista.querySelector('.souhlas__nastaveni') as HTMLElement).hidden = !rozbalene;
+    (lista.querySelector('[data-souhlas=ulozit]') as HTMLElement).hidden = !rozbalene;
+    (lista.querySelector('[data-souhlas=nastaveni]') as HTMLElement).hidden = rozbalene;
+    lista.hidden = false;
+    document.body.classList.add('se-souhlasem');
+  }
+  function rozhodni(stat: boolean) {
+    zapis(stat);
+    if (stat) nactiGa(true); else vypniGa();
+    lista.hidden = true;
+    document.body.classList.remove('se-souhlasem');
+  }
+
+  const drive = precti();
+  if (drive && drive !== 'nelze') {
+    if (drive.stat) nactiGa(false); else vypniGa();
+  } else if (!drive) {
+    // Undecided: show after first paint so the bar does not compete with the LCP element.
+    const u = () => ukaz(false);
+    if ('requestIdleCallback' in window) requestIdleCallback(u, { timeout: 1500 }); else setTimeout(u, 800);
+  }
+  // 'nelze' (storage blocked): nothing is measured and the bar is not shown again.
+  document.addEventListener('click', (e) => {
+    const t = (e.target as HTMLElement).closest<HTMLElement>('[data-souhlas],[data-souhlas-otevri],a[href^="/go/"]');
+    if (!t) return;
+    // Affiliate click as a GA event (only exists after consent); the server-side count in /go/ stays the source of truth.
+    if (t.tagName === 'A') {
+      const u = new URL((t as HTMLAnchorElement).href);
+      w.gtag?.('event', 'affiliate_click', { partner: u.pathname.split('/')[2] || '', placement: u.searchParams.get('p') || '', page: location.pathname, transport_type: 'beacon' });
+      return;
+    }
+    if (t.hasAttribute('data-souhlas-otevri')) { ukaz(true); (lista.querySelector('#ss-souhlas-stat') as HTMLElement).focus(); return; }
+    const a = t.getAttribute('data-souhlas');
+    if (a === 'ano') rozhodni(true);
+    else if (a === 'ne') rozhodni(false);
+    else if (a === 'nastaveni') ukaz(true);
+    else if (a === 'ulozit') rozhodni((lista.querySelector('#ss-souhlas-stat') as HTMLInputElement).checked);
+  });
+  lista.addEventListener('keydown', (e) => { if (e.key === 'Escape') rozhodni(false); });
+</script>
+<style is:global>
+  .souhlas[hidden], .souhlas [hidden] { display: none !important; }
+  .souhlas { position: fixed; z-index: 70; left: 16px; bottom: 16px; width: min(440px, calc(100vw - 32px)); padding: 16px 18px; background: var(--card); color: var(--ink); border: 2px solid var(--ink); border-radius: var(--r); box-shadow: var(--shadow); font-size: .9rem; line-height: 1.45; }
+  .souhlas__nadpis { margin: 0 0 4px; font-weight: 800; font-size: 1.02rem; }
+  .souhlas__text { margin: 0; color: var(--ink-2); }
+  .souhlas__text a { color: var(--blue); text-decoration: underline; }
+  .souhlas__nastaveni { margin-top: 10px; display: grid; gap: 8px; }
+  .souhlas__radek { display: flex; gap: 10px; align-items: flex-start; font-size: .85rem; }
+  .souhlas__radek input { margin-top: 2px; width: 20px; height: 20px; flex: none; accent-color: var(--red); }
+  .souhlas__tlacitka { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 12px; }
+  .souhlas__btn { font: inherit; font-weight: 800; min-height: 46px; padding: 0 12px; border: 2px solid var(--ink); border-radius: var(--r); background: #f7f8f4; color: var(--ink); cursor: pointer; }
+  .souhlas__btn--ano { background: var(--red); color: #fff; border-color: var(--ink); }
+  .souhlas__btn:focus-visible, .souhlas__odkaz:focus-visible { outline: 2px solid var(--blue); outline-offset: 2px; }
+  .souhlas__odkaz { grid-column: 1 / -1; justify-self: center; min-height: 36px; padding: 0 8px; border: 0; background: none; color: var(--ink-3); font: inherit; font-size: .85rem; text-decoration: underline; text-underline-offset: 3px; cursor: pointer; }
+  .pata-cookies { display: block; padding: 3px 0; border: 0; background: none; color: #c9d2e3; font: inherit; text-align: left; cursor: pointer; }
+  .pata-cookies:hover { color: #fff; text-decoration: underline; }
+  /* On phones the bar replaces the dock and sticky CTA until the visitor decides */
+  .se-souhlasem .stick, .se-souhlasem .dock { display: none !important; }
+  @media (max-width: 700px) {
+    .souhlas { left: 0; right: 0; bottom: 0; width: 100%; border-width: 2px 0 0; border-radius: 14px 14px 0 0; padding: 12px 14px calc(12px + env(safe-area-inset-bottom, 0px)); max-height: 70vh; overflow-y: auto; }
+    .souhlas__text { font-size: .82rem; }
+  }
+</style>
