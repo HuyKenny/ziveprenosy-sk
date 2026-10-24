@@ -1,0 +1,12 @@
+---
+import Base from '../layouts/Base.astro';
+import { BRAND } from '../lib/seo';
+export const prerender = false;
+Astro.response.status = 404;
+---
+<Base title={`Stránka neexistuje | ${BRAND}`} description="Táto stránka neexistuje." noindex ttl={300}>
+  <div class="wrap" style="max-width:760px">
+    <section class="head"><h1>Táto stránka neexistuje</h1><p class="lead">Odkaz je chybný alebo stránka už nie je k dispozícii.</p></section>
+    <p><a class="btn" href="/">Na úvodnú stránku</a> <a class="btn out" href="/teraz-nazivo/">Práve naživo</a></p>
+  </div>
+</Base>

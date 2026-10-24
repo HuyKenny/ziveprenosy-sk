@@ -1,0 +1,31 @@
+---
+import type { SportCount, League } from '../lib/page';
+import { sportPath } from '../lib/url';
+import { SPORT_BY_ID } from '../lib/sports';
+import Ticket from './Ticket.astro';
+import Icon from './Icon.astro';
+interface Props { sports: SportCount[]; leagues: League[]; placement: string; current?: string }
+const { sports, leagues, placement, current } = Astro.props;
+const lg = leagues.filter((l) => l.top || l.sk || l.live).slice(0, 10);
+---
+<div class="side">
+  <Ticket placement={placement} />
+  <div class="box">
+    <h3>Športy</h3>
+    <ul>{sports.slice(0, 12).map((s) => <li><a href={sportPath(s.slug)} aria-current={current === s.slug ? 'page' : undefined}><Icon name={s.slug} />{s.name}<em class:list={[s.live && 'l']}>{s.live ? `${s.live} naživo` : s.total}</em></a></li>)}</ul>
+  </div>
+  {lg.length ? (
+    <div class="box">
+      <h3>Súťaže</h3>
+      <ul>{lg.map((l) => <li><a href={`/${SPORT_BY_ID.get(l.sp)?.slug}/${l.slug}/`}>{l.name}<em class:list={[l.live && 'l']}>{l.live ? `${l.live} naživo` : l.n}</em></a></li>)}</ul>
+    </div>
+  ) : null}
+  <div class="box">
+    <h3>Ako pozerať</h3>
+    <ul>
+      <li><a href="/tipsport-tv/"><Icon name="tv" />Tipsport TV návod</a></li>
+      <li><a href="/program/zajtra/"><Icon name="calendar" />Program na zajtra</a></li>
+      <li><a href="/vysledky/"><Icon name="trophy" />Výsledky dnes</a></li>
+    </ul>
+  </div>
+</div>

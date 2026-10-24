@@ -1,0 +1,10 @@
+---
+// Hand-drawn 24px line icons (stroke follows currentColor). Unknown sport slugs fall back to a plain ball.
+// Rendered as <use> of a sprite defined once per page (IconSprite.astro): a row of matches no longer carries
+// a full copy of each path, which halves the DOM of long lists.
+import { P } from '../lib/icons';
+interface Props { name: string; class?: string }
+const { name, class: cls } = Astro.props;
+const id = P[name] ? name : 'ball';
+---
+<svg class={cls ?? 'ico'} viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href={`#i-${id}`} /></svg>

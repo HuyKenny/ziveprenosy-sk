@@ -1,0 +1,75 @@
+---
+import Base from '../../layouts/Base.astro';
+import LeagueList from '../../components/LeagueList.astro';
+import ResultList from '../../components/ResultList.astro';
+import Side from '../../components/Side.astro';
+import Faq from '../../components/Faq.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import Ticket from '../../components/Ticket.astro';
+import { getEnv, view, sportCounts, leagues } from '../../lib/page';
+import { SPORT_BY_SLUG } from '../../lib/sports';
+import { competitionBySlug, competitionSlug, leagueName } from '../../lib/competitions';
+import { TODAY_SPORTS } from '../../lib/sport-text';
+import { plural, dayKey, longDay, hhmm } from '../../lib/text';
+import { breadcrumbLd, faqLd, itemListLd, BRAND } from '../../lib/seo';
+import { sportPath } from '../../lib/url';
+import { BONUS } from '../../lib/bonus';
+import { resultsConfig, resultsDb } from '../../lib/results/config';
+import { recentOfComp } from '../../lib/results/store';
+
+export const prerender = false;
+const sport = SPORT_BY_SLUG.get(Astro.params.sport ?? '');
+const slug = Astro.params.league ?? '';
+if (!sport) return Astro.rewrite('/404/');
+const env = getEnv();
+const v = await view(env);
+const now = Date.now();
+const today = slug === 'dnes';
+if (today && !TODAY_SPORTS.has(sport.slug)) return Astro.rewrite('/404/');
+const comp = today ? undefined : competitionBySlug(sport.id, slug);
+const inComp = (m: { sp: number; lg: string }) => m.sp === sport.id && competitionSlug(m.sp, m.lg) === slug;
+const pick = today ? (m: { sp: number; st: number }) => m.sp === sport.id && dayKey(m.st) === dayKey(now) : inComp;
+const live = v.live.filter((m) => (today ? m.sp === sport.id : inComp(m)));
+const next = v.upcoming.filter(pick);
+// An uncurated competition exists only while the feed has it; afterwards the URL is gone for good.
+const sample = [...live, ...next][0];
+if (!today && !comp && !sample) {
+  Astro.response.status = 410;
+  Astro.response.headers.set('X-Robots-Tag', 'noindex');
+}
+const name = today ? `${sport.name} dnes` : comp?.name ?? (sample ? leagueName(sample.sp, sample.lg) : '');
+const rc = resultsConfig(env);
+const rdb = resultsDb(env);
+const results = comp && rdb && rc.comps.includes(comp.id) ? await recentOfComp(rdb, comp.id, now, 8) : [];
+const crumbs = [{ name: 'Domov', href: '/' }, { name: `${sport.name} online`, href: sportPath(sport.slug) }, { name }];
+const n = live.length + next.length;
+const faq = today ? [
+  { q: `Aký ${sport.name.toLowerCase()} je dnes v telke a online?`, a: `Dnes je v ponuke ${n} ${plural(n, 'zápas', 'zápasy', 'zápasov')} ${sport.genitive}${live.length ? `, z toho ${live.length} práve beží` : ''}. Zápasy s videom vysiela Tipsport TV registrovaným hráčom Tipsport.sk zadarmo.` },
+  { q: 'V akom čase sú zápasy?', a: 'Všetky časy sú v slovenskom čase.' },
+] : [
+  { q: `Kde pozerať ${name} online?`, a: `Zápasy s videom vysiela Tipsport TV registrovaným hráčom Tipsport.sk. Pri zápasoch bez videa ponúka živé štatistiky a priebežné skóre. Registrácia je zadarmo, noví hráči dostanú bonus ${BONUS.amount}.` },
+  { q: `Kedy sa hrá ďalší zápas – ${name}?`, a: next[0] ? `Najbližší zápas je ${longDay(next[0].st)} o ${hhmm(next[0].st)}. Celý program je na tejto stránke.` : 'Ďalšie zápasy sa tu objavia, len čo budú v ponuke.' },
+];
+const title = today ? `${sport.name} dnes: zápasy a prenosy naživo | ${BRAND}` : `${name} online – zápasy, program a prenosy | ${BRAND}`;
+const desc = today ? `${sport.name} dnes: ${n} ${plural(n, 'zápas', 'zápasy', 'zápasov')}, ${live.length} práve naživo. Časy v slovenskom čase a odkaz na prenos.` : `${name}: ${live.length} naživo, ${next.length} v programe. Časy zápasov, živé skóre${results.length ? ', výsledky' : ''} a kde pozerať online.`;
+---
+<Base title={title} description={desc} ld={[breadcrumbLd(crumbs), faqLd(faq), itemListLd([...live, ...next], name)]} section={comp?.slug ?? sport.slug} noindex={!today && !comp && !sample} ttl={today ? 60 : 120}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head">
+      <div class="eyebrow">{comp ? <span class="badge" style={`background:${comp.color};color:#fff;padding:2px 7px;border-radius:3px`}>{comp.short}</span> : null}<span>{sport.name}</span>{today ? <span>{longDay(now)}</span> : null}</div>
+      <h1>{today ? `${sport.name} dnes` : `${name} online`}</h1>
+      <p class="lead">{today ? `Všetky dnešné zápasy ${sport.genitive} podľa súťaží – slovenské navrchu. Klikni na „Pozerať“ a prenos sa otvorí na Tipsport TV.` : comp?.intro ?? (sample ? `${name}: zápasy, ktoré sú práve v ponuke, s časom začiatku a odkazom na prenos alebo živé štatistiky.` : 'Táto súťaž už nemá žiadne zápasy v ponuke.')}</p>
+    </section>
+    <div class="cols">
+      <div>
+        {live.length ? <section class="sec"><div class="sec-h"><h2>Naživo <span class="n live">{live.length}</span></h2></div><LeagueList items={live} now={now} placement={today ? 'today-live' : 'comp-live'} live showSport={false} /></section> : null}
+        <section class="sec"><div class="sec-h"><h2>{today ? 'Dnes ešte' : 'Program'} <span class="n">{next.length}</span></h2></div><LeagueList items={next} now={now} placement={today ? 'today' : 'comp'} days={!today} showSport={false} empty={today ? `Dnes už žiadny ďalší zápas ${sport.genitive} nie je. Pozri program na zajtra.` : 'Najbližšie zápasy zatiaľ nie sú v ponuke. Stránka sa aktualizuje automaticky.'} /></section>
+        {results.length ? <section class="sec"><div class="sec-h"><h2>Posledné výsledky</h2><a href="/vysledky/">Všetky výsledky ›</a></div><ResultList rows={results} comps={[comp!.id]} now={now} staleMs={rc.staleMs} showDay /></section> : null}
+        <div class="sec"><Ticket placement={today ? 'today-mid' : 'comp-mid'} wide /></div>
+        <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
+      </div>
+      <Side sports={sportCounts(v)} leagues={leagues(v, sport.id)} placement={today ? 'today-side' : 'comp-side'} current={sport.slug} />
+    </div>
+  </div>
+</Base>

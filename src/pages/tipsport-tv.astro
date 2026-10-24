@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import Faq from '../components/Faq.astro';
+import Ticket from '../components/Ticket.astro';
+import LeagueList from '../components/LeagueList.astro';
+import Icon from '../components/Icon.astro';
+import { getEnv, view, featured } from '../lib/page';
+import { breadcrumbLd, faqLd, BRAND } from '../lib/seo';
+import { BONUS } from '../lib/bonus';
+import { regPath } from '../lib/url';
+
+export const prerender = false;
+const v = await view(getEnv());
+const now = Date.now();
+const withVideo = v.live.filter((m) => m.stream);
+const crumbs = [{ name: 'Domov', href: '/' }, { name: 'Tipsport TV' }];
+const faq = [
+  { q: 'Je Tipsport TV zadarmo?', a: 'Áno. Prenosy sú bezplatné pre registrovaných a prihlásených hráčov Tipsport.sk. Na pozeranie si nemusíš staviť.' },
+  { q: 'Čo potrebujem na pozeranie Tipsport TV?', a: 'Účet na Tipsport.sk (registrácia je zadarmo, len pre osoby od 18 rokov) a internetové pripojenie. Prenosy bežia v prehliadači na počítači aj v mobile a v aplikácii Tipsport.' },
+  { q: 'Prečo nevidím video pri každom zápase?', a: 'Pri zápasoch, ktorých televízne práva drží iná stanica, Tipsport video nevysiela. Ponúka pri nich živé štatistiky a priebežné skóre – na našom webe majú tlačidlo „Štatistiky“.' },
+  { q: 'Aký bonus dostanem za registráciu?', a: `Noví hráči Tipsport.sk dostanú za registráciu bonus ${BONUS.amount}. Presné podmienky určuje prevádzkovateľ a nájdeš ich na jeho webe.` },
+  { q: 'Ako nájdem zápas, ktorý chcem pozerať?', a: 'Najrýchlejšie cez náš prehľad: na úvodnej stránke vidíš, čo práve beží, v programe zápasy na 7 dní dopredu. Pri zápase klikni na „Pozerať“ a otvorí sa priamo Tipsport TV.' },
+];
+---
+<Base title={`Tipsport TV: ako pozerať živé prenosy zadarmo | ${BRAND}`} description={`Tipsport TV návod: registrácia, prihlásenie a spustenie prenosu krok za krokom. Práve beží ${withVideo.length} zápasov s videom. Bonus ${BONUS.amount} pre nových hráčov.`} ld={[breadcrumbLd(crumbs), faqLd(faq)]} section="tipsport-tv" ttl={300}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head">
+      <h1>Tipsport TV – ako pozerať prenosy zadarmo</h1>
+      <p class="lead">Tipsport TV je služba, cez ktorú Tipsport.sk vysiela živé športové prenosy svojim hráčom. Tu je postup, ako sa k nej dostaneš, a prehľad, čo sa na nej práve hrá.</p>
+    </section>
+    <div class="cols">
+      <div>
+        <section class="sec">
+          <div class="sec-h"><h2>Ako začať pozerať</h2></div>
+          <ol class="steps">
+            <li><span><b>Zaregistruj sa na Tipsport.sk</b>Vyplníš osobné údaje a overíš totožnosť – vyžaduje to zákon, hrať a pozerať smú len plnoletí. Noví hráči dostanú bonus {BONUS.amount}.</span></li>
+            <li><span><b>Prihlás sa</b>Prenosy sa spúšťajú len prihláseným hráčom. Na mobile to ide najpohodlnejšie v aplikácii Tipsport.</span></li>
+            <li><span><b>Vyber zápas</b>Na ŽivéPrenosy.sk klikni pri zápase na „Pozerať“ – otvorí sa Tipsport TV. Staviť si nemusíš.</span></li>
+          </ol>
+          <p style="margin-top:14px"><a class="btn lg" href={regPath('tv-guide')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />Registrácia a bonus {BONUS.amount}</a> <small class="muted">Reklama · 18+</small></p>
+        </section>
+        <section class="sec">
+          <div class="sec-h"><h2>Na Tipsport TV práve beží <span class="n live">{withVideo.length}</span></h2><a href="/teraz-nazivo/">Všetko naživo ›</a></div>
+          <LeagueList items={featured(withVideo)} now={now} placement="tv-live" live per={3} max={6} empty="Práve teraz nebeží žiadny prenos s videom. Pozri program na dnes." />
+        </section>
+        <section class="sec prose">
+          <h2>Čo Tipsport TV vysiela</h2>
+          <p>Najviac prenosov je z tenisu (turnaje ATP, WTA, Challenger a ITF), futbalu nižších a zámorských líg, hokeja, basketbalu, volejbalu, hádzanej, stolného tenisu a e-športov. Pri súťažiach, kde majú práva televízie – napríklad pri najväčších ligách – nájdeš aspoň živé štatistiky.</p>
+          <p>Ponuka sa mení zo dňa na deň. Aby si nemusel hľadať na webe stávkovej kancelárie, zoraďujeme všetky zápasy podľa súťaží s časom začiatku, slovenské súťaže navrchu. Zápasy s videom poznáš podľa červeného tlačidla „Pozerať“.</p>
+          <h2>Tipsport TV na mobile</h2>
+          <p>Prenos sa dá spustiť v mobilnom prehliadači aj v aplikácii Tipsport. Pri pozeraní cez mobilné dáta počítaj s väčšou spotrebou dát.</p>
+        </section>
+        <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
+      </div>
+      <div class="side"><Ticket placement="tv-side" /></div>
+    </div>
+  </div>
+</Base>

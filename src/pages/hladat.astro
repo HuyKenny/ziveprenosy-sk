@@ -1,0 +1,28 @@
+---
+import Base from '../layouts/Base.astro';
+import Search from '../components/Search.astro';
+import LeagueList from '../components/LeagueList.astro';
+import { getEnv, view } from '../lib/page';
+import { matchTitle, sportOf } from '../lib/url';
+import { leagueName } from '../lib/competitions';
+import { BRAND } from '../lib/seo';
+
+export const prerender = false;
+const q = (Astro.url.searchParams.get('q') ?? '').trim().slice(0, 60);
+const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+const words = fold(q).split(/\s+/).filter(Boolean);
+const v = await view(getEnv());
+const now = Date.now();
+const hits = words.length ? [...v.live, ...v.upcoming].filter((m) => { const f = fold(`${matchTitle(m)} ${m.h} ${m.a} ${leagueName(m.sp, m.lg)} ${sportOf(m)?.name ?? ''}`); return words.every((w) => f.includes(w)); }).slice(0, 80) : [];
+const liveIds = new Set(v.live.map((m) => m.id));
+---
+<Base title={`Hľadať zápas${q ? `: ${q}` : ''} | ${BRAND}`} description="Vyhľadávanie zápasov, tímov a súťaží v programe živých prenosov." noindex ttl={60}>
+  <div class="wrap" style="max-width:860px">
+    <section class="head"><h1>Hľadať zápas</h1><p class="lead">Napíš názov tímu, hráča alebo súťaže – stačí časť a bez diakritiky.</p><div style="margin-top:14px"><Search id="pq" value={q} autofocus /></div></section>
+    {q ? (<>
+      <h2 style="margin:0 0 12px">{hits.length ? `Výsledky pre „${q}“` : `Pre „${q}“ sme nič nenašli`}</h2>
+      {hits.some((m) => liveIds.has(m.id)) ? <LeagueList items={hits.filter((m) => liveIds.has(m.id))} now={now} placement="search-live" live /> : null}
+      <LeagueList items={hits.filter((m) => !liveIds.has(m.id))} now={now} placement="search" days empty="Skús iný názov alebo pozri program." />
+    </>) : null}
+  </div>
+</Base>

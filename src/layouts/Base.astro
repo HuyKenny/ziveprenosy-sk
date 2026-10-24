@@ -1,0 +1,168 @@
+---
+import '../styles/global.css';
+import Icon from '../components/Icon.astro';
+import Search from '../components/Search.astro';
+import IconSprite from '../components/IconSprite.astro';
+import { BONUS } from '../lib/bonus';
+import { BRAND } from '../lib/seo';
+import { regPath } from '../lib/url';
+import fontLatin from '../assets/fonts/schibsted-grotesk-latin.woff2?url';
+import fontExt from '../assets/fonts/schibsted-grotesk-latin-ext.woff2?url';
+interface Props {
+  title: string;
+  description: string;
+  path?: string;
+  noindex?: boolean;
+  ld?: object[];
+  ttl?: number;
+  section?: string;
+  /** Detail pages add a sticky CTA bar on phones. */
+  stick?: boolean;
+}
+const { title, description, path = Astro.url.pathname, noindex = false, ld = [], ttl = 60, section = '', stick = false } = Astro.props;
+const canonical = new URL(path, Astro.site).toString();
+const og = new URL('/og.png', Astro.site).toString();
+if (ttl > 0) Astro.response.headers.set('Cache-Control', `public, max-age=0, s-maxage=${ttl}, stale-while-revalidate=${ttl * 4}`);
+const MAIN = [
+  { href: '/teraz-nazivo/', label: 'Naživo', k: 'nazivo', live: true },
+  { href: '/program/', label: 'Program', k: 'program' },
+  { href: '/vysledky/', label: 'Výsledky', k: 'vysledky' },
+  { href: '/futbal/', label: 'Futbal', k: 'futbal' },
+  { href: '/hokej/', label: 'Hokej', k: 'hokej' },
+  { href: '/tenis/', label: 'Tenis', k: 'tenis' },
+];
+// Slovak competitions first (marked), then what Slovaks search for most.
+const SUB = [
+  { href: '/futbal/nike-liga/', label: 'Niké liga', k: 'nike-liga', sk: true },
+  { href: '/hokej/tipsport-liga/', label: 'Tipsport liga', k: 'tipsport-liga', sk: true },
+  { href: '/mma/oktagon/', label: 'Oktagon', k: 'oktagon', sk: true },
+  null,
+  { href: '/futbal/liga-majstrov/', label: 'Liga majstrov', k: 'liga-majstrov' },
+  { href: '/futbal/premier-league/', label: 'Premier League', k: 'premier-league' },
+  { href: '/hokej/nhl/', label: 'NHL', k: 'nhl' },
+  { href: '/hokej/ceska-extraliga/', label: 'Česká extraliga', k: 'ceska-extraliga' },
+  { href: '/basketbal/nba/', label: 'NBA', k: 'nba' },
+  null,
+  { href: '/mma/', label: 'MMA', k: 'mma' },
+  { href: '/basketbal/', label: 'Basketbal', k: 'basketbal' },
+  { href: '/volejbal/', label: 'Volejbal', k: 'volejbal' },
+  { href: '/hadzana/', label: 'Hádzaná', k: 'hadzana' },
+  { href: '/sipky/', label: 'Šípky', k: 'sipky' },
+  { href: '/tipsport-tv/', label: 'Tipsport TV', k: 'tipsport-tv' },
+];
+const DRAWER_SPORTS = [['futbal', 'Futbal'], ['hokej', 'Hokej'], ['tenis', 'Tenis'], ['mma', 'MMA'], ['basketbal', 'Basketbal'], ['volejbal', 'Volejbal'], ['hadzana', 'Hádzaná'], ['florbal', 'Florbal'], ['sipky', 'Šípky'], ['esporty', 'E-športy'], ['box', 'Box'], ['stolny-tenis', 'Stolný tenis']];
+---
+<!doctype html>
+<html lang="sk">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>{title}</title>
+  <meta name="description" content={description} />
+  <link rel="canonical" href={canonical} />
+  <meta name="robots" content={noindex ? 'noindex, follow' : 'index, follow, max-image-preview:large, max-snippet:-1'} />
+  <meta name="theme-color" content="#0f1b2d" />
+  <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+  <link rel="icon" href="/favicon-32.png" sizes="32x32" type="image/png" />
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+  <link rel="manifest" href="/site.webmanifest" />
+  <link rel="preload" href={fontLatin} as="font" type="font/woff2" crossorigin />
+  <link rel="preload" href={fontExt} as="font" type="font/woff2" crossorigin />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content={BRAND} />
+  <meta property="og:locale" content="sk_SK" />
+  <meta property="og:title" content={title} />
+  <meta property="og:description" content={description} />
+  <meta property="og:url" content={canonical} />
+  <meta property="og:image" content={og} />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta name="twitter:card" content="summary_large_image" />
+  {ld.map((o) => <script type="application/ld+json" set:html={JSON.stringify(o).replace(/</g, '\\u003c')} />)}
+</head>
+<body class:list={[stick && 'has-stick']}>
+  <IconSprite />
+  <header class="top">
+    <div class="wrap">
+      <a class="logo" href="/" aria-label={`${BRAND} – úvodná stránka`}>
+        <svg viewBox="0 0 32 32" aria-hidden="true"><rect x="1" y="1" width="30" height="30" rx="4" fill="#e1251b" stroke="#0f1b2d" stroke-width="2"/><path d="M12.5 9.5v13l10-6.5z" fill="#fff"/><circle cx="25" cy="7" r="3" fill="#fff" stroke="#0f1b2d" stroke-width="1.5"/></svg>
+        <span>živé<em>prenosy</em><small>.sk</small></span>
+      </a>
+      <nav class="mainnav" aria-label="Hlavná navigácia">
+        {MAIN.map((n) => <a href={n.href} aria-current={section === n.k ? 'page' : undefined}>{n.live ? <span class="dot pulse"></span> : null}{n.label}</a>)}
+      </nav>
+      <div class="grow"></div>
+      <div class="search"><Search id="hq" /></div>
+      <a class="btn sm" href={regPath('header')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />{BONUS.amount}</a>
+      <button type="button" class="navbtn" data-open aria-controls="drawer" aria-expanded="false" aria-label="Otvoriť menu"><Icon name="menu" /></button>
+    </div>
+  </header>
+  <nav class="subnav" aria-label="Súťaže a športy">
+    <div class="wrap">
+      {SUB.map((n) => n ? <a href={n.href} class:list={[n.sk && 'sk']} aria-current={section === n.k ? 'page' : undefined}>{n.label}</a> : <span class="sep"></span>)}
+    </div>
+  </nav>
+  <main><slot /></main>
+  <footer>
+    <div class="wrap">
+      <div class="grid">
+        <div><h4>Športy online</h4><a href="/futbal/">Futbal online</a><a href="/hokej/">Hokej online</a><a href="/tenis/">Tenis online</a><a href="/mma/">MMA online</a><a href="/basketbal/">Basketbal online</a><a href="/volejbal/">Volejbal online</a><a href="/hadzana/">Hádzaná online</a><a href="/sipky/">Šípky online</a></div>
+        <div><h4>Dnes</h4><a href="/futbal/dnes/">Futbal dnes</a><a href="/hokej/dnes/">Hokej dnes</a><a href="/tenis/dnes/">Tenis dnes</a><a href="/basketbal/dnes/">Basketbal dnes</a><a href="/teraz-nazivo/">Práve naživo</a><a href="/program/zajtra/">Program na zajtra</a></div>
+        <div><h4>Súťaže</h4><a href="/futbal/nike-liga/">Niké liga</a><a href="/hokej/tipsport-liga/">Tipsport liga</a><a href="/futbal/liga-majstrov/">Liga majstrov</a><a href="/futbal/premier-league/">Premier League</a><a href="/hokej/nhl/">NHL</a><a href="/mma/oktagon/">Oktagon MMA</a><a href="/basketbal/nba/">NBA</a></div>
+        <div><h4>Prehľady</h4><a href="/program/">Program prenosov</a><a href="/vysledky/">Výsledky</a><a href="/tipsport-tv/">Tipsport TV</a><a href="/hladat/">Hľadať zápas</a></div>
+        <div><h4>O webe</h4><a href="/o-nas/">O nás</a><a href="/zodpovedne-hranie/">Zodpovedné hranie</a><a href="/ochrana-osobnych-udajov/">Ochrana osobných údajov</a><a href="/podmienky/">Podmienky používania</a><a href="/kontakt/">Kontakt</a></div>
+      </div>
+      <div class="warn"><b>18+</b><span>{BONUS.warn} Pomoc a informácie: <a href="https://www.urhh.sk" rel="noopener nofollow">Úrad pre reguláciu hazardných hier</a>.</span></div>
+      <p class="legal">{BRAND} je nezávislý prehľad športových prenosov. Videá nevysielame ani neukladáme – odkazy vedú na Tipsport.sk, licencovaného prevádzkovateľa na Slovensku, od ktorého môžeme dostať províziu, ak sa zaregistruješ. Pozeranie prenosov je viazané na registráciu a prihlásenie u prevádzkovateľa. Reklama je označená.</p>
+    </div>
+  </footer>
+  <div class="drawer" id="drawer" data-drawer>
+    <div class="panel" role="dialog" aria-modal="true" aria-label="Menu">
+      <button type="button" class="navbtn close" data-close aria-label="Zavrieť menu" style="display:inline-flex">✕</button>
+      <Search id="dq" />
+      <h3>Prehľady</h3>
+      <div class="links"><a href="/teraz-nazivo/"><span class="dot pulse"></span>Naživo</a><a href="/program/"><Icon name="calendar" />Program</a><a href="/vysledky/"><Icon name="trophy" />Výsledky</a><a href="/tipsport-tv/"><Icon name="tv" />Tipsport TV</a></div>
+      <h3>Slovensko</h3>
+      <div class="links"><a href="/futbal/nike-liga/">Niké liga</a><a href="/hokej/tipsport-liga/">Tipsport liga</a><a href="/mma/oktagon/">Oktagon</a><a href="/futbal/2-liga/">2. liga</a></div>
+      <h3>Športy</h3>
+      <div class="links">{DRAWER_SPORTS.map(([s, n]) => <a href={`/${s}/`}><Icon name={s} />{n}</a>)}</div>
+      <h3>Súťaže</h3>
+      <div class="links"><a href="/futbal/liga-majstrov/">Liga majstrov</a><a href="/futbal/premier-league/">Premier League</a><a href="/hokej/nhl/">NHL</a><a href="/basketbal/nba/">NBA</a><a href="/futbal/la-liga/">La Liga</a><a href="/futbal/serie-a/">Serie A</a><a href="/hokej/ceska-extraliga/">Česká extraliga</a><a href="/mma/ufc/">UFC</a></div>
+    </div>
+  </div>
+  <script>
+    const d = document.querySelector<HTMLElement>('[data-drawer]')!;
+    const btns = document.querySelectorAll<HTMLElement>('[data-open]');
+    const set = (open: boolean) => { d.classList.toggle('open', open); btns.forEach((b) => b.setAttribute('aria-expanded', String(open))); document.body.style.overflow = open ? 'hidden' : ''; };
+    btns.forEach((b) => b.addEventListener('click', () => set(true)));
+    d.querySelector('[data-close]')!.addEventListener('click', () => set(false));
+    d.addEventListener('click', (e) => { if (e.target === d) set(false); });
+    addEventListener('keydown', (e) => { if (e.key === 'Escape') set(false); });
+  </script>
+  <script>
+    // Live scores: refresh score + minute in place every 30 s while the tab is visible.
+    const rows = () => document.querySelectorAll<HTMLElement>('[data-id]');
+    if (document.querySelector('[data-s], [data-t]')) {
+      setInterval(async () => {
+        if (document.hidden) return;
+        try {
+          const live: Record<string, [string, string, string]> = await (await fetch('/api/live.json')).json();
+          rows().forEach((n) => {
+            const v = live[n.dataset.id!];
+            if (!v) return;
+            const s = n.querySelector<HTMLElement>('[data-s]');
+            const t = n.querySelector<HTMLElement>('[data-t]');
+            if (s && v[0]) {
+              const parts = v[0].split(':');
+              const spans = s.querySelectorAll('span');
+              if (spans.length === 2 && parts.length === 2) { spans[0].textContent = parts[0]; spans[1].textContent = parts[1]; }
+              else s.textContent = v[0];
+            }
+            if (t && v[1]) t.textContent = n.classList.contains('scorecard') ? v[2] : v[1];
+          });
+        } catch { /* keep what is on screen */ }
+      }, 30_000);
+    }
+  </script>
+</body>
+</html>

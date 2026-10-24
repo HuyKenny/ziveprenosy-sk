@@ -1,0 +1,11 @@
+---
+import type { Match } from '../lib/types';
+import { goPath, matchTitle } from '../lib/url';
+import Icon from './Icon.astro';
+interface Props { m: Match; label: string }
+const { m, label } = Astro.props;
+---
+<div class="stick">
+  <p>{matchTitle(m)}<small>Tipsport.sk · Reklama · 18+</small></p>
+  <a class="btn" href={goPath(m, 'sticky')} rel="sponsored nofollow noopener" target="_blank"><Icon name={m.stream ? 'play' : 'spark'} />{label}</a>
+</div>

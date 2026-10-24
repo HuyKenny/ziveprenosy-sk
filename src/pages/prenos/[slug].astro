@@ -1,0 +1,143 @@
+---
+import Base from '../../layouts/Base.astro';
+import LeagueList from '../../components/LeagueList.astro';
+import Side from '../../components/Side.astro';
+import Faq from '../../components/Faq.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import Stick from '../../components/Stick.astro';
+import Ticket from '../../components/Ticket.astro';
+import Icon from '../../components/Icon.astro';
+import { getEnv, view, sportCounts, leagues } from '../../lib/page';
+import { hhmm, longDay, dayLabel, shortDay } from '../../lib/text';
+import { matchTitle, matchPath, sportOf, goPath, sportPath, leaguePathOf, home, away } from '../../lib/url';
+import { competitionSlug, leagueName } from '../../lib/competitions';
+import { skClock } from '../../lib/names';
+import { BONUS } from '../../lib/bonus';
+import { breadcrumbLd, faqLd, sportsEventLd, clip, BRAND } from '../../lib/seo';
+import { resultsConfig, resultsDb } from '../../lib/results/config';
+import { rowByExt } from '../../lib/results/store';
+import { asMatch, scoreText, detailText, isStale } from '../../lib/results/view';
+import { isFinal, isInPlay, statusLabel } from '../../lib/results/status';
+
+export const prerender = false;
+const id = Number((Astro.params.slug ?? '').split('-')[0]);
+const env = getEnv();
+const v = await view(env);
+const now = Date.now();
+// A stored result keeps the page alive after the match leaves the feed (instead of 410).
+const rdb = resultsDb(env);
+const r = id && rdb ? await rowByExt(rdb, id) : null;
+const fresh = id ? [...v.live, ...v.recent, ...v.upcoming].find((x) => x.id === id) : undefined;
+const m = fresh ?? (r ? asMatch(r) : undefined);
+if (!m) {
+  Astro.response.status = id ? 410 : 404;
+  Astro.response.headers.set('X-Robots-Tag', 'noindex');
+}
+const canonicalPath = m ? matchPath(m) : '';
+if (m && Astro.url.pathname !== canonicalPath) return Astro.redirect(canonicalPath, 301);
+const sport = m ? sportOf(m) : undefined;
+const over = !!r && (isFinal(r.status) || r.status === 'unconfirmed' || r.status === 'cancelled');
+const final = !!r && isFinal(r.status);
+const state: 'live' | 'pre' | 'recent' = !m ? 'recent' : over ? 'recent' : r && isInPlay(r.status) ? 'live' : v.live.includes(m) ? 'live' : m.st > now ? 'pre' : 'recent';
+const sc = r && r.status !== 'scheduled' ? scoreText(r) : state === 'live' ? m?.sc ?? null : null;
+const detail = r ? detailText(r) : '';
+const stale = r ? isStale(r, now, resultsConfig(env).staleMs) : false;
+const title = m ? matchTitle(m) : '';
+const lgName = m ? leagueName(m.sp, m.lg) : '';
+const pool = [...v.live, ...v.upcoming].filter((x) => m && x.id !== m.id);
+const same = m ? pool.filter((x) => x.sp === m.sp && competitionSlug(x.sp, x.lg) === competitionSlug(m.sp, m.lg)).slice(0, 8) : [];
+const watch = m?.stream ? (state === 'live' ? 'Pozerať naživo' : 'Pozerať prenos') : 'Živé štatistiky';
+const ini = (s: string) => s.split(/\s+/).filter((w) => /^\p{L}/u.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || s.slice(0, 2).toUpperCase();
+const resultSentence = r && m ? (final
+  ? `Zápas ${title} sa skončil ${sc ?? 'bez zverejneného skóre'}${r.status === 'aet' ? ' po predĺžení' : r.status === 'pen' ? (r.sport === 23 ? ' po nájazdoch' : ' po penaltách') : ''}${detail ? ` (${detail})` : ''}.`
+  : r.status === 'cancelled' ? `Zápas ${title} bol zrušený.`
+  : `Konečný výsledok zápasu ${title} zatiaľ nie je potvrdený.${sc ? ` Posledné známe skóre bolo ${sc}.` : ''}`) : '';
+const faq = !m ? [] : over ? [
+  { q: `Ako sa skončil zápas ${title}?`, a: `${resultSentence} Hralo sa ${longDay(m.st)} o ${hhmm(m.st)} (${lgName}).` },
+  { q: 'Kde nájdem ďalšie výsledky?', a: 'V prehľade Výsledky alebo na stránke súťaže, kde sú aj ďalšie zápasy.' },
+] : [
+  { q: `Kde pozerať ${title} naživo?`, a: m.stream ? `Zápas vysiela Tipsport TV. Klikni na „Pozerať“, prihlás sa na Tipsport.sk alebo sa bezplatne zaregistruj a prenos sa spustí. Noví hráči dostanú bonus ${BONUS.amount}.` : 'K tomuto zápasu Tipsport video nevysiela (práva má televízia), ponúka však živé štatistiky a priebežné skóre.' },
+  { q: `Kedy sa začína ${title}?`, a: `${longDay(m.st)} o ${hhmm(m.st)} slovenského času.` },
+  { q: 'Je pozeranie zadarmo?', a: 'Pre registrovaných hráčov Tipsport.sk áno. Staviť si nemusíš, stávkovanie je dobrovoľné a len pre osoby od 18 rokov.' },
+];
+const crumbs = m && sport ? [{ name: 'Domov', href: '/' }, { name: `${sport.name} online`, href: sportPath(sport.slug) }, { name: lgName, href: leaguePathOf(m) }, { name: title }] : [];
+const date = m ? shortDay(m.st).replace(/\s/g, '') : '';
+const base = !m ? '' : final && sc ? `${title} ${sc} – výsledok ${date}` : over ? `${title} ${date} – výsledok` : `${title} naživo ${date} – kde pozerať online`;
+const pageTitle = !m ? `Zápas sa skončil | ${BRAND}` : base.length <= 44 ? `${base} | ${BRAND}` : clip(base, 62);
+const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)}. Ďalšie zápasy a program súťaže.`, 158) : clip(`${title} (${lgName}) – ${state === 'live' ? 'práve sa hrá' : `${dayLabel(m.st, now).toLowerCase()} o ${hhmm(m.st)}`}. ${m.stream ? 'Živý prenos na Tipsport TV zadarmo po registrácii' : 'Živé štatistiky a skóre na Tipsport.sk'}, bonus ${BONUS.amount}.`, 158);
+---
+{m && sport ? (
+<Base title={pageTitle} description={desc} path={canonicalPath} ld={[sportsEventLd(m, r?.status, final && sc ? sc : undefined), breadcrumbLd(crumbs), faqLd(faq)]} section={sport.slug} ttl={over ? 3600 : state === 'live' ? 30 : 60} stick={!over}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head" style="padding-bottom:14px">
+      <h1>{final && sc ? `${title} ${sc}` : over ? `${title} – výsledok` : m.stream ? `${title} naživo` : `${title}: živé skóre`}</h1>
+    </section>
+    <div class="cols">
+      <div>
+        <section class="scorecard sec" data-id={state === 'live' ? m.id : undefined}>
+          <div class="sc-top"><a href={leaguePathOf(m)}>{lgName}</a><span>{sport.name} · {longDay(m.st)}</span></div>
+          <div class="sc-mid">
+            <div class="team"><div class="mono">{ini(home(m))}</div>{home(m)}</div>
+            <div>
+              {sc ? <div class="big" data-s>{sc}</div> : <div class="big time">{hhmm(m.st)}</div>}
+              <div class:list={['when', state === 'live' && 'l']}>{over && r ? statusLabel(r.status, r.sport) : state === 'live' ? <><span class="dot pulse"></span> Naživo <span data-t>{skClock(m.ti ?? '')}</span></> : state === 'pre' ? dayLabel(m.st, now) : 'Odohrané'}</div>
+            </div>
+            {m.a ? <div class="team b"><div class="mono">{ini(away(m))}</div>{away(m)}</div> : <div></div>}
+          </div>
+          {detail ? <p class="detail">{detail}{stale ? ' · údaje sa môžu meškať' : ''}</p> : null}
+          <div class="sc-cta">
+            <p>{over ? 'Zápas na Tipsport.sk' : m.stream ? BONUS.watch : 'Živé štatistiky a skóre na Tipsport.sk'}<small>Reklama · registrácia a prihlásenie u prevádzkovateľa · 18+</small></p>
+            <a class="btn lg" href={goPath(m, over ? 'detail-final' : 'detail')} rel="sponsored nofollow noopener" target="_blank"><Icon name={m.stream && !over ? 'play' : 'spark'} />{over ? 'Tipsport.sk' : watch}</a>
+          </div>
+        </section>
+
+        <section class="sec">
+          <dl class="facts">
+            <div><dt>{over ? 'Hralo sa' : 'Začiatok'}</dt><dd>{hhmm(m.st)} · {shortDay(m.st)}</dd></div>
+            <div><dt>Šport</dt><dd><a href={sportPath(sport.slug)}>{sport.name}</a></dd></div>
+            <div><dt>Súťaž</dt><dd><a href={leaguePathOf(m)}>{lgName}</a></dd></div>
+            <div><dt>{over ? 'Výsledok' : 'Prenos'}</dt><dd>{over ? (final && sc ? sc : statusLabel(r!.status, r!.sport)) : m.stream ? 'Video · Tipsport TV' : 'Štatistiky · Tipsport.sk'}</dd></div>
+          </dl>
+        </section>
+
+        {over ? null : (
+          <section class="sec">
+            <div class="sec-h"><h2>Ako pozerať {title}</h2><a href="/tipsport-tv/">Návod ›</a></div>
+            <ol class="steps">
+              <li><span><b>Klikni na „{watch}“</b>Otvorí sa Tipsport.sk.</span></li>
+              <li><span><b>Prihlás sa alebo sa zaregistruj</b>Registrácia je zadarmo, noví hráči dostanú bonus {BONUS.amount}.</span></li>
+              <li><span><b>{m.stream ? 'Spusti prenos na Tipsport TV' : 'Sleduj živé štatistiky'}</b>{m.stream ? 'Video beží v prehliadači aj v aplikácii, staviť si nemusíš.' : 'Priebežné skóre a štatistiky zápasu sa obnovujú naživo.'}</span></li>
+            </ol>
+          </section>
+        )}
+
+        {same.length ? (<section class="sec"><div class="sec-h"><h2>Ďalšie zápasy · {lgName}</h2><a href={leaguePathOf(m)}>Všetko ›</a></div><LeagueList items={same} now={now} placement="detail-same" days showSport={false} /></section>) : null}
+
+        <section class="sec prose">
+          {over ? (<>
+            <h2>{title} – výsledok</h2>
+            <p>{resultSentence} Zápas sa hral {longDay(m.st)} o {hhmm(m.st)} v súťaži {lgName}. Ďalšie výsledky nájdeš v <a href="/vysledky/">prehľade výsledkov</a>, nadchádzajúce zápasy na stránke <a href={leaguePathOf(m)}>{lgName}</a>.</p>
+          </>) : (<>
+            <h2>{title} – živý prenos</h2>
+            <p>{state === 'live' ? `Zápas ${title} sa práve hrá` : `Zápas ${title} sa začína ${longDay(m.st)} o ${hhmm(m.st)}`} v súťaži {lgName}. {m.stream ? 'Tipsport TV ho vysiela naživo registrovaným hráčom – stačí sa prihlásiť a prenos spustiť.' : 'Video k nemu Tipsport nevysiela, naživo však ukazuje štatistiky a priebežné skóre.'} Ďalšie zápasy nájdeš na stránke <a href={leaguePathOf(m)}>{lgName}</a> alebo v <a href="/program/">programe prenosov</a>.</p>
+          </>)}
+        </section>
+        <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
+      </div>
+      <Side sports={sportCounts(v)} leagues={leagues(v, m.sp)} placement="detail-side" current={sport.slug} />
+    </div>
+  </div>
+  {over ? null : <Stick m={m} label={watch} />}
+</Base>
+) : (
+<Base title={`Zápas sa už skončil | ${BRAND}`} description="Tento zápas už nie je v ponuke." noindex ttl={300}>
+  <div class="wrap">
+    <section class="head"><h1>Zápas sa už skončil</h1><p class="lead">Tento zápas už nie je v ponuke prenosov. Pozri, čo sa hrá práve teraz alebo dnes.</p></section>
+    <div class="cols"><div>
+      <section class="sec"><div class="sec-h"><h2>Práve naživo</h2><a href="/teraz-nazivo/">Všetko ›</a></div><LeagueList items={v.live} now={now} placement="gone" live per={4} max={5} /></section>
+      <Ticket placement="gone" wide />
+    </div><Side sports={sportCounts(v)} leagues={leagues(v)} placement="gone-side" /></div>
+  </div>
+</Base>
+)}

@@ -1,0 +1,8 @@
+# pnpm 11 ignores postinstall build scripts unless allowed; these ship native binaries.
+allowBuilds:
+  esbuild: true
+  workerd: true
+  sharp: true
+minimumReleaseAgeExclude:
+  - '@astrojs/cloudflare@14.4.1'
+  - astro@7.4.1

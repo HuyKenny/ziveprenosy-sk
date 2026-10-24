@@ -1,0 +1,14 @@
+---
+import Base from './Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import { BRAND } from '../lib/seo';
+interface Props { title: string; description: string; h1: string; lead?: string; ld?: object[] }
+const { title, description, h1, lead, ld = [] } = Astro.props;
+---
+<Base title={`${title} | ${BRAND}`} description={description} ttl={3600} ld={ld}>
+  <div class="wrap" style="max-width:860px">
+    <Crumbs items={[{ name: 'Domov', href: '/' }, { name: h1 }]} />
+    <section class="head"><h1>{h1}</h1>{lead ? <p class="lead">{lead}</p> : null}</section>
+    <article class="sec prose"><slot /></article>
+  </div>
+</Base>

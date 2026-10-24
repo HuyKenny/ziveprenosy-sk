@@ -1,0 +1,7 @@
+---
+import { P } from '../lib/icons';
+// All icon symbols once per page; Icon.astro references them with <use>.
+---
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  {Object.entries(P).map(([k, body]) => <symbol id={`i-${k}`} viewBox="0 0 24 24" set:html={body} />)}
+</svg>

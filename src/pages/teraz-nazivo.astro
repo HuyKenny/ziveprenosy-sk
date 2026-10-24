@@ -1,0 +1,42 @@
+---
+import Base from '../layouts/Base.astro';
+import LeagueList from '../components/LeagueList.astro';
+import Side from '../components/Side.astro';
+import Ticket from '../components/Ticket.astro';
+import Crumbs from '../components/Crumbs.astro';
+import Icon from '../components/Icon.astro';
+import { getEnv, view, sportCounts, leagues } from '../lib/page';
+import { SPORT_BY_SLUG } from '../lib/sports';
+import { hhmm, plural } from '../lib/text';
+import { breadcrumbLd, itemListLd, BRAND } from '../lib/seo';
+
+export const prerender = false;
+const v = await view(getEnv());
+const now = Date.now();
+const sp = SPORT_BY_SLUG.get(Astro.url.searchParams.get('sport') ?? '');
+const live = sp ? v.live.filter((m) => m.sp === sp.id) : v.live;
+const video = live.filter((m) => m.stream).length;
+const crumbs = [{ name: 'Domov', href: '/' }, { name: 'Práve naživo' }];
+const counts = sportCounts(v).filter((s) => s.live);
+---
+<Base title={`Práve naživo: ${v.live.length} živých prenosov | ${BRAND}`} description={`Práve naživo: ${v.live.length} ${plural(v.live.length, 'zápas', 'zápasy', 'zápasov')}, z toho ${video} s videom. Priebežné skóre sa obnovuje samo – klikni a pozeraj.`} path="/teraz-nazivo/" noindex={!!sp} ld={[breadcrumbLd(crumbs), itemListLd(live, 'Práve naživo')]} section="nazivo" ttl={30}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head">
+      <div class="eyebrow"><span class="live-tag"><span class="dot pulse"></span>{live.length} naživo</span><span>aktualizované {hhmm(v.at || now)}</span></div>
+      <h1>Práve naživo{sp ? ` – ${sp.name.toLowerCase()}` : ''}</h1>
+      <p class="lead">Všetky zápasy, ktoré sa práve hrajú, podľa súťaží. Skóre sa na stránke obnovuje každých 30 sekúnd.</p>
+    </section>
+    <div class="chips" aria-label="Filtrovať podľa športu">
+      <a class="chip" href="/teraz-nazivo/" aria-current={!sp ? 'page' : undefined}>Všetko<em>{v.live.length}</em></a>
+      {counts.map((s) => <a class="chip" href={`/teraz-nazivo/?sport=${s.slug}`} aria-current={sp?.slug === s.slug ? 'page' : undefined}><Icon name={s.slug} />{s.name}<em>{s.live}</em></a>)}
+    </div>
+    <div class="cols" style="margin-top:14px">
+      <div>
+        <LeagueList items={live} now={now} placement="live" live empty="Práve teraz nebeží žiadny zápas. Najbližšie prenosy nájdeš v programe." />
+        <Ticket placement="live-bottom" wide />
+      </div>
+      <Side sports={sportCounts(v)} leagues={leagues(v)} placement="live-side" />
+    </div>
+  </div>
+</Base>

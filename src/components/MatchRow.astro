@@ -1,0 +1,27 @@
+---
+import type { Match } from '../lib/types';
+import { hhmm, shortDay, dayKey } from '../lib/text';
+import { goPath, matchPath, matchTitle, home, away } from '../lib/url';
+import Icon from './Icon.astro';
+import { skClockShort } from '../lib/names';
+/** One match: time | both teams stacked | score + "Pozerať" (Tipsport TV) or "Štatistiky" when there is no video. */
+interface Props { m: Match; now: number; placement: string; live?: boolean; showDay?: boolean }
+const { m, now, placement, live = false, showDay = false } = Astro.props;
+const [sh, sa] = (m.sc ?? '').split(':');
+const title = matchTitle(m);
+---
+<div class:list={['m', live && 'live']} data-id={live ? m.id : undefined}>
+  <div class="t">
+    {live ? <><span class="dot pulse"></span> Naživo<small data-t>{skClockShort(m.ti ?? '')}</small></> : <>{hhmm(m.st)}{showDay && dayKey(m.st) !== dayKey(now) ? <small>{shortDay(m.st)}</small> : null}</>}
+  </div>
+  <a class="teams" href={matchPath(m)}>
+    {m.a ? <><span>{home(m)}</span><span>{away(m)}</span></> : <span class="one">{home(m)}</span>}
+  </a>
+  <div class="act">
+    {live && m.sc ? (m.a && sa !== undefined ? <span class="sc" data-s><span>{sh}</span><span>{sa}</span></span> : <span class="sc one" data-s>{m.sc}</span>) : null}
+    {!m.stream ? <span class="tag" title="K zápasu nie je video, len živé štatistiky">bez videa</span> : null}
+    <a class:list={['btn sm', !m.stream && 'out']} href={goPath(m, placement)} rel="sponsored nofollow noopener" target="_blank" aria-label={m.stream ? `Pozerať ${title} na Tipsport TV` : `Živé štatistiky ${title} na Tipsport.sk`}>
+      <Icon name={m.stream ? 'play' : 'spark'} /><span class="lbl">{m.stream ? 'Pozerať' : 'Štatistiky'}</span>
+    </a>
+  </div>
+</div>

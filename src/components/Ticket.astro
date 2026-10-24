@@ -1,0 +1,18 @@
+---
+import { BONUS } from '../lib/bonus';
+import { regPath } from '../lib/url';
+import Icon from './Icon.astro';
+/** The Tipsport.sk welcome offer as a betting slip. Always marked as an ad. */
+interface Props { placement: string; wide?: boolean }
+const { placement, wide = false } = Astro.props;
+---
+<aside class:list={['ticket', wide && 'wide']} aria-label="Reklama Tipsport.sk">
+  <div class="stripe"><span>Tipsport.sk</span><small>Reklama · 18+</small></div>
+  <div class="body">
+    <div class="amount">{BONUS.amount}<small>bonus za registráciu</small></div>
+  </div>
+  <div class="foot">
+    <a class="btn" href={regPath(placement)} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />Získať bonus</a>
+    <p class="terms">{BONUS.terms}</p>
+  </div>
+</aside>

@@ -1,0 +1,56 @@
+---
+import Icon from './Icon.astro';
+/** Search: one fetch of /api/search.json on first focus, then filtering in the browser (no diacritics, any word order). */
+interface Props { id?: string; autofocus?: boolean; value?: string }
+const { id = 'q', autofocus = false, value = '' } = Astro.props;
+---
+<form class="search" action="/hladat/" method="get" role="search" data-search>
+  <Icon name="search" />
+  <label class="sr" for={id}>Hľadať zápas, tím alebo súťaž</label>
+  <input id={id} name="q" type="search" value={value} placeholder="Hľadať tím, ligu, zápas…" autocomplete="off" inputmode="search" enterkeyhint="search" autofocus={autofocus} role="combobox" aria-autocomplete="list" aria-controls={`${id}-res`} aria-expanded="false" />
+  <div class="sres" id={`${id}-res`} role="listbox" data-hidden></div>
+</form>
+<script>
+  type Item = [string, string, string, number, number, string]; // title, league, url, start ms, live (0/1), sport
+  type Comp = [string, string, string]; // name, sport, url
+  const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+  let data: Promise<{ m: Item[]; c: Comp[] }> | undefined;
+  const load = () => (data ??= fetch('/api/search.json').then((r) => r.json()));
+  const t = new Intl.DateTimeFormat('sk-SK', { timeZone: 'Europe/Bratislava', hour: '2-digit', minute: '2-digit' });
+  const d = new Intl.DateTimeFormat('sk-SK', { timeZone: 'Europe/Bratislava', day: 'numeric', month: 'numeric' });
+  const esc = (s: string) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+  document.querySelectorAll<HTMLFormElement>('[data-search]').forEach((form) => {
+    const input = form.querySelector('input')!;
+    const box = form.querySelector<HTMLElement>('.sres')!;
+    let sel = -1;
+    const close = () => { box.setAttribute('data-hidden', ''); input.setAttribute('aria-expanded', 'false'); sel = -1; };
+    const render = async () => {
+      const q = fold(input.value.trim());
+      if (q.length < 2) return close();
+      const words = q.split(/\s+/);
+      const { m, c } = await load();
+      const hit = (s: string) => { const f = fold(s); return words.every((w) => f.includes(w)); };
+      const comps = c.filter((x) => hit(x[0] + ' ' + x[1])).slice(0, 4);
+      const ms = m.filter((x) => hit(x[0] + ' ' + x[1] + ' ' + x[5])).sort((a, b) => b[4] - a[4] || a[3] - b[3]).slice(0, 8);
+      let html = '';
+      if (comps.length) html += '<div class="grp">Súťaže</div>' + comps.map((x) => `<a href="${x[2]}" role="option"><span class="t">${esc(x[1])}</span><span><b>${esc(x[0])}</b></span></a>`).join('');
+      if (ms.length) html += '<div class="grp">Zápasy</div>' + ms.map((x) => `<a href="${x[2]}" role="option"><span class="t${x[4] ? ' live' : ''}">${x[4] ? 'NAŽIVO' : t.format(x[3]) + '<br>' + d.format(x[3])}</span><span><b>${esc(x[0])}</b><small>${esc(x[5])} · ${esc(x[1])}</small></span></a>`).join('');
+      box.innerHTML = html || '<div class="empty">Nič sme nenašli. Skús len časť názvu tímu.</div>';
+      box.removeAttribute('data-hidden');
+      input.setAttribute('aria-expanded', 'true');
+      sel = -1;
+    };
+    input.addEventListener('focus', () => { load(); });
+    input.addEventListener('input', render);
+    input.addEventListener('keydown', (e) => {
+      const opts = [...box.querySelectorAll<HTMLAnchorElement>('a')];
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        sel = Math.max(0, Math.min(opts.length - 1, sel + (e.key === 'ArrowDown' ? 1 : -1)));
+        opts.forEach((o, i) => o.setAttribute('aria-selected', String(i === sel)));
+      } else if (e.key === 'Enter' && sel >= 0 && opts[sel]) { e.preventDefault(); location.href = opts[sel].href; }
+      else if (e.key === 'Escape') close();
+    });
+    document.addEventListener('click', (e) => { if (!form.contains(e.target as Node)) close(); });
+  });
+</script>

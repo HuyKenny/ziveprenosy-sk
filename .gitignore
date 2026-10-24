@@ -1,0 +1,8 @@
+.astro/
+.dev.vars
+dist/
+.env
+*.log
+node_modules/
+.wrangler/
+__pycache__/

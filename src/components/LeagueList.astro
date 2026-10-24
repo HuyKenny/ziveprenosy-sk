@@ -1,0 +1,45 @@
+---
+import type { Match } from '../lib/types';
+import { byLeague } from '../lib/page';
+import { competitionOf, leagueName } from '../lib/competitions';
+import { leaguePath } from '../lib/url';
+import { SPORT_BY_ID } from '../lib/sports';
+import { dayKey, dayLabel } from '../lib/text';
+import MatchRow from './MatchRow.astro';
+import Icon from './Icon.astro';
+/**
+ * Matches grouped into one box per competition (Slovak competitions first). `days` adds day separators inside
+ * each box (for lists that span several days). Lists hold live + upcoming only, so a started match is a live one. `per` caps the rows per box, `max` the number of boxes.
+ */
+interface Props { items: Match[]; now: number; placement: string; live?: boolean; days?: boolean; per?: number; max?: number; empty?: string; showSport?: boolean }
+const { items, now, placement, live = false, days = false, per = 0, max = 0, empty = 'Momentálne tu nič nie je.', showSport = true } = Astro.props;
+const all = byLeague(items);
+const groups = max ? all.slice(0, max) : all;
+---
+{groups.length === 0 ? <p class="empty">{empty}</p> : groups.map((g) => {
+  const c = competitionOf(g.sp, g.lg);
+  const s = SPORT_BY_ID.get(g.sp);
+  const href = leaguePath(s?.slug ?? 'sport', g.sp, g.lg);
+  const list = per ? g.items.slice(0, per) : g.items;
+  let last = '';
+  return (
+    <section class="comp">
+      <div class="comp-h">
+        {c ? <span class="badge" style={`background:${c.color}`}>{c.short}</span> : <span class="badge ico-b"><Icon name={s?.slug ?? 'ball'} /></span>}
+        <a class="name" href={href}>{leagueName(g.sp, g.lg)}</a>
+        {showSport && s ? <span class="sp">{s.name}</span> : null}
+        {per && g.items.length > list.length ? <a class="more" href={href}>+{g.items.length - list.length} ›</a> : null}
+      </div>
+      {list.map((m) => {
+        const k = dayKey(m.st);
+        const head = days && k !== last;
+        last = k;
+        return (<>
+          {head ? <div class="day">{dayLabel(m.st, now)}</div> : null}
+          <MatchRow m={m} now={now} placement={placement} live={live || m.st <= now} />
+        </>);
+      })}
+    </section>
+  );
+})}
+{max && all.length > groups.length ? <p class="muted" style="font-size:.9rem">a ďalších {all.length - groups.length} súťaží v <a href="/program/">programe</a></p> : null}

@@ -1,0 +1,59 @@
+---
+import Base from '../../layouts/Base.astro';
+import LeagueList from '../../components/LeagueList.astro';
+import Side from '../../components/Side.astro';
+import Tiles from '../../components/Tiles.astro';
+import Faq from '../../components/Faq.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import { getEnv, view, featured, sportCounts, leagues } from '../../lib/page';
+import { SPORT_BY_SLUG } from '../../lib/sports';
+import { COMPETITIONS } from '../../lib/competitions';
+import { sportLead, sportBody, sportFaq, TODAY_SPORTS } from '../../lib/sport-text';
+import { plural, dayKey } from '../../lib/text';
+import { breadcrumbLd, faqLd, itemListLd, BRAND } from '../../lib/seo';
+import { sportTodayPath } from '../../lib/url';
+
+export const prerender = false;
+const sport = SPORT_BY_SLUG.get(Astro.params.sport ?? '');
+if (!sport) return Astro.rewrite('/404/');
+const v = await view(getEnv());
+const now = Date.now();
+const live = v.live.filter((m) => m.sp === sport.id);
+const next = v.upcoming.filter((m) => m.sp === sport.id);
+const today = next.filter((m) => dayKey(m.st) === dayKey(now));
+const lg = leagues(v, sport.id);
+// Curated competitions of this sport are always linked (stable pages), even with nothing scheduled.
+const curated = COMPETITIONS.filter((c) => c.sp === sport.id).map((c) => lg.find((l) => l.slug === c.slug) ?? { name: c.name, slug: c.slug, sp: c.sp, n: 0, live: 0, top: !!c.top, sk: !!c.sk, short: c.short, color: c.color });
+const others = lg.filter((l) => !curated.some((c) => c.slug === l.slug)).slice(0, 14);
+const faq = sportFaq(sport, live.length > 0);
+const crumbs = [{ name: 'Domov', href: '/' }, { name: `${sport.name} online` }];
+const body = sportBody(sport);
+// Long lists (tennis, table tennis) keep the most relevant 60 matches; the rest is in the day-by-day programme.
+const shown = featured(next).slice(0, 60).sort((a, b) => a.st - b.st);
+---
+<Base title={`${sport.name} online – živé prenosy a program | ${BRAND}`} description={`${sport.name} online: ${live.length} ${plural(live.length, 'zápas', 'zápasy', 'zápasov')} naživo, ${next.length} v programe na 7 dní. Čas, súťaž a odkaz na prenos zadarmo.`} ld={[breadcrumbLd(crumbs), faqLd(faq), itemListLd([...live, ...next], `${sport.name} online`)]} section={sport.slug}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head">
+      <h1>{sport.name} online</h1>
+      <p class="lead">{sportLead(sport)}</p>
+      <div class="board">
+        <a href="#nazivo" class="is-live"><b>{live.length}</b><span>naživo</span></a>
+        {TODAY_SPORTS.has(sport.slug) ? <a href={sportTodayPath(sport.slug)}><b>{today.length}</b><span>dnes ešte</span></a> : <span><b>{today.length}</b><span>dnes ešte</span></span>}
+        <a href="#program"><b>{next.length}</b><span>na 7 dní</span></a>
+        <span><b>{lg.length}</b><span>{plural(lg.length, 'súťaž', 'súťaže', 'súťaží')}</span></span>
+      </div>
+    </section>
+    {others.length ? <div class="chips" aria-label="Ďalšie súťaže">{others.map((l) => <a class="chip" href={`/${sport.slug}/${l.slug}/`}>{l.name}<em>{l.n}</em></a>)}</div> : null}
+    <div class="cols" style="margin-top:14px">
+      <div>
+        {curated.length ? <section class="sec"><div class="sec-h"><h2>Súťaže</h2></div><Tiles items={curated} /></section> : null}
+        <section class="sec" id="nazivo"><div class="sec-h"><h2>{sport.name} naživo <span class="n live">{live.length}</span></h2></div><LeagueList items={live} now={now} placement="sport-live" live showSport={false} empty={`Práve teraz sa nehrá žiadny zápas ${sport.genitive}. Najbližšie zápasy sú v programe nižšie.`} /></section>
+        <section class="sec" id="program"><div class="sec-h"><h2>Program</h2>{TODAY_SPORTS.has(sport.slug) ? <a href={sportTodayPath(sport.slug)}>{sport.name} dnes ›</a> : null}</div><LeagueList items={shown} now={now} placement="sport" days showSport={false} empty="Zatiaľ žiadne naplánované zápasy." />{next.length > shown.length ? <p><a href={`/program/?sport=${sport.slug}`}>Ďalšie zápasy po dňoch ›</a></p> : null}</section>
+        {body ? <section class="sec prose" set:html={body} /> : null}
+        <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
+      </div>
+      <Side sports={sportCounts(v)} leagues={lg} placement="sport-side" current={sport.slug} />
+    </div>
+  </div>
+</Base>

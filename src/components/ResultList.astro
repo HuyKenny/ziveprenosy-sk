@@ -1,0 +1,24 @@
+---
+import type { ResultRow as Row } from '../lib/results/store';
+import { compName } from '../lib/results/view';
+import { competitionById } from '../lib/competitions';
+import { SPORT_BY_ID } from '../lib/sports';
+import ResultRow from './ResultRow.astro';
+/** Results grouped by competition, in the order of `comps` (Slovak competitions first in the config). */
+interface Props { rows: Row[]; comps: string[]; now: number; staleMs: number; empty?: string; showDay?: boolean }
+const { rows, comps, now, staleMs, empty = 'Žiadne výsledky.', showDay = false } = Astro.props;
+const groups = comps.map((c) => ({ c, rows: rows.filter((r) => r.comp === c) })).filter((g) => g.rows.length);
+---
+{groups.length === 0 ? (empty ? <p class="empty">{empty}</p> : null) : groups.map((g) => {
+  const c = competitionById(g.c);
+  return (
+    <section class="comp">
+      <div class="comp-h">
+        <span class="badge" style={`background:${c?.color ?? '#0f1b2d'}`}>{c?.short ?? '•'}</span>
+        <a class="name" href={c ? `/${SPORT_BY_ID.get(c.sp)?.slug}/${c.slug}/` : '/vysledky/'}>{compName(g.c)}</a>
+        {c ? <span class="sp">{SPORT_BY_ID.get(c.sp)?.name}</span> : null}
+      </div>
+      {g.rows.map((r) => <ResultRow r={r} now={now} staleMs={staleMs} showDay={showDay} />)}
+    </section>
+  );
+})}

@@ -1,0 +1,56 @@
+---
+import Base from '../../layouts/Base.astro';
+import LeagueList from '../../components/LeagueList.astro';
+import Side from '../../components/Side.astro';
+import Ticket from '../../components/Ticket.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import Icon from '../../components/Icon.astro';
+import { getEnv, view, sportCounts, leagues } from '../../lib/page';
+import { SPORT_BY_SLUG, SPORTS } from '../../lib/sports';
+import { dayKey, addDays, longDay, weekday, shortDay, plural } from '../../lib/text';
+import { isDayKey } from '../../lib/results/time';
+import { breadcrumbLd, itemListLd, BRAND } from '../../lib/seo';
+
+export const prerender = false;
+const now = Date.now();
+const raw = Astro.params.day ?? '';
+const keys = Array.from({ length: 7 }, (_, i) => dayKey(addDays(now, i)));
+const key = !raw ? keys[0] : raw === 'zajtra' ? keys[1] : isDayKey(raw) ? raw : '';
+// Today and tomorrow have their own short URLs; a date URL for them redirects there.
+if (raw && key === keys[0]) return Astro.redirect('/program/', 301);
+if (raw && raw !== 'zajtra' && key === keys[1]) return Astro.redirect('/program/zajtra/', 301);
+if (!key || !keys.includes(key)) return Astro.rewrite('/404/');
+const pathOf = (k: string) => (k === keys[0] ? '/program/' : k === keys[1] ? '/program/zajtra/' : `/program/${k}/`);
+const v = await view(getEnv());
+const sp = SPORT_BY_SLUG.get(Astro.url.searchParams.get('sport') ?? '');
+const all = v.upcoming.filter((m) => dayKey(m.st) === key);
+const items = sp ? all.filter((m) => m.sp === sp.id) : all;
+const ms = Date.parse(`${key}T12:00:00Z`);
+const label = key === keys[0] ? 'dnes' : key === keys[1] ? 'zajtra' : longDay(ms);
+const crumbs = [{ name: 'Domov', href: '/' }, { name: 'Program', href: '/program/' }, ...(key !== keys[0] ? [{ name: label }] : [])];
+const counts = SPORTS.map((s) => ({ s, n: all.filter((m) => m.sp === s.id).length })).filter((x) => x.n);
+---
+<Base title={`Program prenosov ${label}${key !== keys[0] && key !== keys[1] ? '' : ` (${shortDay(ms).replace(/\s/g, '')})`} – futbal, hokej, tenis | ${BRAND}`} description={`Program športových prenosov ${label}: ${all.length} ${plural(all.length, 'zápas', 'zápasy', 'zápasov')} podľa súťaží, slovenské navrchu. Časy v slovenskom čase a odkaz na prenos.`} path={pathOf(key)} noindex={!!sp} ld={[breadcrumbLd(crumbs), itemListLd(items, `Program ${label}`)]} section="program" ttl={120}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head">
+      <div class="eyebrow"><span>{longDay(ms)}</span><span>{all.length} {plural(all.length, 'zápas', 'zápasy', 'zápasov')}</span></div>
+      <h1>Program prenosov {label}</h1>
+      <p class="lead">Zápasy, ktoré sa {key === keys[0] ? 'dnes ešte' : label === 'zajtra' ? 'zajtra' : 'v tento deň'} začínajú, zoradené podľa súťaží. Slovenské súťaže a tímy sú vždy na začiatku.</p>
+    </section>
+    <nav class="days" aria-label="Deň">
+      {keys.map((k, i) => { const d = Date.parse(`${k}T12:00:00Z`); return <a href={pathOf(k) + (sp ? `?sport=${sp.slug}` : '')} aria-current={k === key ? 'page' : undefined}><small>{i === 0 ? 'dnes' : i === 1 ? 'zajtra' : weekday(d)}</small>{shortDay(d).replace(/\s/g, '')}</a>; })}
+    </nav>
+    <div class="chips" aria-label="Filtrovať podľa športu">
+      <a class="chip" href={pathOf(key)} aria-current={!sp ? 'page' : undefined}>Všetko<em>{all.length}</em></a>
+      {counts.map(({ s, n }) => <a class="chip" href={`${pathOf(key)}?sport=${s.slug}`} aria-current={sp?.id === s.id ? 'page' : undefined}><Icon name={s.slug} />{s.name}<em>{n}</em></a>)}
+    </div>
+    <div class="cols" style="margin-top:14px">
+      <div>
+        <LeagueList items={items} now={now} placement="program" showSport={!sp} empty="V tento deň zatiaľ nie sú v ponuke žiadne zápasy." />
+        <Ticket placement="program-bottom" wide />
+      </div>
+      <Side sports={sportCounts(v)} leagues={leagues(v)} placement="program-side" current={sp?.slug} />
+    </div>
+  </div>
+</Base>

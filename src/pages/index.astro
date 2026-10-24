@@ -1,0 +1,103 @@
+---
+import Base from '../layouts/Base.astro';
+import LeagueList from '../components/LeagueList.astro';
+import ResultList from '../components/ResultList.astro';
+import Side from '../components/Side.astro';
+import Ticket from '../components/Ticket.astro';
+import Tiles from '../components/Tiles.astro';
+import Faq from '../components/Faq.astro';
+import Icon from '../components/Icon.astro';
+import { getEnv, view, featured, isSlovak, sportCounts, leagues } from '../lib/page';
+import { dayKey, hhmm, longDay } from '../lib/text';
+import { sportPath } from '../lib/url';
+import { faqLd, itemListLd, siteLd, BRAND } from '../lib/seo';
+import { BONUS } from '../lib/bonus';
+import { resultsConfig, resultsDb } from '../lib/results/config';
+import { rowsBetween } from '../lib/results/store';
+import { localDay } from '../lib/results/time';
+
+export const prerender = false;
+const env = getEnv();
+const v = await view(env);
+const now = Date.now();
+const todayKey = dayKey(now);
+const today = v.upcoming.filter((m) => dayKey(m.st) === todayKey);
+const sk = featured([...v.live, ...today].filter(isSlovak));
+const skLive = new Set(v.live.filter(isSlovak).map((m) => m.id));
+const lg = leagues(v);
+const sports = sportCounts(v);
+const rc = resultsConfig(env);
+const rdb = resultsDb(env);
+const results = rdb ? (await rowsBetween(rdb, ...localDay(todayKey), rc.comps)).filter((r) => r.status !== 'scheduled') : [];
+const faq = [
+  { q: 'Dajú sa zápasy pozerať zadarmo?', a: 'Áno. Prenosy vysiela Tipsport.sk na Tipsport TV svojim registrovaným hráčom a pozeranie je bezplatné, staviť si nemusíš. My videá nevysielame, len ukazujeme, čo kde beží, a posielame ťa rovno na prenos.' },
+  { q: 'Prečo sa musím zaregistrovať?', a: 'Prevádzkovateľ so slovenskou licenciou smie vysielať len overeným zákazníkom starším ako 18 rokov. Registrácia je bezplatná a noví hráči Tipsport.sk k nej dostanú bonus ' + BONUS.amount + '.' },
+  { q: 'Čo znamená „bez videa“?', a: 'K zápasu nemá Tipsport video (práva drží televízia), ponúka však živé štatistiky a priebežné skóre. Také zápasy nájdeš v zozname s tlačidlom „Štatistiky“.' },
+  { q: 'V akom čase sú uvedené zápasy?', a: 'Všetky časy sú v slovenskom (stredoeurópskom) čase, vrátane zámorských zápasov NHL a NBA.' },
+  { q: 'Ako nájdem konkrétny tím?', a: 'Napíš jeho názov do vyhľadávania – stačí časť názvu aj bez diakritiky. Uvidíš všetky jeho zápasy na 7 dní dopredu.' },
+];
+const ld = [...siteLd(), faqLd(faq), itemListLd([...v.live, ...today], 'Živé prenosy dnes')];
+---
+<Base title={`Živé prenosy dnes: futbal, hokej a tenis online | ${BRAND}`} description={`Živé prenosy zadarmo: práve beží ${v.live.length} zápasov, dnes ďalších ${today.length}. Niké liga, Tipsport liga, Liga majstrov, NHL aj tenis – nájdi zápas a pozeraj online.`} ld={ld} section="home">
+  <div class="wrap">
+    <section class="head">
+      <div class="eyebrow"><span>{longDay(now)}</span><span>aktualizované {hhmm(v.at || now)}</span></div>
+      <h1>Živé prenosy dnes</h1>
+      <p class="lead">Všetky zápasy, ktoré dnes môžeš pozerať online, prehľadne podľa súťaží. Slovenské súťaže a zápasy Slovákov vždy navrchu.</p>
+      <div class="board">
+        <a href="/teraz-nazivo/" class="is-live"><b>{v.live.length}</b><span>naživo</span></a>
+        <a href="/program/"><b>{today.length}</b><span>dnes ešte</span></a>
+        <a href="#slovensko"><b>{sk.length}</b><span>slovenské</span></a>
+        <a href="/vysledky/"><b>{results.length}</b><span>výsledky dnes</span></a>
+      </div>
+    </section>
+
+    <div class="chips" aria-label="Športy">
+      {sports.map((s) => <a class="chip" href={sportPath(s.slug)}><Icon name={s.slug} />{s.name}<em>{s.total}</em></a>)}
+    </div>
+
+    <div class="cols" style="margin-top:14px">
+      <div>
+        <section class="sec" id="slovensko">
+          <div class="sec-h"><h2>Slovensko dnes {skLive.size ? <span class="n live">{skLive.size} naživo</span> : null}</h2><a href="/futbal/nike-liga/">Niké liga ›</a></div>
+          <LeagueList items={sk} now={now} placement="home-sk" empty="Dnes nehrá žiadny slovenský tím. Pozri program na zajtra alebo ligy nižšie." />
+        </section>
+
+        <section class="sec">
+          <div class="sec-h"><h2>Práve naživo <span class="n live">{v.live.length}</span></h2><a href="/teraz-nazivo/">Všetko naživo ›</a></div>
+          <LeagueList items={v.live.filter((m) => !skLive.has(m.id))} now={now} placement="home-live" live per={4} max={6} empty="Práve teraz nebeží žiadny prenos – najbližšie zápasy sú nižšie." />
+        </section>
+
+        <div class="sec"><Ticket placement="home-mid" wide /></div>
+
+        <section class="sec">
+          <div class="sec-h"><h2>Dnes v programe <span class="n">{today.length}</span></h2><a href="/program/">Celý program ›</a></div>
+          <LeagueList items={featured(today.filter((m) => !isSlovak(m))).slice(0, 60)} now={now} placement="home-today" per={5} max={8} empty="Na dnešok už nič nezostáva – pozri si program na zajtra." />
+        </section>
+
+        {results.length ? (
+          <section class="sec">
+            <div class="sec-h"><h2>Výsledky dnes</h2><a href="/vysledky/">Všetky výsledky ›</a></div>
+            <ResultList rows={results} comps={rc.comps} now={now} staleMs={rc.staleMs} />
+          </section>
+        ) : null}
+
+        <section class="sec">
+          <div class="sec-h"><h2>Populárne súťaže</h2></div>
+          <Tiles items={lg.filter((l) => l.top || l.sk).slice(0, 9)} />
+        </section>
+
+        <section class="sec prose">
+          <h2>Živé prenosy online na jednom mieste</h2>
+          <p>ŽivéPrenosy.sk sleduje ponuku živých prenosov Tipsport TV a ukazuje ju podľa súťaží: čo práve beží, čo sa začne dnes a čo sa hrá v ďalších dňoch. Pri každom zápase vidíš čas začiatku a pri bežiacich zápasoch aj priebežné skóre, ktoré sa na stránke samo obnovuje.</p>
+          <h3>Slovenské súťaže navrchu</h3>
+          <p>Zápasy <a href="/futbal/nike-liga/">Niké ligy</a>, hokejovej <a href="/hokej/tipsport-liga/">Tipsport ligy</a>, galavečery <a href="/mma/oktagon/">Oktagonu</a> a zápasy slovenskej reprezentácie dávame vždy na začiatok zoznamu. Nasledujú európske poháry – <a href="/futbal/liga-majstrov/">Liga majstrov</a> a <a href="/futbal/konferencna-liga/">Konferenčná liga</a> – a top ligy ako <a href="/futbal/premier-league/">Premier League</a> či <a href="/hokej/nhl/">NHL</a>.</p>
+          <h3>Ako pozerať zápas</h3>
+          <p>Vyber zápas, klikni na „Pozerať“ a prihlás sa na Tipsport.sk. Ak účet ešte nemáš, registrácia trvá pár minút a noví hráči dostanú bonus {BONUS.amount}. Podrobný postup je v návode <a href="/tipsport-tv/">Tipsport TV</a>. Stávkovanie je dobrovoľné a len pre plnoletých.</p>
+        </section>
+        <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
+      </div>
+      <Side sports={sports} leagues={lg} placement="home-side" />
+    </div>
+  </div>
+</Base>
