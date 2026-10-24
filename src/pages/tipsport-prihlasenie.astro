@@ -1,0 +1,61 @@
+---
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import Faq from '../components/Faq.astro';
+import Ticket from '../components/Ticket.astro';
+import Icon from '../components/Icon.astro';
+import { breadcrumbLd, faqLd, BRAND } from '../lib/seo';
+import { BONUS } from '../lib/bonus';
+import { regPath, goPath } from '../lib/url';
+
+// "tipsport prihlásenie" 9k/month, "tipsport registrácia" 680 (Marketing Miner sk, 24. 10. 2026).
+// Registration facts checked on the registration page our link lands on (24. 10. 2026); nothing else is claimed.
+export const prerender = false;
+const crumbs = [{ name: 'Domov', href: '/' }, { name: 'Tipsport prihlásenie' }];
+const faq = [
+  { q: 'Ako sa prihlásim na Tipsport.sk?', a: 'Na webe Tipsport.sk klikni na Prihlásiť a zadaj prihlasovacie údaje, ktoré si si zvolil pri registrácii. V mobile je pohodlnejšia aplikácia Tipsport, kde sa po prvom prihlásení nemusíš prihlasovať zakaždým.' },
+  { q: 'Zabudol som heslo, čo teraz?', a: 'Pri prihlasovaní použi možnosť obnovenia hesla. Ak sa ani tak neprihlásiš, kontaktuj zákaznícku podporu Tipsportu.' },
+  { q: 'Ako prebieha registrácia?', a: 'Začína sa e-mailom, potvrdením veku 18+ a súhlasom s podmienkami. Potom vyplníš osobné údaje, ktoré sa podľa zákona diaľkovo overujú voči registrom verejnej správy. Registrovať sa môžeš len so svojimi údajmi.' },
+  { q: 'Dostanem bonus za registráciu?', a: `Áno, noví hráči dostanú ${BONUS.detail} Podmienky určuje prevádzkovateľ.` },
+  { q: 'Potrebujem účet na pozeranie prenosov?', a: 'Áno, Tipsport TV pustí prenos len prihláseným hráčom. Pozeranie je zadarmo a staviť si nemusíš.' },
+  { q: 'Ako zruším účet na Tipsport?', a: 'O zrušenie účtu požiadaj zákaznícku podporu Tipsportu. Ak chceš len prestávku od hrania, licencovaní prevádzkovatelia musia umožniť aj sebaobmedzenie alebo vylúčenie z hry.' },
+];
+---
+<Base title={`Tipsport prihlásenie a registrácia – návod krok za krokom | ${BRAND}`} description={`Tipsport prihlásenie na webe aj v aplikácii, obnovenie hesla a registrácia krok za krokom. Noví hráči dostanú ${BONUS.line}.`} ld={[breadcrumbLd(crumbs), faqLd(faq)]} section="tipsport-prihlasenie" ttl={3600}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head">
+      <h1>Tipsport prihlásenie a registrácia</h1>
+      <p class="lead">Ako sa prihlásiť na Tipsport.sk na webe aj v aplikácii, čo robiť pri zabudnutom hesle a ako prebieha registrácia nového účtu.</p>
+      <p style="margin-top:14px;display:flex;flex-wrap:wrap;gap:10px;align-items:center"><a class="btn out" href={goPath(null, 'login-guide')} rel="sponsored nofollow noopener" target="_blank"><Icon name="arrow" />Prihlásiť sa</a><a class="btn" href={regPath('login-guide')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />Registrácia + {BONUS.amount}</a><small class="muted">Reklama · 18+</small></p>
+    </section>
+    <div class="cols">
+      <div>
+        <section class="sec">
+          <div class="sec-h"><h2>Tipsport prihlásenie</h2></div>
+          <ol class="steps">
+            <li><span><b>Otvor Tipsport.sk alebo aplikáciu</b>Na webe nájdeš tlačidlo Prihlásiť vpravo hore, v aplikácii hneď po spustení.</span></li>
+            <li><span><b>Zadaj prihlasovacie údaje</b>Tie, ktoré si si zvolil pri registrácii. V aplikácii sa po prvom prihlásení nemusíš prihlasovať zakaždým.</span></li>
+            <li><span><b>Zabudnuté heslo</b>Použi obnovenie hesla priamo pri prihlasovaní. Keď to nepomôže, pomôže zákaznícka podpora.</span></li>
+          </ol>
+        </section>
+        <section class="sec">
+          <div class="sec-h"><h2>Tipsport registrácia</h2></div>
+          <ol class="steps">
+            <li><span><b>Zadaj e-mail a potvrď vek 18+</b>Odsúhlasíš všeobecné podmienky a podmienky vstupného bonusu.</span></li>
+            <li><span><b>Vyplň osobné údaje</b>Podľa zákona sa diaľkovo overujú voči registrom verejnej správy vrátane registra vylúčených osôb. Použiť môžeš len svoje údaje.</span></li>
+            <li><span><b>Prihlás sa a pozeraj</b>Po registrácii dostaneš {BONUS.line} a môžeš pozerať prenosy zadarmo.</span></li>
+          </ol>
+          <p style="margin-top:14px"><a class="btn" href={regPath('login-guide-steps')} rel="sponsored nofollow noopener" target="_blank"><Icon name="gift" />{BONUS.cta}</a></p>
+        </section>
+        <section class="sec prose">
+          <h2>Prečo sa oplatí mať účet</h2>
+          <p>Účet na Tipsport.sk potrebuješ na pozeranie živých prenosov – prenos sa spustí len prihláseným hráčom. Čo sa práve vysiela, nájdeš na stránke <a href="/teraz-nazivo/">Práve naživo</a> a podrobný návod v článku <a href="/tipsport-tv/">ako pozerať zadarmo</a>. Podmienky bonusu pre nových hráčov sú na stránke <a href="/tipsport-bonus/">Bonus 20 €</a>.</p>
+          <p>Hraj zodpovedne: stávkovanie je len pre plnoletých a je dobrovoľné. <a href="/zodpovedne-hranie/">Zásady a pomoc</a>.</p>
+        </section>
+        <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
+      </div>
+      <div class="side"><Ticket placement="login-side" /></div>
+    </div>
+  </div>
+</Base>

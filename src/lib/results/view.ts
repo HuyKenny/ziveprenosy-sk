@@ -114,3 +114,25 @@ export function scorers(d: Detail | null): { h: Detail['events']; a: Detail['eve
   const red = (e: Detail['events'][number]) => e.kind === 'red' || e.kind === 'yellowred';
   return { h: ev.filter((e) => goal(e) && e.side === 'h'), a: ev.filter((e) => goal(e) && e.side === 'a'), redH: ev.filter((e) => red(e) && e.side === 'h').length, redA: ev.filter((e) => red(e) && e.side === 'a').length };
 }
+
+export type FormMark = { r: 'V' | 'R' | 'P'; score: string; vs: string; home: boolean; row: ResultRow };
+
+/** Win/draw/loss from the team's point of view (finished matches only; a shoot-out/overtime win counts as a win). */
+export function formMarks(rows: ResultRow[], name: string): FormMark[] {
+  return rows.filter((x) => x.sh != null && x.sa != null).map((x) => {
+    const home = x.home === name;
+    const my = home ? x.sh! : x.sa!;
+    const op = home ? x.sa! : x.sh!;
+    // Penalties/shoot-outs decide level games: the stored pen score breaks the tie.
+    let r: 'V' | 'R' | 'P' = my > op ? 'V' : my < op ? 'P' : 'R';
+    if (r === 'R' && x.pen_h != null && x.pen_a != null) r = (home ? x.pen_h > x.pen_a : x.pen_a > x.pen_h) ? 'V' : 'P';
+    return { r, score: `${x.sh}:${x.sa}`, vs: home ? x.away : x.home, home, row: x };
+  });
+}
+
+/** "3 výhry, 1 remíza, 1 prehra" for a form list. */
+export function formSummary(m: FormMark[]): string {
+  const n = (k: 'V' | 'R' | 'P') => m.filter((x) => x.r === k).length;
+  const pl = (c: number, a: string, b: string, d: string) => `${c} ${c === 1 ? a : c >= 2 && c <= 4 ? b : d}`;
+  return [pl(n('V'), 'výhra', 'výhry', 'výhier'), pl(n('R'), 'remíza', 'remízy', 'remíz'), pl(n('P'), 'prehra', 'prehry', 'prehier')].filter((x) => !x.startsWith('0 ')).join(', ');
+}

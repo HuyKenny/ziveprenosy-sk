@@ -45,3 +45,8 @@ export const teamBySlug = (sp: number, slug: string) => BY_KEY.get(`${sp}|${slug
 export const teamOf = (sp: number, feedName: string) => BY_FEED.get(`${sp}|${feedName}`);
 export const teamsOfComp = (id: string) => TEAMS.filter((t) => t.comp === id);
 export const plays = (t: Team, m: Match) => m.sp === t.sp && (m.h === t.feed || m.a === t.feed);
+
+/** Name for titles and text: the registered (official) name when known, otherwise the Slovak feed name. */
+export function officialName(sp: number, feedName: string, fallback: string): string {
+  return teamOf(sp, feedName)?.name ?? fallback;
+}

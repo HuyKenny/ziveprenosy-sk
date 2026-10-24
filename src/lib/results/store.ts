@@ -98,3 +98,12 @@ export async function nextOfTeamWithH2h(db: Db, sport: number, name: string, now
     .bind(sport, name, name, now)
     .first<ResultRow>();
 }
+
+/** The team's last finished matches (form), newest first. */
+export async function formOf(db: Db, sport: number, name: string, now: number, limit = 5): Promise<ResultRow[]> {
+  const r = await db
+    .prepare(`SELECT * FROM matches WHERE ${PUBLIC} AND sport = ? AND (home = ? OR away = ?) AND start_utc < ? AND status IN (${FIN}) ORDER BY start_utc DESC LIMIT ?`)
+    .bind(sport, name, name, now, limit)
+    .all<ResultRow>();
+  return r.results;
+}

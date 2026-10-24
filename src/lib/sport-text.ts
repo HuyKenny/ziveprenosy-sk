@@ -19,6 +19,8 @@ export const sportLead = (s: Sport) => LEADS[s.slug] ?? `${s.name} online: zápa
 /** Longer copy for the main sports (HTML). No claims that go stale within weeks. */
 const BODIES: Record<string, string> = {
   futbal: `
+<h2>Futbal dnes – priamy prenos a online zápasy</h2>
+<p>Hľadáš futbal dnes v priamom prenose? Nižšie sú všetky futbalové zápasy, ktoré sa hrajú dnes a v ďalších dňoch, slovenské súťaže navrchu. Pri bežiacich zápasoch vidíš priebežné skóre, pri ostatných čas výkopu, a jedným klikom sa dostaneš na prenos alebo živé štatistiky. Výsledky odohraných zápasov sú na stránke <a href="/vysledky/futbal/">futbal výsledky</a>.</p>
 <h2>Kde pozerať futbal online</h2>
 <p>Väčšinu zápasov v zozname môžeš pozerať naživo po bezplatnej registrácii. Stačí účet a prihlásenie, staviť si nemusíš. Pri zápasoch, ktorých televízne práva má niekto iný, sú k dispozícii aspoň živé štatistiky a priebežné skóre – v zozname majú tlačidlo „Štatistiky“.</p>
 <h2>Ktoré súťaže tu nájdeš</h2>
@@ -26,6 +28,8 @@ const BODIES: Record<string, string> = {
 <h2>Kedy sa hrá</h2>
 <p>Európske poháre majú pevné časy: Liga majstrov utorok a streda, Európska a Konferenčná liga štvrtok, výkopy o 18:45 a 21:00. Ligy sa hrajú od piatka do pondelka. Juhoamerické zápasy sa začínajú v noci, ázijské dopoludnia – futbal má preto živý prenos takmer v každú dennú dobu.</p>`,
   hokej: `
+<h2>Hokej live a online dnes</h2>
+<p>Všetky hokejové zápasy na jednom mieste: čo sa hrá dnes, čo beží práve teraz a výsledky odohraných zápasov. Slovenská <a href="/hokej/tipsport-liga/">hokejová extraliga</a> je vždy navrchu, nasleduje NHL, česká extraliga a európske ligy. Výsledky dnes a včera nájdeš na stránke <a href="/vysledky/hokej/">hokej výsledky</a>, zápasy reprezentácie na stránke <a href="/hokej/tim/slovensko/">hokej Slovensko</a>.</p>
 <h2>Kde pozerať hokej online</h2>
 <p>Naživo sa vysiela veľká časť hokejových zápasov – od zahraničných líg po nižšie súťaže. Pri zápasoch, kde majú práva televízie, nájdeš aspoň živé štatistiky a priebežné skóre.</p>
 <h2>NHL v našom čase</h2>
@@ -33,6 +37,8 @@ const BODIES: Record<string, string> = {
 <h2>Slovenská a česká liga</h2>
 <p>Domácu <a href="/hokej/tipsport-liga/">Tipsport ligu</a> dávame na začiatok zoznamu. Sledujeme aj <a href="/hokej/ceska-extraliga/">českú extraligu</a>, kde hrá veľa Slovákov, a švédsku, fínsku či švajčiarsku ligu, pri ktorých býva video častejšie.</p>`,
   tenis: `
+<h2>Tenis live – zápasy naživo a program</h2>
+<p>Tenis live znamená desiatky zápasov naraz: turnaje ATP, WTA aj Challengery bežia od rána do noci na viacerých kurtoch. V zozname vidíš, čo sa hrá práve teraz, s priebežným stavom setov, a čo sa začne neskôr.</p>
 <h2>Kde pozerať tenis online</h2>
 <p>Tenis má najväčšiu ponuku živého videa: vysielajú sa turnaje <a href="/tenis/atp/">ATP</a>, <a href="/tenis/wta/">WTA</a>, Challengery aj ITF – na veľkých turnajoch bežia súčasne desiatky zápasov.</p>
 <h2>Ako sa v programe vyznať</h2>
@@ -51,12 +57,25 @@ const BODIES: Record<string, string> = {
 };
 export const sportBody = (s: Sport) => BODIES[s.slug] ?? '';
 
+/** Questions people actually ask (Marketing Miner sk, 24. 10. 2026: "kedy hráme hokej" 1,2k, "kedy hrá slovensko hokej" 1k). */
+const EXTRA_FAQ: Record<string, { q: string; a: string }[]> = {
+  hokej: [
+    { q: 'Kedy hráme hokej?', a: 'Zápasy slovenskej reprezentácie nájdeš na stránke Hokej Slovensko, zápasy extraligy v jej programe. Všetky dnešné hokejové zápasy sú na stránke Hokej dnes.' },
+    { q: 'Kde nájdem výsledky hokeja dnes?', a: 'Na stránke Hokej výsledky – zápasy dnes a včera aj so skóre po tretinách a strelcami.' },
+  ],
+  futbal: [
+    { q: 'Kde pozerať futbal dnes v priamom prenose?', a: 'Pri každom zápase v zozname je tlačidlo „Pozerať“. Zápasy s videom pozerajú registrovaní hráči zadarmo, k ostatným sú živé štatistiky a priebežné skóre.' },
+    { q: 'Kde nájdem futbalové výsledky?', a: 'Na stránke Futbal výsledky – Niké liga, európske poháre a top ligy so strelcami gólov.' },
+  ],
+};
+
 export function sportFaq(s: Sport, hasLive: boolean): { q: string; a: string }[] {
   const n = s.name.toLowerCase();
   return [
     { q: `Kde pozerať ${n} online zadarmo?`, a: `Zápasy s videom môžu registrovaní hráči pozerať naživo. Pozeranie je bezplatné, staviť si nemusíš. Noví hráči dostanú za registráciu bonus ${BONUS.amount}.` },
     { q: hasLive ? `Aké zápasy ${s.genitive} práve bežia?` : `Kedy sa hrá ďalší zápas ${s.genitive}?`, a: hasLive ? 'Zoznam „Naživo“ na tejto stránke ukazuje všetky práve bežiace zápasy s priebežným skóre, ktoré sa samo obnovuje.' : 'Program na najbližších 7 dní je na tejto stránke, zoradený podľa súťaží a času začiatku.' },
     { q: 'V akom čase sú zápasy uvedené?', a: 'V slovenskom čase (SEČ/SELČ), aj pri zámorských súťažiach.' },
+    ...(EXTRA_FAQ[s.slug] ?? []),
   ];
 }
 

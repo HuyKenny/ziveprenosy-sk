@@ -15,14 +15,16 @@ import EventIcon from '../../components/EventIcon.astro';
 import { getEnv, view, sportCounts, leagues } from '../../lib/page';
 import { hhmm, longDay, dayLabel, shortDay } from '../../lib/text';
 import { matchTitle, matchPath, sportOf, goPath, sportPath, leaguePathOf, home, away, teamPath } from '../../lib/url';
-import { teamOf } from '../../lib/teams';
-import { competitionSlug, leagueName } from '../../lib/competitions';
+import { teamOf, officialName } from '../../lib/teams';
+import Form from '../../components/Form.astro';
+import { formOf } from '../../lib/results/store';
+import { competitionSlug, leagueName, competitionOf } from '../../lib/competitions';
 import { skClockShort } from '../../lib/names';
 import { BONUS } from '../../lib/bonus';
 import { breadcrumbLd, faqLd, sportsEventLd, clip, BRAND } from '../../lib/seo';
 import { resultsConfig, resultsDb } from '../../lib/results/config';
 import { rowByExt } from '../../lib/results/store';
-import { asMatch, scoreText, detailText, isStale, detailOf, scorers, EVENT_LABELS } from '../../lib/results/view';
+import { asMatch, scoreText, detailText, isStale, detailOf, scorers, EVENT_LABELS, formMarks, formSummary } from '../../lib/results/view';
 import { isFinal, isInPlay, statusLabel } from '../../lib/results/status';
 
 export const prerender = false;
@@ -50,12 +52,21 @@ const state: 'live' | 'pre' | 'recent' = !m ? 'recent' : over ? 'recent' : r && 
 const sc = r && r.status !== 'scheduled' ? scoreText(r) : state === 'live' ? m?.sc ?? null : null;
 const detail = r ? detailText(r) : '';
 const stale = r ? isStale(r, now, resultsConfig(env).staleMs) : false;
-const title = m ? matchTitle(m) : '';
+// Official club names (HC 05 Banská Bystrica, Vlci Žilina) for titles and text — what people type into Google.
+const nh = m ? officialName(m.sp, m.h, home(m)) : '';
+const na = m && m.a ? officialName(m.sp, m.a, away(m)) : '';
+const title = m ? (m.a ? `${nh} – ${na}` : nh) : '';
 const lgName = m ? leagueName(m.sp, m.lg) : '';
 const pool = [...v.live, ...v.upcoming].filter((x) => m && x.id !== m.id);
 const same = m ? pool.filter((x) => x.sp === m.sp && competitionSlug(x.sp, x.lg) === competitionSlug(m.sp, m.lg)).slice(0, 8) : [];
 const watch = m?.stream ? (state === 'live' ? 'Pozerať naživo' : 'Pozerať prenos') : 'Živé štatistiky';
 const goals = scorers(r ? detailOf(r) : null);
+// Form of both teams before this match (finished matches in the shared results database).
+const before = m ? Math.min(now, m.st) : now;
+const fH = m && rdb ? formMarks(await formOf(rdb, m.sp, m.h, before), m.h) : [];
+const fA = m && m.a && rdb ? formMarks(await formOf(rdb, m.sp, m.a, before), m.a) : [];
+const formSentence = [fH.length ? `${nh} ${fH.length === 1 ? 'v poslednom zápase' : `v posledných ${fH.length} zápasoch`}: ${formSummary(fH)}.` : '', fA.length ? `${na}: ${formSummary(fA)}.` : ''].filter(Boolean).join(' ');
+const isExtraliga = m ? competitionOf(m.sp, m.lg)?.id === 'slovenska-extraliga' : false;
 const resultSentence = r && m ? (final
   ? `Zápas ${title} sa skončil ${sc ?? 'bez zverejneného skóre'}${r.status === 'aet' ? ' po predĺžení' : r.status === 'pen' ? (r.sport === 23 ? ' po nájazdoch' : ' po penaltách') : ''}${detail ? ` (${detail})` : ''}.`
   : r.status === 'cancelled' ? `Zápas ${title} bol zrušený.`
@@ -66,13 +77,15 @@ const faq = !m ? [] : over ? [
 ] : [
   { q: `Kde pozerať ${title} naživo?`, a: m.stream ? `Zápas sa vysiela naživo. Klikni na „Pozerať“, prihlás sa alebo sa bezplatne zaregistruj a prenos sa spustí. Noví hráči dostanú ${BONUS.line}.` : 'K tomuto zápasu nie je video (práva má televízia), k dispozícii sú však živé štatistiky a priebežné skóre.' },
   { q: `Kedy sa začína ${title}?`, a: `${longDay(m.st)} o ${hhmm(m.st)} slovenského času.` },
+  { q: `Kto vysiela ${title}?`, a: m.stream ? 'Zápas je v ponuke živých prenosov Tipsport TV – po prihlásení ho pozeráš zadarmo. Televízne vysielanie závisí od držiteľa práv pre danú súťaž.' : 'Video k zápasu v našej ponuke nie je, práva má televízia. Naživo sleduješ priebežné skóre a štatistiky.' },
+  ...(formSentence ? [{ q: 'Ako sú na tom tímy pred zápasom?', a: formSentence }] : []),
   { q: 'Je pozeranie zadarmo?', a: 'Pre registrovaných hráčov áno. Staviť si nemusíš, stávkovanie je dobrovoľné a len pre osoby od 18 rokov.' },
 ];
 const crumbs = m && sport ? [{ name: 'Domov', href: '/' }, { name: `${sport.name} online`, href: sportPath(sport.slug) }, { name: lgName, href: leaguePathOf(m) }, { name: title }] : [];
 const date = m ? shortDay(m.st).replace(/\s/g, '') : '';
-const base = !m ? '' : final && sc ? `${title} ${sc} – výsledok ${date}` : over ? `${title} ${date} – výsledok` : `${title} naživo ${date} – kde pozerať online`;
+const base = !m ? '' : final && sc ? `${title} ${sc} – výsledok ${date}` : over ? `${title} ${date} – výsledok` : [`${title}: ${lgName} online ${date}`, `${title} online ${date}`].find((t) => t.length <= 60) ?? `${title} naživo`;
 const pageTitle = !m ? `Zápas sa skončil | ${BRAND}` : base.length <= 44 ? `${base} | ${BRAND}` : clip(base, 62);
-const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)}. Ďalšie zápasy a program súťaže.`, 158) : clip(`${title} (${lgName}) – ${state === 'live' ? 'práve sa hrá' : `${dayLabel(m.st, now).toLowerCase()} o ${hhmm(m.st)}`}. ${m.stream ? 'Živý prenos zadarmo po registrácii' : 'Živé štatistiky a priebežné skóre'}, bonus ${BONUS.amount}.`, 158);
+const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)}. Ďalšie zápasy a program súťaže.`, 158) : clip(`${isExtraliga ? 'Hokej extraliga: ' : ''}${title} (${lgName}) – ${state === 'live' ? 'práve sa hrá' : `${dayLabel(m.st, now).toLowerCase()} o ${hhmm(m.st)}`}. ${m.stream ? 'Živý prenos zadarmo po registrácii' : 'Živé štatistiky a priebežné skóre'}, bonus ${BONUS.amount}.`, 158);
 ---
 {m && sport ? (
 <Base title={pageTitle} description={desc} path={canonicalPath} ld={[sportsEventLd(m, r?.status, final && sc ? sc : undefined), breadcrumbLd(crumbs), faqLd(faq)]} section={sport.slug} ttl={over ? 3600 : state === 'live' ? 30 : 60} stick={!over}>
@@ -86,12 +99,12 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
         <section class="scorecard sec" data-id={state === 'live' ? m.id : undefined}>
           <div class="sc-top"><a href={leaguePathOf(m)}>{lgName}</a><span>{sport.name} · {longDay(m.st)}</span></div>
           <div class="sc-mid">
-            <div class="team"><Crest sp={m.sp} name={m.h} size={56} />{teamH ? <a href={teamPath(sport.slug, teamH.slug)}>{home(m)}</a> : home(m)}</div>
+            <div class="team"><Crest sp={m.sp} name={m.h} size={56} />{teamH ? <a href={teamPath(sport.slug, teamH.slug)}>{nh}</a> : nh}</div>
             <div>
               {sc ? <div class="big" data-s>{sc}</div> : <div class="big time">{hhmm(m.st)}</div>}
               <div class:list={['when', state === 'live' && 'l']}>{over && r ? statusLabel(r.status, r.sport) : state === 'live' ? (/^Za /.test(m.ti ?? '') ? <span data-t>{skClockShort(m.ti ?? '')}</span> : <><span class="dot pulse"></span> Naživo <span class="clk" data-t>{skClockShort(m.ti ?? '')}</span></>) : state === 'pre' ? dayLabel(m.st, now) : 'Odohrané'}</div>
             </div>
-            {m.a ? <div class="team b"><Crest sp={m.sp} name={m.a} size={56} />{teamA ? <a href={teamPath(sport.slug, teamA.slug)}>{away(m)}</a> : away(m)}</div> : <div></div>}
+            {m.a ? <div class="team b"><Crest sp={m.sp} name={m.a} size={56} />{teamA ? <a href={teamPath(sport.slug, teamA.slug)}>{na}</a> : na}</div> : <div></div>}
           </div>
           {goals.h.length || goals.a.length || goals.redH || goals.redA ? (
             <div class="goals" aria-label="Góly a vylúčenia">
@@ -126,6 +139,16 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
           </dl>
         </section>
 
+        {fH.length || fA.length ? (
+          <section class="sec">
+            <div class="sec-h"><h2>Forma tímov</h2></div>
+            <div class="comp">
+              {fH.length ? <div class="form-row"><span><Crest sp={m.sp} name={m.h} size={22} />{nh}</span><Form marks={fH} label={`Forma ${nh}`} /></div> : null}
+              {fA.length ? <div class="form-row"><span><Crest sp={m.sp} name={m.a} size={22} />{na}</span><Form marks={fA} label={`Forma ${na}`} /></div> : null}
+            </div>
+            <p class="muted" style="font-size:.84rem;margin-top:6px">Posledné odohrané zápasy, najnovší vľavo (V výhra, R remíza, P prehra).</p>
+          </section>
+        ) : null}
         {r ? <MatchFacts r={r} /> : null}
 
         {over ? null : <div class="sec"><Ticket placement="detail-bonus" wide /></div>}
@@ -139,6 +162,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
           </>) : (<>
             <h2>{title} – živý prenos</h2>
             <p>{state === 'live' ? `Zápas ${title} sa práve hrá` : `Zápas ${title} sa začína ${longDay(m.st)} o ${hhmm(m.st)}`} v súťaži {lgName}. {m.stream ? 'Vysiela sa naživo registrovaným hráčom – stačí sa prihlásiť a prenos spustiť.' : 'Video k nemu nie je, naživo však sleduješ štatistiky a priebežné skóre.'} Ďalšie zápasy nájdeš na stránke <a href={leaguePathOf(m)}>{lgName}</a> alebo v <a href="/program/">programe prenosov</a>.</p>
+            {formSentence ? <p>{formSentence}{teamH || teamA ? <> Program a výsledky klubov: {teamH ? <a href={teamPath(sport.slug, teamH.slug)}>{nh}</a> : null}{teamH && teamA ? ', ' : null}{teamA ? <a href={teamPath(sport.slug, teamA.slug)}>{na}</a> : null}.</> : null}</p> : null}
           </>)}
         </section>
         <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>

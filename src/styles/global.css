@@ -568,3 +568,12 @@ main .comp, main .prose, main .faq, main .tiles { content-visibility: auto; cont
   .sportbar a { padding: 6px 9px; }
   .sportbar .sep { margin: 0 4px; }
 }
+
+/* form badges */
+.form { display: inline-flex; gap: 4px; }
+.fm { width: 26px; height: 26px; border-radius: 4px; border: 2px solid var(--ink); display: inline-flex; align-items: center; justify-content: center; font-weight: 900; font-size: 0.8rem; color: #fff; text-decoration: none; }
+.fm-V { background: var(--green); }
+.fm-R { background: #8a93a3; }
+.fm-P { background: var(--red); }
+.form-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; border-top: 1px solid var(--rule); font-weight: 700; }
+.form-row span:first-child { display: flex; align-items: center; gap: 8px; min-width: 0; }

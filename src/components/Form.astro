@@ -1,0 +1,15 @@
+---
+import type { FormMark } from '../lib/results/view';
+import { resultPath } from '../lib/results/view';
+import { skTeam } from '../lib/names';
+import { shortDay } from '../lib/text';
+/** Last results as coloured V/R/P badges (newest first), each a link to the match. */
+interface Props { marks: FormMark[]; label?: string }
+const { marks, label } = Astro.props;
+const TITLE = { V: 'výhra', R: 'remíza', P: 'prehra' } as const;
+---
+{marks.length ? (
+  <div class="form" aria-label={label ?? 'Forma'}>
+    {marks.map((m) => <a class:list={['fm', `fm-${m.r}`]} href={resultPath(m.row)} title={`${TITLE[m.r]} ${m.score} – ${m.home ? 'doma' : 'vonku'} s ${skTeam(m.vs)}, ${shortDay(m.row.start_utc)}`}>{m.r}</a>)}
+  </div>
+) : null}

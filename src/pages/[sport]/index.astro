@@ -7,6 +7,9 @@ import Ticket from '../../components/Ticket.astro';
 import Faq from '../../components/Faq.astro';
 import Crumbs from '../../components/Crumbs.astro';
 import Photo from '../../components/Photo.astro';
+import Crest from '../../components/Crest.astro';
+import { TEAMS } from '../../lib/teams';
+import { teamPath } from '../../lib/url';
 import { photoFor } from '../../lib/photos';
 import ResultList from '../../components/ResultList.astro';
 import { resultsConfig, resultsDb } from '../../lib/results/config';
@@ -37,6 +40,7 @@ const faq = sportFaq(sport, live.length > 0);
 const crumbs = [{ name: 'Domov', href: '/' }, { name: `${sport.name} online` }];
 const body = sportBody(sport);
 const photo = photoFor(sport.slug);
+const clubs = TEAMS.filter((t) => t.sp === sport.id).sort((a, b) => Number(!!b.national) - Number(!!a.national));
 // Today's results of this sport's tracked competitions (shared results database), finished or in play.
 const rc = resultsConfig(getEnv());
 const rdb = resultsDb(getEnv());
@@ -70,6 +74,7 @@ const shown = featured(next).slice(0, 60).sort((a, b) => a.st - b.st);
         {resultsToday.length ? <section class="sec"><div class="sec-h"><h2>Výsledky dnes <span class="n">{resultsToday.length}</span></h2><a href={`/vysledky/${sport.slug}/`}>Všetky výsledky ›</a></div><ResultList rows={resultsToday} comps={rc.comps} now={now} staleMs={rc.staleMs} /></section> : rs ? <p style="margin:-10px 0 18px"><a href={`/vysledky/${sport.slug}/`}>{sport.name}: výsledky dnes a včera ›</a></p> : null}
         <section class="sec" id="program"><div class="sec-h"><h2>Program</h2>{TODAY_SPORTS.has(sport.slug) ? <a href={sportTodayPath(sport.slug)}>{sport.name} dnes ›</a> : null}</div><LeagueList items={shown} now={now} placement="sport" days per={5} max={10} showSport={false} empty="Zatiaľ žiadne naplánované zápasy." />{next.length > shown.length ? <p><a href={`/program/?sport=${sport.slug}`}>Ďalšie zápasy po dňoch ›</a></p> : null}</section>
         {curated.length ? <section class="sec"><div class="sec-h"><h2>Súťaže</h2></div><Tiles items={curated} /></section> : null}
+        {clubs.length ? <section class="sec"><div class="sec-h"><h2>Slovenské kluby a reprezentácia</h2></div><div class="chips wrap-chips">{clubs.map((t) => <a class="chip" href={teamPath(sport.slug, t.slug)} data-astro-prefetch><Crest sp={t.sp} name={t.feed} size={18} />{t.national ? 'Slovensko (reprezentácia)' : t.name}</a>)}</div></section> : null}
         {body ? <section class="sec prose" set:html={body} /> : null}
         <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
       </div>

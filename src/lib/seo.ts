@@ -2,6 +2,7 @@ import type { Match } from './types';
 import { matchPath, matchTitle, sportOf, home, away } from './url';
 import { leagueName } from './competitions';
 import { photoFor } from './photos';
+import { officialName } from './teams';
 
 export const SITE = 'https://ziveprenosy.sk';
 export const BRAND = 'ŽivéPrenosy.sk';
@@ -36,13 +37,16 @@ export const siteLd = () => [
 
 export function sportsEventLd(m: Match, status?: string, result?: string) {
   const s = sportOf(m);
+  const H = officialName(m.sp, m.h, home(m));
+  const A = m.a ? officialName(m.sp, m.a, away(m)) : '';
+  const name = A ? `${H} – ${A}` : H;
   const lg = leagueName(m.sp, m.lg);
   const url = abs(matchPath(m));
   return {
     '@context': 'https://schema.org',
     '@type': 'SportsEvent',
-    name: matchTitle(m),
-    description: result ? `${matchTitle(m)} ${result} – ${lg}. Výsledok zápasu.` : `${matchTitle(m)} – ${s?.name ?? 'šport'}, ${lg}. Živý prenos a skóre.`,
+    name,
+    description: result ? `${name} ${result} – ${lg}. Výsledok zápasu.` : `${name} – ${s?.name ?? 'šport'}, ${lg}. Živý prenos a skóre.`,
     url,
     startDate: new Date(m.st).toISOString(),
     eventStatus: `https://schema.org/${status === 'postponed' ? 'EventPostponed' : status === 'cancelled' ? 'EventCancelled' : 'EventScheduled'}`,
@@ -52,7 +56,7 @@ export function sportsEventLd(m: Match, status?: string, result?: string) {
     image: [abs(`/img/sport/${photoFor(s?.slug).slug}-800.jpg`)],
     organizer: { '@type': 'Organization', name: lg },
     superEvent: { '@type': 'SportsEvent', name: lg },
-    ...(m.a ? { homeTeam: { '@type': 'SportsTeam', name: home(m) }, awayTeam: { '@type': 'SportsTeam', name: away(m) }, competitor: [{ '@type': 'SportsTeam', name: home(m) }, { '@type': 'SportsTeam', name: away(m) }] } : {}),
+    ...(m.a ? { homeTeam: { '@type': 'SportsTeam', name: H }, awayTeam: { '@type': 'SportsTeam', name: A }, competitor: [{ '@type': 'SportsTeam', name: H }, { '@type': 'SportsTeam', name: A }] } : {}),
   };
 }
 

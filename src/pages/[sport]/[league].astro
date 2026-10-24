@@ -71,7 +71,7 @@ const desc = today ? `${sport.name} dnes: ${n} ${plural(n, 'zápas', 'zápasy', 
     <Crumbs items={crumbs} />
     <section class="head">
       <div class="eyebrow">{comp ? <span class="badge" style={`background:${comp.color};color:#fff;padding:2px 7px;border-radius:3px`}>{comp.short}</span> : null}<span>{sport.name}</span>{today ? <span>{longDay(now)}</span> : null}</div>
-      <h1>{today ? `${sport.name} dnes` : `${name} online`}</h1>
+      <h1>{today ? `${sport.name} dnes` : comp?.h1 ?? `${name} online`}</h1>
       {hasResults ? <p style="margin:8px 0 0"><a class="btn sm out" href={`/${sport.slug}/${comp!.slug}/vysledky/`} data-astro-prefetch>Výsledky {comp!.name} ›</a></p> : null}
       <p class="lead">{today ? `Všetky dnešné zápasy ${sport.genitive} podľa súťaží – slovenské navrchu. Klikni na „Pozerať“ a prenos sa otvorí.` : comp?.intro ?? (sample ? `${name}: zápasy, ktoré sú práve v ponuke, s časom začiatku a odkazom na prenos alebo živé štatistiky.` : 'Táto súťaž už nemá žiadne zápasy v ponuke.')}</p>
       {sister ? <p class="muted" style="margin:8px 0 0;font-size:.92rem" set:html={sister.html} /> : null}
@@ -83,6 +83,7 @@ const desc = today ? `${sport.name} dnes: ${n} ${plural(n, 'zápas', 'zápasy', 
         {h2hNext ? <H2hNext r={h2hNext} now={now} /> : null}
         {results.length ? <section class="sec"><div class="sec-h"><h2>Posledné výsledky</h2><a href={`/${sport.slug}/${comp!.slug}/vysledky/`}>Všetky výsledky {comp!.name} ›</a></div><ResultList rows={results} comps={[comp!.id]} now={now} staleMs={rc.staleMs} showDay /></section> : null}
         <div class="sec"><Ticket placement={today ? 'today-mid' : 'comp-mid'} wide /></div>
+        {comp?.body ? <section class="sec prose" set:html={comp.body} /> : null}
         {clubs.length ? <section class="sec"><div class="sec-h"><h2>Kluby · {comp!.name}</h2></div><div class="chips wrap-chips">{clubs.map((t) => <a class="chip" href={teamPath(sport.slug, t.slug)} data-astro-prefetch><Crest sp={t.sp} name={t.feed} size={18} />{t.name}</a>)}</div></section> : null}
         <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
       </div>
