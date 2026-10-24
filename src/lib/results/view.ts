@@ -107,7 +107,8 @@ export const statNum = (v: string | null) => (v == null ? null : Number.parseFlo
 
 /** Goals and red cards per side for the scorecard (own goals already carry the scoring side). */
 export function scorers(d: Detail | null): { h: Detail['events']; a: Detail['events']; redH: number; redA: number } {
-  const ev = d?.events ?? [];
+  // Events without a player name would read as a bare minute ("7'").
+  const ev = (d?.events ?? []).filter((e) => e.player?.trim());
   const goal = (e: Detail['events'][number]) => e.kind === 'goal' || e.kind === 'pen' || e.kind === 'own';
   const red = (e: Detail['events'][number]) => e.kind === 'red' || e.kind === 'yellowred';
   return { h: ev.filter((e) => goal(e) && e.side === 'h'), a: ev.filter((e) => goal(e) && e.side === 'a'), redH: ev.filter((e) => red(e) && e.side === 'h').length, redA: ev.filter((e) => red(e) && e.side === 'a').length };

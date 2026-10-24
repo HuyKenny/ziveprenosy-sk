@@ -14,6 +14,7 @@ import { BONUS } from '../lib/bonus';
 import { resultsConfig, resultsDb } from '../lib/results/config';
 import { rowsBetween } from '../lib/results/store';
 import { localDay } from '../lib/results/time';
+import { group } from '../lib/results/status';
 import { logoMap, crestOf } from '../lib/results/logos';
 import type { Match } from '../lib/types';
 
@@ -36,7 +37,7 @@ const withCrestFirst = (list: Match[]) => [...list.filter(hasCrest), ...list.fil
 const liveSlides = mixSports(withCrestFirst(featured(v.live.filter((m) => m.stream && tier(m) < 3))), 10);
 const slides = [...liveSlides, ...mixSports(withCrestFirst(featured(today.filter((m) => m.stream && tier(m) < 2))), 10 - liveSlides.length)];
 const sports = sportCounts(v);
-const results = rdb ? (await rowsBetween(rdb, ...localDay(todayKey), rc.comps)).filter((r) => r.status !== 'scheduled') : [];
+const results = rdb ? (await rowsBetween(rdb, ...localDay(todayKey), rc.comps)).filter((r) => group(r.status) === 'final') : [];
 const faq = [
   { q: 'Dajú sa zápasy pozerať zadarmo?', a: 'Áno. Prenosy vysiela Tipsport.sk na Tipsport TV svojim registrovaným hráčom a pozeranie je bezplatné, staviť si nemusíš. My videá nevysielame, len ukazujeme, čo kde beží, a posielame ťa rovno na prenos.' },
   { q: 'Prečo sa musím zaregistrovať?', a: 'Prevádzkovateľ so slovenskou licenciou smie vysielať len overeným zákazníkom starším ako 18 rokov. Registrácia je bezplatná a noví hráči Tipsport.sk k nej dostanú bonus ' + BONUS.amount + '.' },
@@ -56,7 +57,7 @@ const ld = [...siteLd(), faqLd(faq), itemListLd([...v.live, ...today], 'Živé p
         <a href="/teraz-nazivo/" class="is-live"><b>{v.live.length}</b><span>naživo</span></a>
         <a href="/program/"><b>{today.length}</b><span>dnes ešte</span></a>
         <a href="#slovensko"><b>{sk.length}</b><span>slovenské</span></a>
-        <a href="/vysledky/"><b>{results.length}</b><span>výsledky dnes</span></a>
+        <a href="/vysledky/"><b>{results.length}</b><span>odohrané dnes</span></a>
       </div>
     </section>
 
@@ -76,7 +77,7 @@ const ld = [...siteLd(), faqLd(faq), itemListLd([...v.live, ...today], 'Živé p
 
         <section class="sec">
           <div class="sec-h"><h2>Práve naživo <span class="n live">{v.live.length}</span></h2><a href="/teraz-nazivo/">Všetko naživo ›</a></div>
-          <LeagueList items={v.live.filter((m) => !skLive.has(m.id))} now={now} placement="home-live" live per={4} max={6} empty="Práve teraz nebeží žiadny prenos – najbližšie zápasy sú nižšie." />
+          <LeagueList items={v.live.filter((m) => !skLive.has(m.id))} now={now} placement="home-live" live per={3} max={5} empty="Práve teraz nebeží žiadny prenos – najbližšie zápasy sú nižšie." />
         </section>
 
         <div class="sec"><Ticket placement="home-mid" wide /></div>
@@ -84,13 +85,13 @@ const ld = [...siteLd(), faqLd(faq), itemListLd([...v.live, ...today], 'Živé p
 
         <section class="sec">
           <div class="sec-h"><h2>Dnes v programe <span class="n">{today.length}</span></h2><a href="/program/">Celý program ›</a></div>
-          <LeagueList items={featured(today.filter((m) => !isSlovak(m))).slice(0, 60)} now={now} placement="home-today" per={5} max={8} empty="Na dnešok už nič nezostáva – pozri si program na zajtra." />
+          <LeagueList items={featured(today.filter((m) => !isSlovak(m))).slice(0, 60)} now={now} placement="home-today" per={4} max={6} empty="Na dnešok už nič nezostáva – pozri si program na zajtra." />
         </section>
 
         {results.length ? (
           <section class="sec">
             <div class="sec-h"><h2>Výsledky dnes</h2><a href="/vysledky/">Všetky výsledky ›</a></div>
-            <ResultList rows={results} comps={rc.comps} now={now} staleMs={rc.staleMs} />
+            <ResultList rows={results} comps={rc.comps} now={now} staleMs={rc.staleMs} per={4} max={3} />
           </section>
         ) : null}
 

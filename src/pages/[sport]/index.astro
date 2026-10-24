@@ -3,6 +3,7 @@ import Base from '../../layouts/Base.astro';
 import LeagueList from '../../components/LeagueList.astro';
 import Side from '../../components/Side.astro';
 import Tiles from '../../components/Tiles.astro';
+import Ticket from '../../components/Ticket.astro';
 import Faq from '../../components/Faq.astro';
 import Crumbs from '../../components/Crumbs.astro';
 import Photo from '../../components/Photo.astro';
@@ -64,10 +65,11 @@ const shown = featured(next).slice(0, 60).sort((a, b) => a.st - b.st);
     {others.length ? <div class="chips" aria-label="Ďalšie súťaže" style="margin-top:14px">{others.map((l) => <a class="chip" href={`/${sport.slug}/${l.slug}/`}>{l.name}<em>{l.n}</em></a>)}</div> : null}
     <div class="cols" style="margin-top:14px">
       <div>
-        {curated.length ? <section class="sec"><div class="sec-h"><h2>Súťaže</h2></div><Tiles items={curated} /></section> : null}
-        <section class="sec" id="nazivo"><div class="sec-h"><h2>{sport.name} naživo <span class="n live">{live.length}</span></h2></div><LeagueList items={live} now={now} placement="sport-live" live showSport={false} empty={`Práve teraz sa nehrá žiadny zápas ${sport.genitive}. Najbližšie zápasy sú v programe nižšie.`} /></section>
+        <section class="sec" id="nazivo"><div class="sec-h"><h2>{sport.name} naživo <span class="n live">{live.length}</span></h2>{live.length ? <a href={`/teraz-nazivo/?sport=${sport.slug}`}>Všetko naživo ›</a> : null}</div><LeagueList items={live} now={now} placement="sport-live" live per={3} max={8} showSport={false} empty={`Práve teraz sa nehrá žiadny zápas ${sport.genitive}. Najbližšie zápasy sú v programe nižšie.`} /></section>
+        <div class="sec"><Ticket placement="sport-mid" wide /></div>
         {resultsToday.length ? <section class="sec"><div class="sec-h"><h2>Výsledky dnes <span class="n">{resultsToday.length}</span></h2><a href={`/vysledky/${sport.slug}/`}>Všetky výsledky ›</a></div><ResultList rows={resultsToday} comps={rc.comps} now={now} staleMs={rc.staleMs} /></section> : rs ? <p style="margin:-10px 0 18px"><a href={`/vysledky/${sport.slug}/`}>{sport.name}: výsledky dnes a včera ›</a></p> : null}
-        <section class="sec" id="program"><div class="sec-h"><h2>Program</h2>{TODAY_SPORTS.has(sport.slug) ? <a href={sportTodayPath(sport.slug)}>{sport.name} dnes ›</a> : null}</div><LeagueList items={shown} now={now} placement="sport" days showSport={false} empty="Zatiaľ žiadne naplánované zápasy." />{next.length > shown.length ? <p><a href={`/program/?sport=${sport.slug}`}>Ďalšie zápasy po dňoch ›</a></p> : null}</section>
+        <section class="sec" id="program"><div class="sec-h"><h2>Program</h2>{TODAY_SPORTS.has(sport.slug) ? <a href={sportTodayPath(sport.slug)}>{sport.name} dnes ›</a> : null}</div><LeagueList items={shown} now={now} placement="sport" days per={5} max={10} showSport={false} empty="Zatiaľ žiadne naplánované zápasy." />{next.length > shown.length ? <p><a href={`/program/?sport=${sport.slug}`}>Ďalšie zápasy po dňoch ›</a></p> : null}</section>
+        {curated.length ? <section class="sec"><div class="sec-h"><h2>Súťaže</h2></div><Tiles items={curated} /></section> : null}
         {body ? <section class="sec prose" set:html={body} /> : null}
         <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
       </div>

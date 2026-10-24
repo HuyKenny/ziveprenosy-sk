@@ -2,6 +2,7 @@
 import Base from '../../layouts/Base.astro';
 import ResultList from '../../components/ResultList.astro';
 import Side from '../../components/Side.astro';
+import Ticket from '../../components/Ticket.astro';
 import Crumbs from '../../components/Crumbs.astro';
 import Icon from '../../components/Icon.astro';
 import { getEnv, view, sportCounts, leagues } from '../../lib/page';
@@ -70,6 +71,7 @@ const show = (k: 'live' | 'done' | 'later') => !stav || (stav === 'hra' && k ===
       <div>
         {show('live') && liveRows.length ? <section class="sec"><div class="sec-h"><h2>Práve sa hrá <span class="n live">{liveRows.length}</span></h2></div><ResultList rows={liveRows} comps={rc.comps} now={now} staleMs={rc.staleMs} /></section> : null}
         {show('done') ? <section class="sec"><div class="sec-h"><h2>Odohrané <span class="n">{done.length}</span></h2></div><ResultList rows={done} comps={rc.comps} now={now} staleMs={rc.staleMs} empty={key === keys[0] ? `Dnes sa ešte nedohral žiadny zápas sledovaných súťaží${sport ? ` (${what})` : ''}.` : 'V tento deň sa nehral žiadny zápas sledovaných súťaží.'} /></section> : null}
+        <div class="sec"><Ticket placement="results-mid" wide /></div>
         {show('later') && later.length ? <section class="sec"><div class="sec-h"><h2>Ešte sa začne <span class="n">{later.length}</span></h2><a href={sport ? `/${sport.slug}/` : '/program/'}>Program ›</a></div><ResultList rows={later} comps={rc.comps} now={now} staleMs={rc.staleMs} /></section> : null}
         {stav === 'hra' && !liveRows.length ? <p class="empty">Práve sa nehrá žiadny zápas sledovaných súťaží.</p> : null}
       </div>

@@ -286,12 +286,13 @@ button { font: inherit; color: inherit; }
 .scorecard { background: var(--card); border: 2px solid var(--ink); border-radius: var(--r); box-shadow: 5px 5px 0 var(--ink); overflow: hidden; }
 .scorecard .sc-top { display: flex; justify-content: space-between; gap: 10px; flex-wrap: wrap; padding: 9px 14px; background: var(--ink); color: #fff; font-size: 0.86rem; font-weight: 700; }
 .scorecard .sc-top a { color: #fff; }
-.scorecard .sc-mid { display: grid; grid-template-columns: 1fr auto 1fr; gap: 12px; align-items: center; padding: 26px 16px; text-align: center; }
+.scorecard .sc-mid { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, auto) minmax(0, 1fr); gap: 10px; align-items: center; padding: 26px 16px; text-align: center; }
 .scorecard .team { font-size: clamp(1.05rem, 3.2vw, 1.6rem); font-weight: 900; line-height: 1.15; overflow-wrap: break-word; hyphens: auto; min-width: 0; }
 .scorecard .mono { width: 54px; height: 54px; margin: 0 auto 10px; border: 2px solid var(--ink); border-radius: 50% 50% 8px 8px; display: flex; align-items: center; justify-content: center; font-weight: 900; font-size: 1.1rem; background: var(--blue-soft); }
 .scorecard .team.b .mono { background: var(--red-soft); }
 .scorecard .big { font-size: clamp(2rem, 7vw, 3.2rem); font-weight: 900; line-height: 1; }
 .scorecard .big.time { font-size: clamp(1.6rem, 5vw, 2.4rem); }
+.scorecard .sc-mid > div:nth-child(2) { max-width: 40vw; }
 .scorecard .when { font-size: 0.86rem; font-weight: 800; color: var(--ink-2); margin-top: 6px; text-transform: uppercase; letter-spacing: 0.04em; }
 .scorecard .when.l { color: var(--red); }
 .scorecard .sc-cta { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; padding: 14px 16px; border-top: 2px solid var(--ink); background: #f7f8f4; }
@@ -502,3 +503,20 @@ footer .legal { margin: 16px 0 0; font-size: 0.8rem; color: #9aa6bb; }
 .ticket.wide .foot { width: 290px; }
 .ticket.wide .body .why { max-width: 46ch; }
 @media (max-width: 640px) { .ticket.wide .foot { width: auto; } }
+
+/* ---------- mobile: no sidebar (navigation lives in the sport bar, menu and tab bar) ---------- */
+@media (max-width: 999px) { .cols > .side { display: none; } }
+.dock .dock-bonus { color: var(--red-dark); }
+.dock .dock-bonus .ic { background: var(--red); color: #fff; border: 2px solid var(--ink); border-radius: 999px; width: 40px; height: 40px; align-items: center; justify-content: center; margin-top: -16px; box-shadow: 2px 2px 0 var(--ink); }
+.dock .dock-bonus .ico { width: 20px; height: 20px; }
+/* competition tiles scroll sideways on phones instead of filling the screen */
+@media (max-width: 640px) {
+  .tiles { grid-auto-flow: column; grid-template-columns: none; grid-auto-columns: 62%; overflow-x: auto; scroll-snap-type: x mandatory; padding: 2px 4px 8px 2px; }
+  .tile { scroll-snap-align: start; }
+}
+.scorecard .when .clk { display: block; margin-top: 2px; }
+@media (max-width: 520px) {
+  .scorecard .sc-mid { padding: 20px 10px; gap: 6px; }
+  .scorecard .team { font-size: 1rem; hyphens: manual; overflow-wrap: normal; }
+  .scorecard .when { font-size: 0.74rem; }
+}

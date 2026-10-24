@@ -5,9 +5,10 @@ import { competitionById } from '../lib/competitions';
 import { SPORT_BY_ID } from '../lib/sports';
 import ResultRow from './ResultRow.astro';
 /** Results grouped by competition, in the order of `comps` (Slovak competitions first in the config). */
-interface Props { rows: Row[]; comps: string[]; now: number; staleMs: number; empty?: string; showDay?: boolean }
-const { rows, comps, now, staleMs, empty = 'Žiadne výsledky.', showDay = false } = Astro.props;
-const groups = comps.map((c) => ({ c, rows: rows.filter((r) => r.comp === c) })).filter((g) => g.rows.length);
+interface Props { rows: Row[]; comps: string[]; now: number; staleMs: number; empty?: string; showDay?: boolean; per?: number; max?: number }
+const { rows, comps, now, staleMs, empty = 'Žiadne výsledky.', showDay = false, per = 0, max = 0 } = Astro.props;
+const all = comps.map((c) => ({ c, rows: rows.filter((r) => r.comp === c) })).filter((g) => g.rows.length);
+const groups = max ? all.slice(0, max) : all;
 ---
 {groups.length === 0 ? (empty ? <p class="empty">{empty}</p> : null) : groups.map((g) => {
   const c = competitionById(g.c);
@@ -17,8 +18,9 @@ const groups = comps.map((c) => ({ c, rows: rows.filter((r) => r.comp === c) }))
         <span class="badge" style={`background:${c?.color ?? '#0f1b2d'}`}>{c?.short ?? '•'}</span>
         <a class="name" href={c ? `/${SPORT_BY_ID.get(c.sp)?.slug}/${c.slug}/` : '/vysledky/'}>{compName(g.c)}</a>
         {c ? <span class="sp">{SPORT_BY_ID.get(c.sp)?.name}</span> : null}
+        {per && g.rows.length > per ? <a class="more" href="/vysledky/">+{g.rows.length - per} ›</a> : null}
       </div>
-      {g.rows.map((r) => <ResultRow r={r} now={now} staleMs={staleMs} showDay={showDay} />)}
+      {(per ? g.rows.slice(-per) : g.rows).map((r) => <ResultRow r={r} now={now} staleMs={staleMs} showDay={showDay} />)}
     </section>
   );
 })}

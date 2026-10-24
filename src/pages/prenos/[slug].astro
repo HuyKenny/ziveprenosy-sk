@@ -16,7 +16,7 @@ import { getEnv, view, sportCounts, leagues } from '../../lib/page';
 import { hhmm, longDay, dayLabel, shortDay } from '../../lib/text';
 import { matchTitle, matchPath, sportOf, goPath, sportPath, leaguePathOf, home, away } from '../../lib/url';
 import { competitionSlug, leagueName } from '../../lib/competitions';
-import { skClock } from '../../lib/names';
+import { skClockShort } from '../../lib/names';
 import { BONUS } from '../../lib/bonus';
 import { breadcrumbLd, faqLd, sportsEventLd, clip, BRAND } from '../../lib/seo';
 import { resultsConfig, resultsDb } from '../../lib/results/config';
@@ -86,7 +86,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
             <div class="team"><Crest sp={m.sp} name={m.h} size={56} />{home(m)}</div>
             <div>
               {sc ? <div class="big" data-s>{sc}</div> : <div class="big time">{hhmm(m.st)}</div>}
-              <div class:list={['when', state === 'live' && 'l']}>{over && r ? statusLabel(r.status, r.sport) : state === 'live' ? (/^Za /.test(m.ti ?? '') ? <span data-t>{skClock(m.ti ?? '')}</span> : <><span class="dot pulse"></span> Naživo <span data-t>{skClock(m.ti ?? '')}</span></>) : state === 'pre' ? dayLabel(m.st, now) : 'Odohrané'}</div>
+              <div class:list={['when', state === 'live' && 'l']}>{over && r ? statusLabel(r.status, r.sport) : state === 'live' ? (/^Za /.test(m.ti ?? '') ? <span data-t>{skClockShort(m.ti ?? '')}</span> : <><span class="dot pulse"></span> Naživo <span class="clk" data-t>{skClockShort(m.ti ?? '')}</span></>) : state === 'pre' ? dayLabel(m.st, now) : 'Odohrané'}</div>
             </div>
             {m.a ? <div class="team b"><Crest sp={m.sp} name={m.a} size={56} />{away(m)}</div> : <div></div>}
           </div>
@@ -112,7 +112,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
           </div>
         </section>
 
-        {over ? null : <div class="sec"><Stage m={m} state={state} now={now} /></div>}
+        {over || !m.stream ? null : <div class="sec"><Stage m={m} state={state} now={now} /></div>}
 
         <section class="sec">
           <dl class="facts">
@@ -140,7 +140,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
         </section>
         <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
       </div>
-      <Side sports={sportCounts(v)} leagues={leagues(v, m.sp)} placement="detail-side" current={sport.slug} />
+      <Side sports={sportCounts(v)} leagues={leagues(v, m.sp)} placement="detail-side" current={sport.slug} ticket={false} />
     </div>
   </div>
   {over ? null : <Stick m={m} label={watch} />}

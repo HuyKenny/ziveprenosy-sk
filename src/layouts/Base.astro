@@ -149,9 +149,9 @@ const sportSection = SPORTS.some((s) => s.slug === section);
   </footer>
   {stick ? null : (
     <nav class="dock" aria-label="Rýchla navigácia">
-      <a href="/" aria-current={section === 'home' ? 'page' : undefined}><Icon name="home" />Domov</a>
       <a href="/teraz-nazivo/" aria-current={section === 'nazivo' ? 'page' : undefined}><span class="ic"><Icon name="live" />{live ? <b>{live > 99 ? '99+' : live}</b> : null}</span>Naživo</a>
       <a href="/program/" aria-current={section === 'program' ? 'page' : undefined}><Icon name="calendar" />Program</a>
+      <a class="dock-bonus" href={regPath('dock')} rel="sponsored nofollow noopener" target="_blank" aria-label={`${BONUS.line} – reklama`}><span class="ic"><Icon name="gift" /></span>{BONUS.amount} bonus</a>
       <a href="/vysledky/" aria-current={section === 'vysledky' ? 'page' : undefined}><Icon name="trophy" />Výsledky</a>
       <button type="button" data-open aria-controls="drawer" aria-expanded="false"><Icon name="menu" />Menu</button>
     </nav>
@@ -221,7 +221,7 @@ const sportSection = SPORTS.some((s) => s.slug === section);
       setInterval(async () => {
         if (document.hidden) return;
         try {
-          const live: Record<string, [string, string, string]> = await (await fetch('/api/live.json')).json();
+          const live: Record<string, [string, string]> = await (await fetch('/api/live.json')).json();
           rows().forEach((n) => {
             const v = live[n.dataset.id!];
             if (!v) return;
@@ -233,7 +233,7 @@ const sportSection = SPORTS.some((s) => s.slug === section);
               if (spans.length === 2 && parts.length === 2) { spans[0].textContent = parts[0]; spans[1].textContent = parts[1]; }
               else s.textContent = v[0];
             }
-            if (t && v[1]) t.textContent = n.classList.contains('scorecard') ? v[2] : v[1];
+            if (t && v[1]) t.textContent = v[1];
           });
         } catch { /* keep what is on screen */ }
       }, 30_000);
