@@ -14,6 +14,7 @@ import { plural, dayKey, longDay, hhmm } from '../../lib/text';
 import { breadcrumbLd, faqLd, itemListLd, BRAND } from '../../lib/seo';
 import { sportPath } from '../../lib/url';
 import { BONUS } from '../../lib/bonus';
+import { SISTER_COMPETITION } from '../../lib/network';
 import { resultsConfig, resultsDb } from '../../lib/results/config';
 import { recentOfComp, nextWithH2h } from '../../lib/results/store';
 import H2hNext from '../../components/H2hNext.astro';
@@ -39,6 +40,7 @@ if (!today && !comp && !sample) {
   Astro.response.headers.set('X-Robots-Tag', 'noindex');
 }
 const name = today ? `${sport.name} dnes` : comp?.name ?? (sample ? leagueName(sample.sp, sample.lg) : '');
+const sister = comp ? SISTER_COMPETITION[comp.id] : undefined;
 const rc = resultsConfig(env);
 const rdb = resultsDb(env);
 const results = comp && rdb && rc.comps.includes(comp.id) ? await recentOfComp(rdb, comp.id, now, 8) : [];
@@ -62,6 +64,7 @@ const desc = today ? `${sport.name} dnes: ${n} ${plural(n, 'zápas', 'zápasy', 
       <div class="eyebrow">{comp ? <span class="badge" style={`background:${comp.color};color:#fff;padding:2px 7px;border-radius:3px`}>{comp.short}</span> : null}<span>{sport.name}</span>{today ? <span>{longDay(now)}</span> : null}</div>
       <h1>{today ? `${sport.name} dnes` : `${name} online`}</h1>
       <p class="lead">{today ? `Všetky dnešné zápasy ${sport.genitive} podľa súťaží – slovenské navrchu. Klikni na „Pozerať“ a prenos sa otvorí.` : comp?.intro ?? (sample ? `${name}: zápasy, ktoré sú práve v ponuke, s časom začiatku a odkazom na prenos alebo živé štatistiky.` : 'Táto súťaž už nemá žiadne zápasy v ponuke.')}</p>
+      {sister ? <p class="muted" style="margin:8px 0 0;font-size:.92rem" set:html={sister.html} /> : null}
     </section>
     <div class="cols">
       <div>

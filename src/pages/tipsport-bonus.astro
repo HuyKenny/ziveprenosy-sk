@@ -9,6 +9,7 @@ import { getEnv, view, featured } from '../lib/page';
 import { breadcrumbLd, faqLd, BRAND } from '../lib/seo';
 import { BONUS } from '../lib/bonus';
 import { regPath } from '../lib/url';
+import { SISTER_CASINO_HTML } from '../lib/network';
 
 export const prerender = false;
 const v = await view(getEnv());
@@ -53,6 +54,7 @@ const faq = [
             <li>Podmienky (napríklad čo treba splniť pred výberom) určuje prevádzkovateľ a môže ich meniť. Pred stávkou si ich prečítaj.</li>
             <li>Stávkovanie je dobrovoľné a len pre plnoletých. Na pozeranie prenosov si staviť nemusíš.</li>
           </ul>
+          <p set:html={SISTER_CASINO_HTML} />
           <p>Viac o pozeraní prenosov je v návode <a href="/tipsport-tv/">Tipsport TV</a>. Hraj zodpovedne – <a href="/zodpovedne-hranie/">zásady a pomoc</a>.</p>
         </section>
         {live.length ? <section class="sec"><div class="sec-h"><h2>Na Tipsport TV práve beží</h2><a href="/teraz-nazivo/">Všetko naživo ›</a></div><LeagueList items={live} now={now} placement="bonus-live" live per={3} max={4} /></section> : null}
