@@ -16,6 +16,7 @@ import { getEnv, view, sportCounts, leagues } from '../../lib/page';
 import { hhmm, longDay, dayLabel, shortDay } from '../../lib/text';
 import { matchTitle, matchPath, sportOf, goPath, sportPath, leaguePathOf, home, away, teamPath } from '../../lib/url';
 import { teamOf, officialName } from '../../lib/teams';
+import { goneMatchTarget } from '../../lib/redirects';
 import Form from '../../components/Form.astro';
 import { formOf } from '../../lib/results/store';
 import { competitionSlug, leagueName, competitionOf } from '../../lib/competitions';
@@ -37,8 +38,10 @@ const rdb = resultsDb(env);
 const r = id && rdb ? await rowByExt(rdb, id) : null;
 const fresh = id ? [...v.live, ...v.recent, ...v.upcoming].find((x) => x.id === id) : undefined;
 const m = fresh ?? (r ? asMatch(r) : undefined);
+// An event that left the feed without a stored result: 301 to the club or the live overview instead of a dead 410.
+if (!m && id) return Astro.redirect(goneMatchTarget(Astro.params.slug ?? ''), 301);
 if (!m) {
-  Astro.response.status = id ? 410 : 404;
+  Astro.response.status = 404;
   Astro.response.headers.set('X-Robots-Tag', 'noindex');
 }
 const canonicalPath = m ? matchPath(m) : '';

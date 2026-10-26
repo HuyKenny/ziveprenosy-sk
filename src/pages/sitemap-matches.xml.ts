@@ -20,5 +20,5 @@ export const GET = async () => {
       if (!seen.has(loc)) urls.push({ loc, lastmod: new Date(r.final_at ?? Date.now()).toISOString() });
     }
   }
-  return xml(urlset(urls), 600);
+  return xml(urlset(urls), 120);
 };

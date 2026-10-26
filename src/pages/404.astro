@@ -1,6 +1,8 @@
 ---
 import Base from '../layouts/Base.astro';
 import { BRAND } from '../lib/seo';
+import { SPORTS } from '../lib/sports';
+import { sportPath } from '../lib/url';
 export const prerender = false;
 Astro.response.status = 404;
 ---
@@ -8,5 +10,7 @@ Astro.response.status = 404;
   <div class="wrap" style="max-width:760px">
     <section class="head"><h1>Táto stránka neexistuje</h1><p class="lead">Odkaz je chybný alebo stránka už nie je k dispozícii.</p></section>
     <p><a class="btn" href="/">Na úvodnú stránku</a> <a class="btn out" href="/teraz-nazivo/">Práve naživo</a></p>
+    <p style="margin-top:18px">Alebo vyber šport:</p>
+    <p class="chips wrap-chips">{SPORTS.filter((x) => x.main).map((x) => <a class="chip" href={sportPath(x.slug)}>{x.name}</a>)}</p>
   </div>
 </Base>

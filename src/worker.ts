@@ -1,5 +1,6 @@
 import { handle } from '@astrojs/cloudflare/handler';
 import { SECURITY_HEADERS } from './lib/security';
+import { legacyTarget } from './lib/redirects';
 
 /** Paths that are never cached: tracked redirects, live score feed, Cloudflare internals. */
 const NO_CACHE = /^\/(go|cdn-cgi)\/|^\/api\/live\.json$/;
@@ -36,6 +37,8 @@ async function serve(request: Request, env: unknown, ctx: ExecutionContext): Pro
     url.pathname = url.pathname.toLowerCase();
     return new Response(null, { status: 301, headers: { Location: url.toString() } });
   }
+  const legacy = legacyTarget(url.pathname);
+  if (legacy && (request.method === 'GET' || request.method === 'HEAD')) return new Response(null, { status: 301, headers: { Location: legacy, 'Cache-Control': 'public, max-age=86400' } });
   if (request.method !== 'GET' || NO_CACHE.test(url.pathname)) return finish(await handle(request, env as never, ctx));
   // Pages read only these parameters; anything else (utm_*, fbclid, random cache busters) is dropped, so it can
   // neither create a new cache entry nor force a fresh render.
