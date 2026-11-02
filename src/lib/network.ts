@@ -2,9 +2,14 @@
  * Links to sister sites (same owner, gambling cluster; Kenny 24. 10. 2026). Only in page text, never in the footer
  * or navigation, at most one per page, and never to a page that links back here (see ~/ai/seo/linkbuilding/graf.md).
  * Incoming: sportstreamy.cz Slovak competition pages → /futbal/nike-liga/, /hokej/tipsport-liga/, /futbal/2-liga/;
- * spiny.sk /tipsport-aplikacia/ → /tipsport-tv/.
+ * spiny.sk /tipsport-aplikacia/ → /tipsport-tv/; kuzelnemiesta.sk Barcelona metro guide → /futbal/la-liga/.
+ * Outside the gambling cluster (Kenny 2. 11. 2026): /futbal/la-liga/ → kuzelnemiesta.sk FC Barcelona tickets guide.
  */
 export const SISTER_COMPETITION: Record<string, { href: string; html: string }> = {
+  'la-liga': {
+    href: 'https://kuzelnemiesta.sk/listky-na-fc-barcelona-kompletny-sprievodca-ako-sa-dostat-na-zapas-a-nenaletiet-podvodnikom/',
+    html: 'Chceš El Clásico alebo iný zápas Barcelony zažiť priamo na štadióne? Ako kúpiť lístky a nenaletieť predajcom, rozoberá <a href="https://kuzelnemiesta.sk/listky-na-fc-barcelona-kompletny-sprievodca-ako-sa-dostat-na-zapas-a-nenaletiet-podvodnikom/">sprievodca lístkami na FC Barcelona</a> na Kúzelných miestach.',
+  },
   'tipsport-extraliga': {
     href: 'https://sportstreamy.cz/hokej-online/tipsport-extraliga/',
     html: 'Program českej extraligy s kurzami a výsledkami pre českých divákov vedie náš sesterský web <a href="https://sportstreamy.cz/hokej-online/tipsport-extraliga/">SportStreamy.cz</a>.',
