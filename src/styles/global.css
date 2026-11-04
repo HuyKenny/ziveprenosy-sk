@@ -369,6 +369,8 @@ footer .warn { display: flex; gap: 12px; align-items: center; margin-top: 26px; 
 footer .warn b { flex: none; width: 42px; height: 42px; border-radius: 50%; background: var(--red); color: #fff; display: flex; align-items: center; justify-content: center; font-weight: 900; }
 footer .warn a { display: inline; text-decoration: underline; }
 footer .legal { margin: 16px 0 0; font-size: 0.8rem; color: #9aa6bb; }
+footer .iprh { margin: 8px 0 0; font-size: 0.8rem; color: #9aa6bb; }
+footer .iprh a { display: inline-block; padding: 12px 0; margin: -12px 0; color: #c9d2e3; text-decoration: underline; }
 
 /* ---------- crests ---------- */
 .crest { flex: none; object-fit: contain; display: inline-block; }
