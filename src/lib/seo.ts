@@ -32,7 +32,7 @@ export const itemListLd = (items: Match[], name: string) => ({
 
 export const siteLd = () => [
   { '@context': 'https://schema.org', '@type': 'WebSite', '@id': `${SITE}/#web`, name: BRAND, url: `${SITE}/`, inLanguage: 'sk-SK', potentialAction: { '@type': 'SearchAction', target: `${SITE}/hladat/?q={q}`, 'query-input': 'required name=q' } },
-  { '@context': 'https://schema.org', '@type': 'Organization', '@id': `${SITE}/#org`, name: BRAND, url: `${SITE}/`, logo: `${SITE}/icon-512.png` },
+  { '@context': 'https://schema.org', '@type': 'Organization', '@id': `${SITE}/#org`, name: BRAND, url: `${SITE}/`, logo: `${SITE}/icon-512.png`, founder: { '@type': 'Person', '@id': 'https://huy.cz/#kenny', name: 'Ha Duy Huy', alternateName: 'Kenny', url: 'https://huy.cz/', jobTitle: 'SEO konzultant' } },
 ];
 
 export function sportsEventLd(m: Match, status?: string, result?: string) {
