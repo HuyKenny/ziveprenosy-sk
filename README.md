@@ -15,3 +15,7 @@ Záměrně jiný design, URL i texty než sportstreamy → žádný hreflang ani
 - **Lokálně:** `pnpm build && pnpm exec wrangler dev --local --port 8816 --inspector-port 9316`. Lokální KV naplnit `wrangler kv key put --binding DATA --local pre --path pre.json` (data stáhnout přes CF API). Po buildu smazat `.wrangler/state/v3/cache` (jinak SWR servíruje staré HTML).
 - **Assety:** `node scripts/assets.mjs` (OG, ikony), `python3 scripts/fonts.py` (subset Schibsted Grotesk), `scripts/shot.mjs` (screenshoty).
 - **Nasazení:** `pnpm deploy` (CF creds z `~/ai/credentials/.cloudflare-credentials.env`).
+
+## Statický web (Cloudflare Workers Free, připraveno 23. 11. 2026)
+- Stránky renderuje a nasazuje live job v repu **HuyKenny/sportstreamy** (`.github/workflows/live.yml`, à 10 min): checkoutne toto repo, postaví ho, spustí lokálně se sdílenými daty a uloží stránky jako statické soubory; Worker je jen `src/edge.ts` (`/go/`, `/logo/`, varianty `?sport=`/`?stav=`, staré URL, 404). Push sem se nasadí při dalším běhu.
+- Po přepnutí nikdy `pnpm deploy` (vrátí SSR Worker s KV/D1). `scripts/logos.mjs` čte týmy z `https://sportstreamy.cz/_data/team-logos.json`.

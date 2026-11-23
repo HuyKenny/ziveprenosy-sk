@@ -5,7 +5,7 @@
 // linked, plus src/data/logos.json (which ids exist). Crest.astro uses the WebP when listed and falls back to the
 // /logo/<sport>/<id>.png proxy otherwise, so a team linked after the last run still gets its crest. Ids the
 // provider has no crest for are listed under `none` and shown as initials.
-// Reads D1 with wrangler (read only); CF credentials from ~/ai/credentials/.cloudflare-credentials.env.
+// Reads the linked teams from sportstreamy.cz/_data/team-logos.json (fallback: D1 with wrangler, read only).
 // Prints CHANGED when the set of files changed (bin/ziveprenosy-logos.sh deploys only then).
 import { execFileSync } from 'node:child_process';
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
@@ -16,9 +16,18 @@ const ORIGIN = ['https://media', 'api-sports', 'io'].join('.');
 const creds = Object.fromEntries(readFileSync('/home/kenny/ai/credentials/.cloudflare-credentials.env', 'utf8').split('\n').filter((l) => l.includes('=') && !l.startsWith('#')).map((l) => [l.slice(0, l.indexOf('=')), l.slice(l.indexOf('=') + 1).replace(/^["']|["']$/g, '')]));
 const env = { ...process.env, CLOUDFLARE_API_KEY: creds.CF_API_KEY, CLOUDFLARE_EMAIL: creds.CF_EMAIL };
 
-const out = execFileSync('pnpm', ['exec', 'wrangler', 'd1', 'execute', 'sportstreamy-results', '--remote', '--json', '--command',
-  'SELECT DISTINCT m.sport AS sport, tl.af_id AS id FROM team_link tl JOIN matches m ON m.home_ext = tl.tip_id OR m.away_ext = tl.tip_id'], { env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
-const rows = JSON.parse(out)[0].results.filter((r) => SPORT[r.sport] && /^\d{1,7}$/.test(r.id));
+// Since 23. 11. 2026 the results live in the GitHub Actions job of sportstreamy, which publishes the linked teams as
+// https://sportstreamy.cz/_data/team-logos.json; D1 is only the fallback for the SSR era.
+async function linked() {
+  try {
+    const r = await fetch('https://sportstreamy.cz/_data/team-logos.json', { headers: { 'User-Agent': 'ziveprenosy-logos/1.0' } });
+    if (r.ok) return await r.json();
+  } catch { /* fall back to D1 */ }
+  const out = execFileSync('pnpm', ['exec', 'wrangler', 'd1', 'execute', 'sportstreamy-results', '--remote', '--json', '--command',
+    'SELECT DISTINCT m.sport AS sport, tl.af_id AS id FROM team_link tl JOIN matches m ON m.home_ext = tl.tip_id OR m.away_ext = tl.tip_id'], { env, encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] });
+  return JSON.parse(out)[0].results;
+}
+const rows = (await linked()).filter((r) => SPORT[r.sport] && /^\d{1,7}$/.test(String(r.id))).map((r) => ({ sport: r.sport, id: String(r.id) }));
 
 const MANIFEST = 'src/data/logos.json';
 const before = existsSync(MANIFEST) ? readFileSync(MANIFEST, 'utf8') : '';
