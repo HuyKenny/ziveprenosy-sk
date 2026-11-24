@@ -13,6 +13,7 @@ import { getEnv, view, sportCounts, leagues } from '../../../lib/page';
 import { SPORT_BY_SLUG } from '../../../lib/sports';
 import { teamBySlug, plays, TEAMS } from '../../../lib/teams';
 import { competitionById } from '../../../lib/competitions';
+import { getEntry } from 'astro:content';
 import { hhmm, longDay, dayLabel } from '../../../lib/text';
 import { sportPath, matchPath, goPath, matchTitle, teamPath, home, away } from '../../../lib/url';
 import { breadcrumbLd, faqLd, itemListLd, BRAND, SITE } from '../../../lib/seo';
@@ -38,6 +39,7 @@ const db = resultsDb(env);
 const results = db ? await rowsOfTeam(db, team.sp, team.feed, now, 8) : [];
 const h2h = db ? await nextOfTeamWithH2h(db, team.sp, team.feed, now) : null;
 const comp = team.comp ? competitionById(team.comp) : undefined;
+const guide = comp?.guide ? await getEntry('clanky', comp.guide) : undefined;
 const last = results.find((r) => r.status === 'ft' || r.status === 'aet' || r.status === 'pen');
 const isHockey = team.sp === 23;
 const who = team.national ? `Slovensko (${sport.name.toLowerCase()})` : team.name;
@@ -88,6 +90,7 @@ const siblings = TEAMS.filter((t) => t.sp === team.sp && t.comp && t.comp === te
         ) : <p class="empty">{who} teraz nemá v ponuke žiadny zápas. Program sa tu objaví, len čo bude zverejnený.</p>}
 
         {marks.length ? <section class="sec"><div class="sec-h"><h2>Forma</h2></div><div class="comp"><div class="form-row"><span>{marks.length === 1 ? 'Posledný zápas' : `Posledných ${marks.length} zápasov`}: {formSummary(marks)}</span><Form marks={marks} label={`Forma ${team.name}`} /></div></div></section> : null}
+        {guide ? <a class="guide-box" href={`/clanky/${guide.id}/`}><span><small>Sprievodca súťažou</small><b>{guide.data.title}</b></span></a> : null}
         {whoAir ? <section class="sec prose"><h2>Kto vysiela {team.national ? 'Slovensko' : team.name} dnes</h2><p>{whoAir}</p></section> : null}
         {next.length > (live.length ? 0 : 1) ? <section class="sec"><div class="sec-h"><h2>Program</h2></div><LeagueList items={live.length ? next : next.slice(1)} now={now} placement="team" days showSport={false} /></section> : null}
         {results.length ? <section class="sec"><div class="sec-h"><h2>Posledné výsledky</h2></div><ResultList rows={results} comps={[...new Set(results.map((r) => r.comp))]} now={now} staleMs={rc.staleMs} showDay /></section> : null}

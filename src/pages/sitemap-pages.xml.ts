@@ -10,6 +10,7 @@ import { dayKey, addDays } from '../lib/text';
 import { resultsConfig } from '../lib/results/config';
 import { resultSports } from '../lib/results/sports';
 import { TEAMS } from '../lib/teams';
+import { getCollection } from 'astro:content';
 export const prerender = false;
 /** Hubs, sports, curated competitions, competitions currently in the feed (2+ matches), programme days, guides. */
 export const GET = async () => {
@@ -31,6 +32,8 @@ export const GET = async () => {
   for (const t of TEAMS) urls.push({ loc: `/${SPORT_BY_ID.get(t.sp)!.slug}/tim/${t.slug}/` });
   const rcomps = resultsConfig(env as unknown as Env).comps;
   for (const c of COMPETITIONS) if (rcomps.includes(c.id)) urls.push({ loc: `/${SPORT_BY_ID.get(c.sp)!.slug}/${c.slug}/vysledky/` });
+  urls.push({ loc: '/clanky/' });
+  for (const a of await getCollection('clanky')) urls.push({ loc: `/clanky/${a.id}/` });
   for (const p of ['/o-nas/', '/kontakt/', '/zodpovedne-hranie/', '/ochrana-osobnych-udajov/', '/podmienky/', '/zdroje-fotiek/']) urls.push({ loc: p });
   return xml(urlset(urls), 900);
 };

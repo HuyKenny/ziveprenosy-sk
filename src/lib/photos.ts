@@ -1,4 +1,5 @@
 import data from '../data/photos.json';
+import articleData from '../data/article-photos.json';
 
 export interface Photo { slug: string; author: string; authorUrl: string; url: string; alt: string }
 
@@ -16,3 +17,5 @@ export function photoFor(slug?: string, seed = 0): Photo {
 /** Alternate shots exist only up to 800 px (they are used in cards). */
 export const hasLarge = (slug: string) => !slug.endsWith('-2');
 export const allPhotos = (): Photo[] => Object.entries(PHOTOS).map(([slug, p]) => ({ slug, ...p }));
+/** Feature photos of the articles in /clanky/ (for the photo credits page). */
+export const articlePhotos = (): Photo[] => Object.entries(articleData as Record<string, Omit<Photo, 'slug'>>).map(([slug, p]) => ({ slug, ...p }));

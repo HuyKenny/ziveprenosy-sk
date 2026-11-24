@@ -1,0 +1,29 @@
+---
+import Base from '../../layouts/Base.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import { getCollection } from 'astro:content';
+import { breadcrumbLd, BRAND } from '../../lib/seo';
+import photos from '../../data/article-photos.json';
+export const prerender = false;
+const list = (await getCollection('clanky')).sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
+const pics = photos as Record<string, { alt: string }>;
+const crumbs = [{ name: 'Domov', href: '/' }, { name: 'Články' }];
+---
+<Base title={`Články: súťaže, program a kde pozerať | ${BRAND}`} description="Sprievodcovia súťažami, ktoré na Slovensku sledujeme najviac: Tipsport liga, Niké liga, NHL so Slovákmi, Liga majstrov. Kedy sa hrá a kde zápasy pozerať." ld={[breadcrumbLd(crumbs)]} section="clanky" ttl={3600}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head">
+      <h1>Články a sprievodcovia</h1>
+      <p class="lead">Ako fungujú súťaže, ktoré sledujeme najviac, kedy sa hrajú a kde ich pozerať. Program a výsledky nájdeš priamo na stránkach súťaží.</p>
+    </section>
+    <div class="art-grid">
+      {list.map((a) => (
+        <a class="art-card big" href={`/clanky/${a.id}/`}>
+          {pics[a.id] ? <img src={`/img/clanky/${a.id}-800.jpg`} width="800" height="450" alt={pics[a.id].alt} loading="lazy" /> : null}
+          <b>{a.data.title}</b>
+          <span>{a.data.description}</span>
+        </a>
+      ))}
+    </div>
+  </div>
+</Base>

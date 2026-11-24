@@ -16,7 +16,6 @@ const LEGACY = new Map<string, string>([
   ['/wp-sitemap.xml', '/sitemap.xml'],
   ['/blog', '/'],
   ['/news', '/'],
-  ['/clanky', '/'],
   ['/novinky', '/'],
   ['/zive', '/teraz-nazivo/'],
   ['/live', '/teraz-nazivo/'],

@@ -19,6 +19,7 @@ import { breadcrumbLd, faqLd, itemListLd, BRAND } from '../../lib/seo';
 import { sportPath } from '../../lib/url';
 import { BONUS } from '../../lib/bonus';
 import { SISTER_COMPETITION } from '../../lib/network';
+import { getEntry } from 'astro:content';
 import { resultsConfig, resultsDb } from '../../lib/results/config';
 import { recentOfComp, nextWithH2h } from '../../lib/results/store';
 import H2hNext from '../../components/H2hNext.astro';
@@ -45,6 +46,7 @@ if (!today && !comp && !sample) {
 }
 const name = today ? `${sport.name} dnes` : comp?.name ?? (sample ? leagueName(sample.sp, sample.lg) : '');
 const sister = comp ? SISTER_COMPETITION[comp.id] : undefined;
+const guide = !today && comp?.guide ? await getEntry('clanky', comp.guide) : undefined;
 const rc = resultsConfig(env);
 const rdb = resultsDb(env);
 const results = comp && rdb && rc.comps.includes(comp.id) ? (await recentOfComp(rdb, comp.id, now, 16)).filter((r) => !isWomen(r.home, r.away)).slice(0, 8) : [];
@@ -83,6 +85,7 @@ const desc = today ? `${sport.name} dnes: ${n} ${plural(n, 'zápas', 'zápasy', 
         {h2hNext ? <H2hNext r={h2hNext} now={now} /> : null}
         {results.length ? <section class="sec"><div class="sec-h"><h2>Posledné výsledky</h2><a href={`/${sport.slug}/${comp!.slug}/vysledky/`}>Všetky výsledky {comp!.name} ›</a></div><ResultList rows={results} comps={[comp!.id]} now={now} staleMs={rc.staleMs} showDay /></section> : null}
         <div class="sec"><Ticket placement={today ? 'today-mid' : 'comp-mid'} wide /></div>
+        {guide ? <a class="guide-box" href={`/clanky/${guide.id}/`}><span><small>Sprievodca</small><b>{guide.data.title}</b></span></a> : null}
         {comp?.body ? <section class="sec prose" set:html={comp.body} /> : null}
         {clubs.length ? <section class="sec"><div class="sec-h"><h2>Kluby · {comp!.name}</h2></div><div class="chips wrap-chips">{clubs.map((t) => <a class="chip" href={teamPath(sport.slug, t.slug)} data-astro-prefetch><Crest sp={t.sp} name={t.feed} size={18} />{t.name}</a>)}</div></section> : null}
         <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>

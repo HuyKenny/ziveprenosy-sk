@@ -593,3 +593,25 @@ main .comp, main .prose, main .faq, main .tiles { content-visibility: auto; cont
 .m .k span i { font-style: normal; font-size: 0.64rem; font-weight: 800; color: var(--ink-3); }
 @media (max-width: 720px) { .m .k { display: none; } }
 @media (max-width: 520px) { .odds { gap: 6px; } .odd { padding: 8px 9px; box-shadow: 2px 2px 0 var(--ink); } .odd .who { font-size: 0.74rem; } .odd b { font-size: 1.15rem; } }
+
+/* Articles (/clanky/) */
+.article h1 { margin: 0 0 0.25em; }
+.article .meta { font-size: 0.85rem; margin: 0 0 1em; }
+.hero-img { margin: 0 0 1.2em; }
+.hero-img img { display: block; width: 100%; height: auto; border: 2px solid var(--ink); border-radius: var(--r); }
+.hero-img figcaption { font-size: 0.75rem; margin-top: 0.4em; }
+.article table { width: 100%; border-collapse: collapse; margin: 0 0 1em; font-size: 0.92rem; }
+.article th, .article td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--rule); }
+.article th { background: var(--blue-soft); }
+.article .art-cta { margin-top: 1.4em; display: flex; flex-wrap: wrap; gap: 10px; }
+.art-list { display: grid; gap: 10px; }
+.art-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 14px; margin-bottom: 24px; }
+.art-card { display: grid; gap: 6px; align-content: start; padding: 14px; background: var(--card); border: 2px solid var(--ink); border-radius: var(--r); box-shadow: 3px 3px 0 var(--ink); color: var(--ink); text-decoration: none; }
+.art-card:hover { background: var(--blue-soft); color: var(--ink); }
+.art-card b { font-size: 1.02rem; line-height: 1.3; }
+.art-card span { font-size: 0.88rem; color: var(--ink-2); }
+.art-card.big img { width: 100%; height: auto; border-radius: 4px; aspect-ratio: 16 / 9; object-fit: cover; }
+.guide-box { display: flex; gap: 12px; align-items: center; padding: 12px 14px; background: var(--blue-soft); border: 2px solid var(--ink); border-radius: var(--r); color: var(--ink); text-decoration: none; margin-bottom: 14px; }
+.guide-box:hover { color: var(--ink); background: #dbe6f8; }
+.guide-box small { display: block; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--blue); }
+.guide-box b { font-size: 1rem; }
