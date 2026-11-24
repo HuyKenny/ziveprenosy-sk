@@ -579,3 +579,17 @@ main .comp, main .prose, main .faq, main .tiles { content-visibility: auto; cont
 .fm-P { background: var(--red); }
 .form-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; border-top: 1px solid var(--rule); font-weight: 700; }
 .form-row span:first-child { display: flex; align-items: center; gap: 8px; min-width: 0; }
+
+/* Odds (own Tipsport.sk feed, since 24. 11. 2026) */
+.odds { display: grid; grid-template-columns: repeat(var(--n, 3), minmax(0, 1fr)); gap: 8px; }
+.odd { display: grid; grid-template-columns: auto 1fr; grid-template-areas: 'tip who' 'odd odd' 'p p'; gap: 2px 8px; padding: 10px 12px; background: var(--card); border: 2px solid var(--ink); border-radius: var(--r); box-shadow: 3px 3px 0 var(--ink); color: var(--ink); text-decoration: none; }
+.odd:hover { background: var(--blue-soft); color: var(--ink); }
+.odd .tip { grid-area: tip; font-weight: 900; color: var(--red); }
+.odd .who { grid-area: who; font-size: 0.82rem; font-weight: 700; color: var(--ink-2); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; align-self: center; }
+.odd b { grid-area: odd; font-size: 1.35rem; font-weight: 900; }
+.odd small { grid-area: p; font-size: 0.76rem; font-weight: 700; color: var(--ink-3); }
+.m .k { display: flex; gap: 4px; }
+.m .k span { display: grid; min-width: 40px; text-align: center; padding: 2px 4px; border: 1px solid var(--rule); border-radius: 3px; font-size: 0.82rem; font-weight: 800; line-height: 1.15; }
+.m .k span i { font-style: normal; font-size: 0.64rem; font-weight: 800; color: var(--ink-3); }
+@media (max-width: 720px) { .m .k { display: none; } }
+@media (max-width: 520px) { .odds { gap: 6px; } .odd { padding: 8px 9px; box-shadow: 2px 2px 0 var(--ink); } .odd .who { font-size: 0.74rem; } .odd b { font-size: 1.15rem; } }

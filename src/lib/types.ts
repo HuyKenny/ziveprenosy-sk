@@ -17,6 +17,8 @@ export interface Match {
   ti?: string; // minute / period text when live
   /** Czech odds in the fallback feed — never shown here. */
   o?: unknown;
+  /** Tipsport.sk 1 / X / 2 of the main market (own SK feed only; X is null without a draw). Shown on the site. */
+  k?: [number, number | null, number];
 }
 
 export interface Snapshot<T> {

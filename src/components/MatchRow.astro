@@ -5,6 +5,7 @@ import { goPath, matchPath, matchTitle, home, away } from '../lib/url';
 import Icon from './Icon.astro';
 import Crest from './Crest.astro';
 import { skClockShort } from '../lib/names';
+import { fmtOdd, oddsOf } from '../lib/odds';
 /** One match: time | both teams stacked | score + "Pozerať" (Tipsport TV) or "Štatistiky" when there is no video. */
 interface Props { m: Match; now: number; placement: string; live?: boolean; showDay?: boolean }
 const { m, now, placement, live = false, showDay = false } = Astro.props;
@@ -12,6 +13,8 @@ const [sh, sa] = (m.sc ?? '').split(':');
 const title = matchTitle(m);
 // The feed can flag a match live while the kick-off is delayed ("Za 11 minut"): say it starts soon, not that it is on.
 const soon = /^(Za|O) /.test(m.ti ?? '');
+// 1/X/2 before the start (desktop only; on a phone the row has no room).
+const k = live ? null : oddsOf(m, now);
 ---
 <div class:list={['m', live && 'live']} data-id={live ? m.id : undefined}>
   <div class="t">
@@ -22,6 +25,7 @@ const soon = /^(Za|O) /.test(m.ti ?? '');
   </a>
   <div class="act">
     {live && m.sc ? (m.a && sa !== undefined ? <span class="sc" data-s><span>{sh}</span><span>{sa}</span></span> : <span class="sc one" data-s>{m.sc}</span>) : null}
+    {k ? <span class="k" aria-label="Kurzy 1, X, 2">{k.map((x, i) => x === null ? null : <span><i>{['1', 'X', '2'][i]}</i>{fmtOdd(x)}</span>)}</span> : null}
     {!m.stream ? <span class="tag" title="K zápasu nie je video, len živé štatistiky">bez videa</span> : null}
     <a class:list={['btn sm', !m.stream && 'out']} data-watch href={goPath(m, placement)} rel="sponsored nofollow noopener" target="_blank" aria-label={m.stream ? `Pozerať ${title} na Tipsport TV` : `Živé štatistiky ${title} na Tipsport.sk`}>
       <Icon name={m.stream ? 'play' : 'spark'} /><span class="lbl">{m.stream ? 'Pozerať' : 'Živé štatistiky'}</span>

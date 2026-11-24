@@ -45,6 +45,17 @@ const upcomingMatches = (s: Session, days = 7) => {
   return get<{ matches: Raw[] }>(s, `/rest/external/offer/v1/matches?fromDate=${iso(from)}&toDate=${iso(from + days * 86_400_000)}`).then((r) => r.matches ?? []);
 };
 
+/** 1/X/2 of the main market, matched by opp type (array order is not 1, X, 2). */
+function odds(raw: Raw): [number, number | null, number] | undefined {
+  const opps: Raw[] = raw.mainEvent?.opps ?? [];
+  const by = (t: string) => opps.find((o) => String(o.type).toLowerCase() === t && o.bettingEnabled !== false)?.odd;
+  const one = by('1');
+  const two = by('2');
+  if (typeof one !== 'number' || typeof two !== 'number' || one <= 1 || two <= 1) return undefined;
+  const x = by('x');
+  return [one, typeof x === 'number' && x > 1 ? x : null, two];
+}
+
 /** Same shape as sportstreamy's records (ids are shared across the Tipsport platform, so results still join by id). */
 export function toMatch(raw: Raw): Match | null {
   if (!raw?.id || raw.ended) return null;
@@ -67,6 +78,8 @@ export function toMatch(raw: Raw): Match | null {
     path: String(raw.matchUrl ?? ''),
     live: String(raw.matchType ?? '').toUpperCase().includes('LIVE'),
   };
+  const k = odds(raw);
+  if (k) m.k = k;
   if (m.live) {
     if (raw.home !== undefined && raw.away !== undefined && raw.home !== '' && raw.away !== '') m.sc = `${raw.home}:${raw.away}`;
     if (raw.statusOffer) m.ti = String(raw.statusOffer);

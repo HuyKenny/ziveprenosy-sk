@@ -1,0 +1,27 @@
+---
+import type { Match } from '../lib/types';
+import { goPath, home, away } from '../lib/url';
+import { fmtOdd, impliedProb, oddsOf } from '../lib/odds';
+/** Main-market odds of one match (detail page): 1 / X / 2, what they mean in per cent, one button to the match. */
+interface Props { m: Match; now: number }
+const { m, now } = Astro.props;
+const k = oddsOf(m, now);
+const prob = k ? impliedProb(k) : null;
+const cells = k ? ([[home(m), k[0], prob![0], '1'], ['Remíza', k[1], prob![1], 'X'], [m.a ? away(m) : '', k[2], prob![2], '2']] as const).filter((c) => c[1] !== null) : [];
+---
+{k ? (
+  <section class="sec">
+    <div class="sec-h"><h2>Kurzy na zápas</h2><span class="muted" style="font-size:.84rem">výsledok zápasu</span></div>
+    <div class="odds" style={`--n:${cells.length}`}>
+      {cells.map(([who, odd, p, tip]) => (
+        <a class="odd" href={goPath(m, `odds-${tip.toLowerCase()}`)} rel="sponsored nofollow noopener" target="_blank">
+          <span class="tip">{tip}</span>
+          <span class="who">{who}</span>
+          <b>{fmtOdd(odd as number)}</b>
+          <small>{p} %</small>
+        </a>
+      ))}
+    </div>
+    <p class="muted" style="font-size:.8rem;margin-top:8px">Percentá sú pravdepodobnosť podľa kurzov bez marže prevádzkovateľa. Kurzy sa menia, platí ponuka v čase stávky. 18+, hazardné hry môžu spôsobiť závislosť.</p>
+  </section>
+) : null}

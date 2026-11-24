@@ -18,6 +18,7 @@ import { matchTitle, matchPath, sportOf, goPath, sportPath, leaguePathOf, home, 
 import { teamOf, officialName } from '../../lib/teams';
 import { goneMatchTarget } from '../../lib/redirects';
 import Form from '../../components/Form.astro';
+import Odds from '../../components/Odds.astro';
 import { formOf } from '../../lib/results/store';
 import { competitionSlug, leagueName, competitionOf } from '../../lib/competitions';
 import { skClockShort } from '../../lib/names';
@@ -132,6 +133,8 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
         </section>
 
         {over || !m.stream ? null : <div class="sec"><Stage m={m} state={state} now={now} /></div>}
+
+        {over ? null : <Odds m={m} now={now} />}
 
         <section class="sec">
           <dl class="facts">
