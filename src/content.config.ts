@@ -14,4 +14,21 @@ const clanky = defineCollection({
     related: z.array(z.string()).optional(), // slugs of related articles; falls back to the newest others
   }),
 });
-export const collections = { clanky };
+/** Previews of big Slovak matches (scripts/nahlady.py: research + fact check + writing + validator), /ako-pozerat/<slug>/. */
+const nahlady = defineCollection({
+  loader: glob({ pattern: '*.md', base: './src/content/nahlady' }),
+  schema: z.object({
+    title: z.string(),
+    description: z.string(),
+    matchId: z.number(), // Tipsport id → live data (odds, stream, state) while the match is in the feed
+    home: z.string(),
+    away: z.string(),
+    league: z.string(),
+    sport: z.string(), // sport slug
+    start: z.coerce.date(),
+    sources: z.array(z.url()).default([]),
+    faq: z.array(z.object({ q: z.string(), a: z.string() })).default([]),
+    date: z.coerce.date(),
+  }),
+});
+export const collections = { clanky, nahlady };

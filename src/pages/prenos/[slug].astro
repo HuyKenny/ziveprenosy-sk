@@ -19,6 +19,7 @@ import { teamOf, officialName } from '../../lib/teams';
 import { goneMatchTarget } from '../../lib/redirects';
 import Form from '../../components/Form.astro';
 import Odds from '../../components/Odds.astro';
+import { previewFor, previewPath } from '../../lib/nahlady';
 import { formOf } from '../../lib/results/store';
 import { competitionSlug, leagueName, competitionOf } from '../../lib/competitions';
 import { skClockShort } from '../../lib/names';
@@ -63,6 +64,7 @@ const title = m ? (m.a ? `${nh} – ${na}` : nh) : '';
 const lgName = m ? leagueName(m.sp, m.lg) : '';
 const pool = [...v.live, ...v.upcoming].filter((x) => m && x.id !== m.id);
 const same = m ? pool.filter((x) => x.sp === m.sp && competitionSlug(x.sp, x.lg) === competitionSlug(m.sp, m.lg)).slice(0, 8) : [];
+const preview = m ? await previewFor(m.id) : undefined;
 const watch = m?.stream ? (state === 'live' ? 'Pozerať naživo' : 'Pozerať prenos') : 'Živé štatistiky';
 const goals = scorers(r ? detailOf(r) : null);
 // Form of both teams before this match (finished matches in the shared results database).
@@ -134,6 +136,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
 
         {over || !m.stream ? null : <div class="sec"><Stage m={m} state={state} now={now} /></div>}
 
+        {preview && !over ? <a class="guide-box" href={previewPath(preview)}><span><small>Náhľad zápasu</small><b>{preview.data.title}</b></span></a> : null}
         {over ? null : <Odds m={m} now={now} />}
 
         <section class="sec">

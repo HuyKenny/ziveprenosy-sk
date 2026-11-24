@@ -1,0 +1,78 @@
+---
+import Base from '../../layouts/Base.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import Faq from '../../components/Faq.astro';
+import Icon from '../../components/Icon.astro';
+import Odds from '../../components/Odds.astro';
+import Side from '../../components/Side.astro';
+import { getEntry, render } from 'astro:content';
+import { getEnv, view, sportCounts, leagues } from '../../lib/page';
+import { goPath, matchPath, leaguePathOf, sportPath, matchTitle } from '../../lib/url';
+import { SPORT_BY_SLUG } from '../../lib/sports';
+import { competitionOf } from '../../lib/competitions';
+import { hhmm, longDay } from '../../lib/text';
+import { BONUS } from '../../lib/bonus';
+import { breadcrumbLd, faqLd, sportsEventLd, BRAND, SITE } from '../../lib/seo';
+import { previews, previewPath } from '../../lib/nahlady';
+export const prerender = false;
+const entry = await getEntry('nahlady', Astro.params.slug!);
+if (!entry) return Astro.rewrite('/404/');
+const d = entry.data;
+const { Content } = await render(entry);
+const v = await view(getEnv());
+const now = Date.now();
+const m = [...v.live, ...v.recent, ...v.upcoming].find((x) => x.id === d.matchId);
+const st = d.start.getTime();
+const state: 'live' | 'pre' | 'recent' = m && v.live.includes(m) ? 'live' : st > now ? 'pre' : 'recent';
+const sport = SPORT_BY_SLUG.get(d.sport);
+const comp = m ? competitionOf(m.sp, m.lg) : null;
+const title = `${d.home} – ${d.away}`;
+const leagueHref = m ? leaguePathOf(m) : sport ? sportPath(sport.slug) : '/program/';
+const crumbs = [{ name: 'Domov', href: '/' }, { name: 'Ako pozerať', href: '/ako-pozerat/' }, { name: title }];
+const others = (await previews({ upcoming: true })).filter((p) => p.id !== entry.id).slice(0, 4);
+const fmt = new Intl.DateTimeFormat('sk-SK', { day: 'numeric', month: 'long', year: 'numeric' });
+const article = { '@context': 'https://schema.org', '@type': 'Article', headline: d.title, description: d.description, datePublished: d.date.toISOString(), dateModified: d.date.toISOString(), inLanguage: 'sk', mainEntityOfPage: `${SITE}${previewPath(entry)}`, author: { '@type': 'Organization', name: BRAND, url: `${SITE}/o-nas/` } };
+const ld = [article, breadcrumbLd(crumbs), ...(d.faq.length ? [faqLd(d.faq)] : []), ...(m ? [sportsEventLd(m, state === 'live' ? 'live' : undefined)] : [])];
+---
+<Base title={`${d.title} | ${BRAND}`} description={d.description} ld={ld} section={sport?.slug ?? ''} ttl={state === 'live' ? 60 : 300}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head" style="padding-bottom:14px">
+      <p class="muted" style="margin:0 0 .3em;font-weight:800;font-size:.85rem">{state === 'live' ? 'Práve sa hrá' : state === 'pre' ? 'Náhľad zápasu' : 'Odohrané'} · {longDay(st)} · {hhmm(st)} · {comp?.name ?? d.league}</p>
+      <h1>{d.title}</h1>
+      <p class="muted" style="font-size:.85rem;margin:.4em 0 0">Redakcia {BRAND} · {fmt.format(d.date)}</p>
+    </section>
+    <div class="cols">
+      <div>
+        {state !== 'recent' ? (
+          <section class="scorecard sec">
+            <div class="sc-cta">
+              <p>{m?.stream ? BONUS.watch : 'Živé štatistiky a priebežné skóre'}<small>Reklama · registrácia a prihlásenie u prevádzkovateľa · 18+</small></p>
+              <a class="btn lg" data-watch href={m ? goPath(m, 'preview') : '/go/registracia/?p=preview'} rel="sponsored nofollow noopener" target="_blank"><Icon name={m?.stream ? 'play' : 'spark'} />{state === 'live' ? 'Pozerať naživo' : m?.stream ? 'Pozerať zápas' : 'Živé štatistiky'}</a>
+            </div>
+          </section>
+        ) : (
+          <p class="lead">Zápas sa hral {longDay(st)}. Ďalšie zápasy nájdeš na stránke <a href={leagueHref}>{comp?.name ?? d.league}</a>.</p>
+        )}
+        <section class="sec">
+          <dl class="facts">
+            <div><dt>Výkop</dt><dd>{hhmm(st)} · {longDay(st)}</dd></div>
+            <div><dt>Súťaž</dt><dd><a href={leagueHref}>{comp?.name ?? d.league}</a></dd></div>
+            <div><dt>Online</dt><dd>{m ? (m.stream ? 'Video po prihlásení' : 'Živé štatistiky') : 'Po prihlásení'}</dd></div>
+            <div><dt>Detail</dt><dd>{m ? <a href={matchPath(m)}>Živé skóre</a> : '—'}</dd></div>
+          </dl>
+        </section>
+        {m && state === 'pre' ? <Odds m={m} now={now} /> : null}
+        <article class="sec prose">
+          <Content />
+          {m ? <p>Detail zápasu so živým skóre: <a href={matchPath(m)}>{matchTitle(m)} naživo</a>.</p> : null}
+          {d.sources.length ? <p class="muted" style="font-size:.8rem">Zdroje: {d.sources.map((u, i) => <>{i ? ', ' : ''}<a href={u} rel="nofollow noopener" target="_blank">{new URL(u).hostname.replace(/^www\./, '')}</a></>)}</p> : null}
+        </article>
+        {d.faq.length ? <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={d.faq} /></section> : null}
+        {others.length ? <section class="sec"><div class="sec-h"><h2>Ďalšie veľké zápasy</h2><a href="/ako-pozerat/">Všetky ›</a></div><div class="art-list">{others.map((p) => <a class="art-card" href={previewPath(p)}><b>{p.data.home} – {p.data.away}</b><span>{longDay(p.data.start.getTime())} · {hhmm(p.data.start.getTime())} · {p.data.league}</span></a>)}</div></section> : null}
+        <p class="muted" style="font-size:.78rem">Stávky sú len pre osoby staršie ako 18 rokov a môžu spôsobiť závislosť. Na pozeranie prenosu stávkovať nemusíš.</p>
+      </div>
+      <Side sports={sportCounts(v)} leagues={leagues(v)} placement="preview-side" current={sport?.slug ?? ''} />
+    </div>
+  </div>
+</Base>

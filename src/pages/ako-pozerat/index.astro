@@ -1,0 +1,24 @@
+---
+import Base from '../../layouts/Base.astro';
+import Crumbs from '../../components/Crumbs.astro';
+import { previews, previewPath } from '../../lib/nahlady';
+import { hhmm, longDay } from '../../lib/text';
+import { breadcrumbLd, BRAND } from '../../lib/seo';
+export const prerender = false;
+const upcoming = await previews({ upcoming: true });
+const ids = new Set(upcoming.map((p) => p.id));
+const past = (await previews()).filter((p) => !ids.has(p.id)).slice(0, 24);
+const crumbs = [{ name: 'Domov', href: '/' }, { name: 'Ako pozerať' }];
+const card = (p: (typeof upcoming)[number]) => ({ href: previewPath(p), when: `${longDay(p.data.start.getTime())} · ${hhmm(p.data.start.getTime())}`, title: `${p.data.home} – ${p.data.away}`, league: p.data.league });
+---
+<Base title={`Ako pozerať veľké zápasy naživo | ${BRAND}`} description="Náhľady najväčších zápasov so slovenskou stopou: Niké liga, Tipsport liga, Slovan v Lige majstrov, reprezentácia. Kedy sa hrá, kde pozerať online a čo hovoria kurzy." ld={[breadcrumbLd(crumbs)]} section="" ttl={600}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head"><h1>Ako pozerať veľké zápasy</h1><p class="lead">Náhľady zápasov, ktoré stoja za to: kedy sa hrá, kde je prenos online, forma tímov a čo hovoria kurzy.</p></section>
+    <section class="sec">
+      <div class="sec-h"><h2>Najbližšie</h2></div>
+      {upcoming.length ? <div class="art-grid">{upcoming.map(card).map((c) => <a class="art-card" href={c.href}><span>{c.when}</span><b>{c.title}</b><span>{c.league}</span></a>)}</div> : <p class="muted">Náhľady ďalších zápasov pripravujeme. Celý program je v <a href="/program/">programe prenosov</a>.</p>}
+    </section>
+    {past.length ? <section class="sec"><div class="sec-h"><h2>Odohrané</h2></div><div class="art-grid">{past.map(card).map((c) => <a class="art-card" href={c.href}><span>{c.when}</span><b>{c.title}</b><span>{c.league}</span></a>)}</div></section> : null}
+  </div>
+</Base>
