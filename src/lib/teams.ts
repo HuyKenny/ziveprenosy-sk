@@ -10,7 +10,9 @@ export interface Team { sp: number; slug: string; feed: string; name: string; co
   /** Own <title> (NHL clubs: the Slovak player people search together with the club). */
   title?: string;
   /** Short plain-text note under the headline (NHL clubs: which Slovaks play there). */
-  note?: string }
+  note?: string;
+  /** Guide in /clanky/ for teams without a competition guide (national teams). */
+  guide?: string }
 
 export const TEAMS: Team[] = [
   // Futbal – Niké liga 2026/27
@@ -26,7 +28,7 @@ export const TEAMS: Team[] = [
   { sp: 16, slug: 'skalica', feed: 'Skalica', name: 'MFK Skalica', comp: 'nike-liga' },
   { sp: 16, slug: 'komarno', feed: 'Komárno', name: 'KFC Komárno', comp: 'nike-liga' },
   { sp: 16, slug: 'dukla-banska-bystrica', feed: 'Banská Bystrica', name: 'Dukla Banská Bystrica', comp: 'nike-liga' },
-  { sp: 16, slug: 'slovensko', feed: 'Slovensko', name: 'Slovensko', national: true },
+  { sp: 16, slug: 'slovensko', feed: 'Slovensko', name: 'Slovensko', national: true, guide: 'liga-narodov-ako-funguje' },
   // Hokej – Tipsport liga 2026/27
   { sp: 23, slug: 'slovan-bratislava', feed: 'Slovan Bratislava', name: 'HC Slovan Bratislava', comp: 'slovenska-extraliga' , q: 'Hokej Slovan'},
   { sp: 23, slug: 'hk-nitra', feed: 'Nitra', name: 'HK Nitra', comp: 'slovenska-extraliga' , q: 'Hokej Nitra'},

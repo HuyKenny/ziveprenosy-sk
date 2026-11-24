@@ -54,6 +54,9 @@ const BODIES: Record<string, string> = {
 <p>Basketbal má video hlavne pri európskych súťažiach a zahraničných ligách. Pri <a href="/basketbal/nba/">NBA</a> nájdeš živé skóre po štvrtinách.</p>
 <h2>NBA v noci</h2>
 <p>Zápasy NBA sa u nás začínajú medzi 1:00 a 4:30 ráno, nedeľné zápasy občas už večer. Program na noc je v <a href="/program/zajtra/">programe na zajtra</a>.</p>`,
+  lyzovanie: `
+<h2>Svetový pohár v zjazdovom lyžovaní</h2>
+<p>Preteky Svetového pohára sa do ponuky dostávajú niekoľko dní vopred. Kalendár sezóny 2026/27 so zastávkou na Jasnej, majstrovstvá sveta v Crans-Montane a návrat Petry Vlhovej rozoberá článok <a href="/clanky/svetovy-pohar-lyzovanie-vlhova-program/">Svetový pohár v alpskom lyžovaní 2026/27</a>. Biatlon nájdeš v <a href="/clanky/biatlon-svetovy-pohar-program/">programe Svetového pohára v biatlone</a>.</p>`,
 };
 export const sportBody = (s: Sport) => BODIES[s.slug] ?? '';
 
