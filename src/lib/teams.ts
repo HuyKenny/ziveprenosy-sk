@@ -6,7 +6,11 @@ import type { Match } from './types';
  * Czech feed and the results database write it (checked against both on 24. 10. 2026); women's sides ("(ž)") never match.
  */
 /** `q` = how people search for the club ("hokej Prešov dnes online", Ahrefs SK 24. 11. 2026) → front of the page title. */
-export interface Team { sp: number; slug: string; feed: string; name: string; comp?: string; national?: boolean; q?: string }
+export interface Team { sp: number; slug: string; feed: string; name: string; comp?: string; national?: boolean; q?: string;
+  /** Own <title> (NHL clubs: the Slovak player people search together with the club). */
+  title?: string;
+  /** Short plain-text note under the headline (NHL clubs: which Slovaks play there). */
+  note?: string }
 
 export const TEAMS: Team[] = [
   // Futbal – Niké liga 2026/27
@@ -37,6 +41,12 @@ export const TEAMS: Team[] = [
   { sp: 23, slug: 'dukla-trencin', feed: 'Trenčín', name: 'HK Dukla Trenčín', comp: 'slovenska-extraliga' , q: 'Hokej Trenčín'},
   { sp: 23, slug: 'hk-poprad', feed: 'HK Poprad', name: 'HK Poprad', comp: 'slovenska-extraliga' , q: 'Hokej Poprad'},
   { sp: 23, slug: 'slovensko', feed: 'Slovensko', name: 'Slovensko', national: true },
+  // Hokej – NHL kluby so Slovákmi (súpisky na začiatku sezóny 2026/27, overené 24. 11. 2026; Ahrefs SK: „montreal canadiens“ 21k)
+  { sp: 23, slug: 'montreal-canadiens', feed: 'Montreal Canadiens', name: 'Montreal Canadiens', comp: 'nhl', title: 'Montreal Canadiens dnes – Slafkovský, zápasy a výsledky', note: 'V Montreale hrá útočník Juraj Slafkovský, jedna z najväčších slovenských hviezd NHL.' },
+  { sp: 23, slug: 'calgary-flames', feed: 'Calgary Flames', name: 'Calgary Flames', comp: 'nhl', title: 'Calgary Flames dnes – Nemec, Pospíšil, zápasy a výsledky', note: 'Calgary má najviac Slovákov v NHL: obrancu Šimona Nemca (prišiel v lete z New Jersey), útočníka Martina Pospíšila a mladého Samuela Honzeka.' },
+  { sp: 23, slug: 'tampa-bay-lightning', feed: 'Tampa Bay Lightning', name: 'Tampa Bay Lightning', comp: 'nhl', title: 'Tampa Bay Lightning dnes – Černák, zápasy a výsledky', note: 'Za Tampu hrá slovenský obranca Erik Černák.' },
+  { sp: 23, slug: 'washington-capitals', feed: 'Washington Capitals', name: 'Washington Capitals', comp: 'nhl', title: 'Washington Capitals dnes – Fehérváry, zápasy a výsledky', note: 'Vo Washingtone hrá slovenský obranca Martin Fehérváry.' },
+  { sp: 23, slug: 'st-louis-blues', feed: 'St.Louis Blues', name: 'St. Louis Blues', comp: 'nhl', title: 'St. Louis Blues dnes – Dvorský, zápasy a výsledky', note: 'V St. Louis sa do NHL prebojoval slovenský útočník Dalibor Dvorský.' },
 ];
 
 const BY_KEY = new Map(TEAMS.map((t) => [`${t.sp}|${t.slug}`, t]));

@@ -1,0 +1,102 @@
+---
+import Base from '../layouts/Base.astro';
+import Crumbs from '../components/Crumbs.astro';
+import Faq from '../components/Faq.astro';
+import Side from '../components/Side.astro';
+import Icon from '../components/Icon.astro';
+import { getEnv, view, sportCounts, leagues, byLeague, tier } from '../lib/page';
+import { competitionOf, leagueName } from '../lib/competitions';
+import { SPORT_BY_ID } from '../lib/sports';
+import { leaguePath, matchPath, goPath, home, away } from '../lib/url';
+import { hhmm, dayKey, dayLabel, addDays } from '../lib/text';
+import { fmtOdd, oddsOf, impliedProb } from '../lib/odds';
+import { breadcrumbLd, faqLd, BRAND } from '../lib/seo';
+
+/**
+ * "Kurzy dnes": main-market 1/X/2 of today's and tomorrow's matches from our own Tipsport.sk feed (since 24. 11. 2026).
+ * Ahrefs SK 24. 11.: "nike kurzy dnes" 10k, "kurzy nike" 8,2k – people want today's odds in one list; nobody in the
+ * SK SERP has them live. Only the SK feed's odds (oddsOf), only before kick-off. Rendered on every live run (snapshot.py).
+ */
+export const prerender = false;
+const v = await view(getEnv());
+const now = Date.now();
+const today = dayKey(now);
+const tomorrow = dayKey(addDays(now, 1));
+const SPORTS_SHOWN = [16, 23, 43, 7, 47, 20];
+const pool = v.upcoming.filter((m) => oddsOf(m, now) && m.a && SPORTS_SHOWN.includes(m.sp) && (dayKey(m.st) === today || dayKey(m.st) === tomorrow));
+// Slovak and curated competitions first, then the rest; low-interest feeds (ITF, Setka, e-sports) are left out.
+const ranked = pool.filter((m) => tier(m) < 3);
+const bySport = SPORTS_SHOWN.map((sp) => ({ sp, s: SPORT_BY_ID.get(sp)!, groups: byLeague(ranked.filter((m) => m.sp === sp)).sort((a, b) => tier(a.items[0]) - tier(b.items[0])).slice(0, sp === 16 || sp === 23 ? 12 : 5) })).filter((x) => x.groups.length);
+const count = bySport.reduce((n, x) => n + x.groups.reduce((k, g) => k + g.items.length, 0), 0);
+// The match of the day: Slovak or top competition with the most balanced odds.
+const pick = [...ranked].filter((m) => tier(m) <= 1 && dayKey(m.st) === today).sort((a, b) => Math.max(...impliedProb(oddsOf(a, now)!)) - Math.max(...impliedProb(oddsOf(b, now)!)))[0];
+const crumbs = [{ name: 'Domov', href: '/' }, { name: 'Kurzy dnes' }];
+const faq = [
+  { q: 'Odkiaľ sú kurzy na tejto stránke?', a: 'Sú to kurzy na výsledok zápasu (1 – výhra domácich, X – remíza, 2 – výhra hostí) z ponuky licencovaného prevádzkovateľa Tipsport.sk. Stránka sa obnovuje každých niekoľko minút.' },
+  { q: 'Platia zobrazené kurzy aj v čase stávky?', a: 'Kurzy sa pred zápasom menia podľa vývoja ponuky. Platí vždy kurz, ktorý vidíš v tikete u prevádzkovateľa v okamihu podania stávky.' },
+  { q: 'Čo znamenajú percentá pri zápase dňa?', a: 'Pravdepodobnosť jednotlivých výsledkov odvodená z kurzov po odpočítaní marže prevádzkovateľa. Je to odhad trhu, nie istota.' },
+  { q: 'Prečo pri niektorých zápasoch chýba remíza?', a: 'V tenise, basketbale či volejbale sa nedá skončiť nerozhodne, preto sú kurzy len na výhru jedného alebo druhého.' },
+];
+---
+<Base title={`Kurzy dnes – futbal, hokej a tenis | ${BRAND}`} description={`Kurzy dnes na ${count} zápasov futbalu, hokeja a tenisu na jednom mieste: 1, X, 2 na výsledok zápasu, slovenské súťaže navrchu. Aktualizované každých pár minút.`} ld={[breadcrumbLd(crumbs), faqLd(faq)]} section="kurzy" ttl={300}>
+  <div class="wrap">
+    <Crumbs items={crumbs} />
+    <section class="head">
+      <h1>Kurzy dnes</h1>
+      <p class="lead">Kurzy na výsledok dnešných a zajtrajších zápasov – futbal, hokej, tenis a ďalšie športy. Slovenské súťaže sú navrchu, kurz otvorí zápas priamo u prevádzkovateľa.</p>
+    </section>
+    <div class="cols">
+      <div>
+        {pick ? (() => {
+          const k = oddsOf(pick, now)!;
+          const p = impliedProb(k);
+          return (
+            <section class="sec">
+              <div class="sec-h"><h2>Zápas dňa</h2><span class="muted" style="font-size:.84rem">{leagueName(pick.sp, pick.lg)} · {hhmm(pick.st)}</span></div>
+              <a class="guide-box" href={matchPath(pick)}><span><small>{dayLabel(pick.st, now)} o {hhmm(pick.st)}</small><b>{home(pick)} – {away(pick)}</b></span></a>
+              <div class="odds" style={`--n:${k[1] === null ? 2 : 3}`}>
+                {([[home(pick), k[0], p[0], '1'], ['Remíza', k[1], p[1], 'X'], [away(pick), k[2], p[2], '2']] as const).filter((c) => c[1] !== null).map(([who, odd, pr, tip]) => (
+                  <a class="odd" href={goPath(pick, `kurzy-den-${tip.toLowerCase()}`)} rel="sponsored nofollow noopener" target="_blank"><span class="tip">{tip}</span><span class="who">{who}</span><b>{fmtOdd(odd as number)}</b><small>{pr} %</small></a>
+                ))}
+              </div>
+            </section>
+          );
+        })() : null}
+        {bySport.length === 0 ? <p class="empty">Kurzy na dnešné zápasy sa práve načítavajú. Skús to o chvíľu.</p> : bySport.map(({ s, groups }) => (
+          <section class="sec">
+            <div class="sec-h"><h2>{s.name} – kurzy dnes</h2><a href={`/${s.slug}/`}>{s.name} online ›</a></div>
+            {groups.map((g) => {
+              const c = competitionOf(g.sp, g.lg);
+              let last = '';
+              return (
+                <section class="comp">
+                  <div class="comp-h">
+                    {c ? <span class="badge" style={`background:${c.color}`}>{c.short}</span> : <span class="badge ico-b"><Icon name={s.slug} /></span>}
+                    <a class="name" href={leaguePath(s.slug, g.sp, g.lg)}>{leagueName(g.sp, g.lg)}</a>
+                  </div>
+                  {g.items.map((m) => {
+                    const k = oddsOf(m, now)!;
+                    const d = dayKey(m.st);
+                    const head = d !== last;
+                    last = d;
+                    return (<>
+                      {head ? <div class="day">{dayLabel(m.st, now)}</div> : null}
+                      <div class="m kr">
+                        <div class="t">{hhmm(m.st)}</div>
+                        <a class="teams" href={matchPath(m)}><span><em>{home(m)}</em></span><span><em>{away(m)}</em></span></a>
+                        <div class="kk">{k.map((x, i) => x === null ? null : <a href={goPath(m, `kurzy-${['1', 'x', '2'][i]}`)} rel="sponsored nofollow noopener" target="_blank"><i>{['1', 'X', '2'][i]}</i>{fmtOdd(x)}</a>)}</div>
+                      </div>
+                    </>);
+                  })}
+                </section>
+              );
+            })}
+          </section>
+        ))}
+        <p class="muted" style="font-size:.82rem">Kurzy na výsledok zápasu v riadnom hracom čase (pri hokeji a futbale), pri tenise a basketbale na víťaza. Kurzy sa menia, platí ponuka v čase stávky. 18+, hazardné hry môžu spôsobiť závislosť. <a href="/zodpovedne-hranie/">Zodpovedné hranie</a>.</p>
+        <section class="sec"><div class="sec-h"><h2>Časté otázky</h2></div><Faq items={faq} /></section>
+      </div>
+      <Side sports={sportCounts(v)} leagues={leagues(v)} placement="kurzy-side" current="" />
+    </div>
+  </div>
+</Base>

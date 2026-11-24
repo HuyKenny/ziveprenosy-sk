@@ -44,7 +44,7 @@ const last = results.find((r) => r.status === 'ft' || r.status === 'aet' || r.st
 const isHockey = team.sp === 23;
 const who = team.national ? `Slovensko (${sport.name.toLowerCase()})` : team.name;
 // "kto vysiela slovan dnes" 1,8–5,4k, "hk poprad" 12k, "kedy hrá slovensko hokej" 1k (Marketing Miner sk, 24. 10. 2026)
-const title = team.national ? `${sport.name} Slovensko dnes – kedy hrá, zápasy a výsledky | ${BRAND}` : team.q ? `${team.q} dnes online: ${team.name} – zápasy a výsledky | ${BRAND}` : `${team.name} dnes: zápasy, výsledky a kto vysiela | ${BRAND}`;
+const title = team.title ? `${team.title} | ${BRAND}` : team.national ? `${sport.name} Slovensko dnes – kedy hrá, zápasy a výsledky | ${BRAND}` : team.q ? `${team.q} dnes online: ${team.name} – zápasy a výsledky | ${BRAND}` : `${team.name} dnes: zápasy, výsledky a kto vysiela | ${BRAND}`;
 const marks = db ? formMarks(await formOf(db, team.sp, team.feed, now, 5), team.feed) : [];
 const whoAir = !first ? '' : first.stream ? `Zápas ${matchTitle(first)} (${longDay(first.st)} o ${hhmm(first.st)}) je v ponuke živých prenosov Tipsport TV – po prihlásení ho pozeráš zadarmo. Televízne vysielanie závisí od držiteľa práv pre danú súťaž.` : `K zápasu ${matchTitle(first)} (${longDay(first.st)} o ${hhmm(first.st)}) video v našej ponuke nie je, práva má televízia. Naživo sleduješ priebežné skóre a štatistiky.`;
 const desc = first
@@ -69,7 +69,7 @@ const siblings = TEAMS.filter((t) => t.sp === team.sp && t.comp && t.comp === te
       <div>
         <div class="eyebrow"><span>{sport.name}</span>{comp ? <span>{comp.name}</span> : team.national ? <span>reprezentácia</span> : null}</div>
         <h1>{team.national ? `${sport.name} Slovensko dnes` : `${team.name} dnes online`}</h1>
-        <p class="lead">{team.national ? `Zápasy slovenskej ${isHockey ? 'hokejovej' : 'futbalovej'} reprezentácie: program, živé skóre, výsledky a kde ich pozerať online.` : `Program zápasov ${team.name}, živé skóre, výsledky a kde pozerať zápasy online.`}</p>
+        <p class="lead">{team.national ? `Zápasy slovenskej ${isHockey ? 'hokejovej' : 'futbalovej'} reprezentácie: program, živé skóre, výsledky a kde ich pozerať online.` : `Program zápasov ${team.name}, živé skóre, výsledky a kde pozerať zápasy online.${team.note ? ` ${team.note}` : ''}`}</p>
       </div>
     </section>
     <div class="cols">

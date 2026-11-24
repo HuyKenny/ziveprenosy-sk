@@ -615,3 +615,10 @@ main .comp, main .prose, main .faq, main .tiles { content-visibility: auto; cont
 .guide-box:hover { color: var(--ink); background: #dbe6f8; }
 .guide-box small { display: block; font-size: 0.72rem; font-weight: 800; text-transform: uppercase; letter-spacing: 0.05em; color: var(--blue); }
 .guide-box b { font-size: 1rem; }
+/* Kurzy dnes: odds visible on phones too */
+.m.kr { grid-template-columns: 48px minmax(0, 1fr) auto; }
+.m .kk { display: flex; gap: 4px; }
+.m .kk a { display: grid; min-width: 46px; text-align: center; padding: 3px 5px; border: 2px solid var(--ink); border-radius: 4px; font-weight: 900; font-size: 0.86rem; line-height: 1.1; color: var(--ink); text-decoration: none; background: var(--card); }
+.m .kk a:hover { background: var(--blue-soft); }
+.m .kk i { font-style: normal; font-size: 0.62rem; font-weight: 800; color: var(--red); }
+@media (max-width: 520px) { .m.kr { grid-template-columns: 40px minmax(0, 1fr) auto; } .m .kk a { min-width: 40px; padding: 3px 3px; font-size: 0.8rem; } }

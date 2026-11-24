@@ -19,13 +19,13 @@ Istotu miesta v zostave majú hráči s jednocestnými zmluvami. Na začiatku se
 
 | Hráč | Tím | Post |
 |---|---|---|
-| Juraj Slafkovský | Montreal Canadiens | útočník |
-| Šimon Nemec | Calgary Flames | obranca |
-| Erik Černák | Tampa Bay Lightning | obranca |
-| Martin Fehérváry | Washington Capitals | obranca |
-| Martin Pospíšil | Calgary Flames | útočník |
+| Juraj Slafkovský | [Montreal Canadiens](/hokej/tim/montreal-canadiens/) | útočník |
+| Šimon Nemec | [Calgary Flames](/hokej/tim/calgary-flames/) | obranca |
+| Erik Černák | [Tampa Bay Lightning](/hokej/tim/tampa-bay-lightning/) | obranca |
+| Martin Fehérváry | [Washington Capitals](/hokej/tim/washington-capitals/) | obranca |
+| Martin Pospíšil | [Calgary Flames](/hokej/tim/calgary-flames/) | útočník |
 
-K nim sa pridávajú mladší hráči, ktorí sa do NHL prebojovali cez kempy alebo striedajú zápasy s farmou v AHL – na úvodných súpiskách boli napríklad **Samuel Honzek** (Calgary) a **Dalibor Dvorský** (St. Louis). Najväčšou letnou zmenou bol prestup Šimona Nemca z New Jersey do Calgary, kde sa tak stretli traja Slováci naraz.
+K nim sa pridávajú mladší hráči, ktorí sa do NHL prebojovali cez kempy alebo striedajú zápasy s farmou v AHL – na úvodných súpiskách boli napríklad **Samuel Honzek** (Calgary) a **Dalibor Dvorský** ([St. Louis](/hokej/tim/st-louis-blues/)). Najväčšou letnou zmenou bol prestup Šimona Nemca z New Jersey do Calgary, kde sa tak stretli traja Slováci naraz.
 
 Zoznam sa počas sezóny mení: hráčov povolávajú z farmy, menia sa zmluvy a tímy. Aktuálne zápasy všetkých tímov nájdeš na stránke [NHL](/hokej/nhl/), kde sú zoradené podľa času začiatku.
 
