@@ -4,7 +4,7 @@ import { skLeague } from './names';
 /**
  * Curated competitions: stable landing pages (they exist even when nothing is scheduled) and a whitelist that keeps
  * their matches on the site although Tipsport has no video for them. `match` is tested against Tipsport's
- * (Czech) competition name. `id` is the key the shared results database uses — keep it as sportstreamy.cz has it;
+ * competition name — Slovak from our feed, Czech in the fallback, so both spellings match. `id` is the key the shared results database uses — keep it as sportstreamy.cz has it;
  * `slug` is our own URL.
  */
 export interface Competition {
@@ -38,30 +38,30 @@ export const COMPETITIONS: Competition[] = [
     seo: { title: 'Hokej extraliga (Tipsport liga) – zápasy dnes a výsledky', faq: [{ q: 'Je Tipsport liga to isté čo hokejová extraliga?', a: "Áno. Tipsport liga je súčasný názov najvyššej slovenskej hokejovej súťaže, ľudovo extraligy." }, { q: 'Kde nájdem výsledky Tipsport ligy?', a: "Na stránke Tipsport liga výsledky – zápasy za posledný týždeň aj so skóre po tretinách." }] },
     body: "<h2>Hokej extraliga – zápasy dnes, program a výsledky</h2><p>Tipsport liga je súčasný názov najvyššej slovenskej hokejovej súťaže, ktorú väčšina fanúšikov volá jednoducho hokejová extraliga. Na tejto stránke nájdeš zápasy, ktoré sa hrajú dnes, program na ďalšie dni, zápasy naživo s priebežným skóre a výsledky odohraných kôl.</p><h3>Kedy sa hrá extraliga</h3><p>Extraliga sa hrá viackrát do týždňa, najviac zápasov býva v piatok a v nedeľu. Presný čas každého zápasu je v programe vyššie a ak sa termín zmení, uvidíš to aj tu.</p><h3>Kde pozerať hokej extraligy online</h3><p>Pri každom zápase je tlačidlo na prenos alebo živé štatistiky. Zápasy s videom pozerajú registrovaní hráči zadarmo, k ostatným ponúkame priebežné skóre a štatistiky. Program a výsledky jednotlivých klubov – od HC Slovan Bratislava cez HK Nitra po HC Košice – nájdeš na ich stránkach v bloku Kluby a výsledky celej súťaže na stránke <a href=\"/hokej/tipsport-liga/vysledky/\">extraliga výsledky</a>.</p>",
     intro: 'Tipsport liga je najvyššia slovenská hokejová súťaž. Hrá sa viackrát do týždňa, najviac zápasov býva v piatok a v nedeľu. Program kola, živé skóre a odkaz na zápas nájdeš tu.' },
-  { id: 'slovenska-1-liga-hokej', slug: '1-liga', name: '1. hokejová liga', sp: 23, match: /^Slovensk\S* 1\. ?liga/, short: '1L', color: '#e0606f', sk: true,
+  { id: 'slovenska-1-liga-hokej', slug: '1-liga', name: '1. hokejová liga', sp: 23, match: /^1\. slovenská liga$|^Slovensk\S* 1\. ?liga/, short: '1L', color: '#e0606f', sk: true,
     intro: 'Druhá najvyššia slovenská hokejová súťaž. Program, živé skóre a výsledky zápasov nájdeš tu.' },
   { id: 'slovenska-extraliga-volejbal', slug: 'extraliga', name: 'Extraliga volejbalu', sp: 47, match: /^Slovensk\S* (extra)?liga(?!.*(Ž|žen))/, short: 'EV', color: '#0b4ea2', sk: true,
     intro: 'Najvyššia slovenská volejbalová súťaž mužov. Pri zápasoch nájdeš čas, priebežný stav setov a výsledky.' },
   { id: 'slovenska-extraliga-hazena', slug: 'extraliga', name: 'Extraliga hádzanej', sp: 20, match: /^Slovensk\S* .*extraliga(?!.*(Ž|žen))/, short: 'EH', color: '#0b4ea2', sk: true,
     intro: 'Najvyššia slovenská hádzanárska súťaž mužov. Program zápasov, živé skóre a výsledky.' },
-  { id: 'liga-mistru', slug: 'liga-majstrov', name: 'Liga majstrov', sp: 16, match: /^Liga mistrů$/, short: 'LM', color: '#1b2a6b', top: true,
+  { id: 'liga-mistru', slug: 'liga-majstrov', name: 'Liga majstrov', sp: 16, match: /^Liga (mistrů|majstrov)$/, short: 'LM', color: '#1b2a6b', top: true,
     seo: { title: 'Liga majstrov – zápasy dnes, výsledky a program', faq: [{ q: 'Kedy sa hrá Liga majstrov?', a: "Ligová fáza Ligy majstrov sa hrá v utorok a v stredu, výkopy sú o 18:45 a o 21:00 nášho času." }, { q: 'Kde nájdem výsledky Ligy majstrov?', a: "Na stránke Liga majstrov výsledky – všetky zápasy za posledný týždeň so strelcami." }] },
     body: "<h2>Liga majstrov – zápasy, program a výsledky</h2><p>Liga majstrov UEFA je najprestížnejšia klubová futbalová súťaž v Európe. Na tejto stránke nájdeš zápasy, ktoré sa hrajú dnes, program ďalších kôl, zápasy naživo s priebežným skóre a výsledky so strelcami gólov.</p><h3>Kedy sa hrá Liga majstrov</h3><p>Zápasy sa hrajú v utorok a v stredu večer, výkopy sú o 18:45 a o 21:00 nášho času. V rozhodujúcich fázach súťaže sa program mení podľa žrebu, aktuálne termíny sú vždy v programe vyššie.</p><h3>Kde sledovať Ligu majstrov</h3><p>Televízne práva na Ligu majstrov má televízia, pri zápasoch preto nájdeš priebežné skóre a živé štatistiky. Výsledky za posledný týždeň sú prehľadne na stránke <a href=\"/futbal/liga-majstrov/vysledky/\">Liga majstrov výsledky</a>.</p>",
     intro: 'Liga majstrov UEFA je najprestížnejšia klubová súťaž Európy. Zápasy ligovej fázy sa hrajú v utorok a v stredu, výkopy sú o 18:45 a o 21:00.' },
-  { id: 'evropska-liga', slug: 'europska-liga', name: 'Európska liga', sp: 16, match: /^Evropská liga$/, short: 'EL', color: '#b25a00', top: true,
+  { id: 'evropska-liga', slug: 'europska-liga', name: 'Európska liga', sp: 16, match: /^E(v|ú)ropská liga$/, short: 'EL', color: '#b25a00', top: true,
     intro: 'Európska liga UEFA sa hrá vo štvrtok v dvoch blokoch, o 18:45 a o 21:00.' },
-  { id: 'konferencni-liga', slug: 'konferencna-liga', name: 'Konferenčná liga', sp: 16, match: /^Konferenční liga$/, short: 'KL', color: '#1f7a6d', top: true,
+  { id: 'konferencni-liga', slug: 'konferencna-liga', name: 'Konferenčná liga', sp: 16, match: /^Konferenčn(í|á) liga$/, short: 'KL', color: '#1f7a6d', top: true,
     body: "<h2>Konferenčná liga – zápasy, program a výsledky</h2><p>Konferenčná liga UEFA je tretí európsky klubový pohár a slovenské kluby v nej patria medzi pravidelných účastníkov. Na tejto stránke nájdeš program zápasov, zápasy naživo a výsledky so strelcami.</p><p>Zápasy sa hrajú vo štvrtok vo dvoch blokoch, o 18:45 a o 21:00. Výsledky za posledný týždeň sú na stránke <a href=\"/futbal/konferencna-liga/vysledky/\">Konferenčná liga výsledky</a>.</p>",
     intro: 'Konferenčná liga UEFA je tretí európsky pohár. Hrá sa vo štvrtok a slovenské kluby v nej patria medzi pravidelných účastníkov.' },
   { id: 'premier-league', slug: 'premier-league', name: 'Premier League', sp: 16, match: /^1\. anglická liga$/, short: 'PL', color: '#3d0e4f', top: true,
     intro: 'Premier League je najsledovanejšia futbalová liga sveta. Väčšina kola sa hrá v sobotu popoludní, šlágre v nedeľu a vybrané zápasy v pondelok večer.' },
-  { id: 'la-liga', slug: 'la-liga', name: 'La Liga', sp: 16, match: /^1\. španělská liga$/, short: 'LL', color: '#8a1c1c', top: true,
+  { id: 'la-liga', slug: 'la-liga', name: 'La Liga', sp: 16, match: /^1\. špan(ělská|ielska) liga$/, short: 'LL', color: '#8a1c1c', top: true,
     intro: 'Španielska La Liga – Real Madrid, Barcelona, Atlético. Večerné zápasy sa začínajú často až o 21:00 nášho času.' },
-  { id: 'bundesliga', slug: 'bundesliga', name: 'Bundesliga', sp: 16, match: /^1\. německá liga$/, short: 'BL', color: '#a3141b', top: true,
+  { id: 'bundesliga', slug: 'bundesliga', name: 'Bundesliga', sp: 16, match: /^1\. n(ěmecká|emecká) liga$/, short: 'BL', color: '#a3141b', top: true,
     intro: 'Nemecká Bundesliga sa hrá najmä v sobotu o 15:30, šlágre kola sa začínajú o 18:30.' },
-  { id: 'serie-a', slug: 'serie-a', name: 'Serie A', sp: 16, match: /^1\. italská liga$/, short: 'SA', color: '#0b4f8a', top: true,
+  { id: 'serie-a', slug: 'serie-a', name: 'Serie A', sp: 16, match: /^1\. (italská|talianska) liga$/, short: 'SA', color: '#0b4f8a', top: true,
     intro: 'Talianska Serie A má zápasy rozložené od piatka do pondelka, večerné stretnutia sa začínajú o 20:45. Pravidelne v nej hrajú aj slovenskí reprezentanti.' },
-  { id: 'ligue-1', slug: 'ligue-1', name: 'Ligue 1', sp: 16, match: /^1\. francouzská liga$/, short: 'L1', color: '#24335c',
+  { id: 'ligue-1', slug: 'ligue-1', name: 'Ligue 1', sp: 16, match: /^1\. franc(ouzská|úzska) liga$/, short: 'L1', color: '#24335c',
     intro: 'Francúzska Ligue 1 – PSG, Marseille, Lyon. Hlavné zápasy kola sú v nedeľu večer.' },
   { id: 'championship', slug: 'championship', name: 'Championship', sp: 16, match: /^2\. anglická liga$/, short: 'EFL', color: '#3a3f73',
     intro: 'Championship je druhá anglická liga s 24 tímami a nabitým programom vrátane stredajších kôl.' },
@@ -73,7 +73,7 @@ export const COMPETITIONS: Competition[] = [
     intro: 'NHL je najlepšia hokejová liga sveta a hrajú v nej aj slovenskí hokejisti. Zápasy sa u nás začínajú väčšinou medzi polnocou a druhou hodinou ráno, víkendové zápasy aj popoludní a večer.' },
   { id: 'tipsport-extraliga', slug: 'ceska-extraliga', name: 'Česká extraliga', sp: 23, match: /^Česká Tipsport extraliga$/, short: 'CZ', color: '#0f3d7a',
     intro: 'Najvyššia česká hokejová súťaž, v ktorej hrá veľa slovenských hráčov. Hrá sa v utorok, piatok a v nedeľu, najčastejšie od 17:30 a 18:00.' },
-  { id: 'ms-v-hokeji', slug: 'ms-v-hokeji', name: 'MS v hokeji', sp: 23, match: /^(MS 20\d\d|Mistrovství světa)(?!.*U\d\d)/, short: 'MS', color: '#b3122e', top: true,
+  { id: 'ms-v-hokeji', slug: 'ms-v-hokeji', name: 'MS v hokeji', sp: 23, match: /^(MS 20\d\d|Mistrovství světa|Majstrovstvá sveta)(?!.*U\d\d)/, short: 'MS', color: '#b3122e', top: true,
     intro: 'Majstrovstvá sveta v ľadovom hokeji sa hrajú každý rok v máji. Ročník 2027 hostí Nemecko. Keď budú zápasy v ponuke, nájdeš tu celý program s časmi a odkazom na prenos.' },
   { id: 'nba', slug: 'nba', name: 'NBA', sp: 7, match: /^NBA$/, short: 'NBA', color: '#17408b', top: true,
     intro: 'NBA sa pre časový posun hrá v noci nášho času. Program na ďalší deň nájdeš už večer vopred.' },

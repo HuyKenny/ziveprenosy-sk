@@ -4,12 +4,12 @@ Slovenský přehled živých sportovních přenosů a programu (sesterský web s
 Záměrně jiný design, URL i texty než sportstreamy → žádný hreflang ani canonical mezi weby.
 
 - **Stack:** Astro 7 SSR na Cloudflare Workers (`@astrojs/cloudflare`), vlastní entry `src/worker.ts` (Cache API + SWR). **Žádné crony.**
-- **Data — sdílená se sportstreamy, jen čtení:**
-  - KV `DATA` = namespace `sportstreamy-data` (`live`, `pre`) — plní cron sportstreamy (Tipsport CZ API). Tipsport povolil jednu sadu volání → tento web Tipsport nevolá.
+- **Data — vlastní Tipsport.sk Partner API (od 24. 11. 2026):** live job v Actions repa sportstreamy (`scripts/static/run.sh`) zavolá náš scheduled handler (`src/lib/tipsport.ts`: login `POST partners.tipsport.sk/rest/external/common/v2/session` → token + cookie JSESSIONID) → KV `sk:live` / `sk:pre`. Secrets `TIPSPORT_SK_USER/PASS/PRODUCT_ID` v repu sportstreamy, lokálně `credentials/.ziveprenosy-sk-credentials.env`.
+  - Záloha: když SK snímek chybí nebo je starší než 2 h, `lib/matches.ts` vezme český feed sportstreamy (`live`, `pre`).
   - D1 `RESULTS` = `sportstreamy-results` — výsledky zapisuje sync sportstreamy.
   - **Změna schématu KV/D1 ve sportstreamy rozbije i tento web.**
-  - Názvy z feedu jsou česky → `src/lib/names.ts` (`skLeague`, `skTeam`, `skClock`). Kurzy z feedu (CZ) se **nezobrazují**.
-- **Klik:** `/go/tipsport/?m=<id>&p=<umístění>` → Tipsport TV odkaz, `/go/registracia/` → registrace (bonus 20 €). Odkazy ze spiny.sk (pid 12487, sid 17272) ve `wrangler.jsonc` → `vars`, dokud Tipsport SK neschválí vlastní účet. Bez deeplinku na zápas (cesty ve feedu jsou z tipsport.cz). Analytics Engine `ziveprenosy_clicks`.
+  - SK feed má slovenské názvy; `src/lib/names.ts` (`skLeague`, `skTeam`, `skClock`) zůstává pro českou zálohu. `match` v `competitions.ts` bere obě varianty. Kurzy se **nezobrazují**. ID zápasů jsou na CZ i SK platformě stejná → výsledky z D1 sportstreamy sedí.
+- **Klik:** `/go/tipsport/?m=<id>&p=<umístění>` → Tipsport TV odkaz, `/go/registracia/` → registrace (bonus 20 €). Odkazy ze spiny.sk (pid 12487, sid 17272) ve `wrangler.jsonc` → `vars`. Od 24. 11. `/go/tipsport/?m=<id>` vede přímo na zápas na tipsport.sk (cesta z `/_m/<shard>.json`, parametry pid/sid/bid/tid z TV odkazu); bez cesty TV odkaz. Analytics Engine `ziveprenosy_clicks`.
 - **URL:** `/{sport}/`, `/{sport}/dnes/`, `/{sport}/{soutez}/`, `/prenos/{id}-{slug}/`, `/teraz-nazivo/`, `/program/[zajtra|YYYY-MM-DD]/`, `/vysledky/[vcera|YYYY-MM-DD]/`, `/tipsport-tv/`.
 - **Soutěže:** `src/lib/competitions.ts` — `id` = klíč v D1 sportstreamy (neměnit), `slug` = naše URL, `sk: true` = slovenské (vždy navrchu).
 - **Lokálně:** `pnpm build && pnpm exec wrangler dev --local --port 8816 --inspector-port 9316`. Lokální KV naplnit `wrangler kv key put --binding DATA --local pre --path pre.json` (data stáhnout přes CF API). Po buildu smazat `.wrangler/state/v3/cache` (jinak SWR servíruje staré HTML).

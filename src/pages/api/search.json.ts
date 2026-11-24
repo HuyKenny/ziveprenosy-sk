@@ -29,7 +29,7 @@ export const GET: APIRoute = async () => {
     return [
       matchTitle(x), leagueName(x.sp, x.lg), matchPath(x), x.st, live, SPORT_BY_ID.get(x.sp)?.name ?? '',
       SPORT_BY_ID.get(x.sp)?.slug ?? '', x.stream ? 1 : 0, leaguePathOf(x), home(x), away(x), crest(x.sp, x.h), crest(x.sp, x.a),
-      live ? x.sc ?? '' : '', live ? skClockShort(x.ti ?? '') : '', tier(x), rank(x), c ? [c.short, c.color] : 0, live && /^Za /.test(x.ti ?? '') ? 1 : 0,
+      live ? x.sc ?? '' : '', live ? skClockShort(x.ti ?? '') : '', tier(x), rank(x), c ? [c.short, c.color] : 0, live && /^(Za|O) /.test(x.ti ?? '') ? 1 : 0,
     ];
   };
   const m = [...v.live.map(row(1)), ...v.upcoming.filter((x) => x.st - now < 7 * 86_400_000).map(row(0))];

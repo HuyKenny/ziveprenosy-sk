@@ -1,6 +1,8 @@
 import { handle } from '@astrojs/cloudflare/handler';
 import { SECURITY_HEADERS } from './lib/security';
 import { legacyTarget } from './lib/redirects';
+import { refresh } from './lib/tipsport';
+import type { Env } from './lib/types';
 
 /** Paths that are never cached: tracked redirects, live score feed, Cloudflare internals. */
 const NO_CACHE = /^\/(go|cdn-cgi)\/|^\/api\/live\.json$/;
@@ -72,5 +74,13 @@ async function serve(request: Request, env: unknown, ctx: ExecutionContext): Pro
   return finish(out);
 }
 
-/** No cron here: the match data is refreshed by sportstreamy.cz's Worker (one set of Tipsport API calls for both sites). */
-export default { fetch: serve };
+/**
+ * Scheduled handler = refresh from the Tipsport.sk Partner API. No cron triggers: only the GitHub Actions live job
+ * (sportstreamy repo, scripts/static/run.sh) calls it on its local dev server before rendering this site.
+ */
+async function scheduled(_c: ScheduledController, env: Env): Promise<void> {
+  const r = await refresh(env);
+  console.log(`tipsport.sk: ${r.live} live, ${r.pre} upcoming`);
+}
+
+export default { fetch: serve, scheduled };

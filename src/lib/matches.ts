@@ -3,6 +3,7 @@ import { dayKey, addDays } from './text';
 import { SPORTS } from './sports';
 import { competitionOf } from './competitions';
 import { lgOf } from './names';
+import { SK_LIVE, SK_PRE } from './tipsport';
 
 export interface View {
   /** In play now: start has passed and the live feed still has it. */
@@ -38,7 +39,11 @@ let cache: { at: number; v: View } | undefined;
 /** Merge live + prematch snapshots. Tipsport flags matches "live" hours early, so live also requires start <= now. */
 export async function view(env: Env, now = Date.now()): Promise<View> {
   if (cache && now - cache.at < 15_000) return cache.v;
-  const [l, p] = await Promise.all([env.DATA.get<Snapshot<Match>>('live', 'json'), env.DATA.get<Snapshot<Match>>('pre', 'json')]);
+  const get = (k: string) => env.DATA.get<Snapshot<Match>>(k, 'json');
+  // Own Tipsport.sk feed (Slovak names, tipsport.sk paths); the Czech feed of sportstreamy only when ours is missing or stale.
+  const [sl, sp] = await Promise.all([get(SK_LIVE), get(SK_PRE)]);
+  const fresh = (s: Snapshot<Match> | null) => !!s && now - s.at < 2 * 3600_000;
+  const [l, p] = fresh(sl) && fresh(sp) ? [sl, sp] : await Promise.all([get('live'), get('pre')]);
   const liveFeed = new Map((l?.items ?? []).map((m) => [m.id, m]));
   const all = new Map<number, Match>();
   for (const m of p?.items ?? []) all.set(m.id, { ...m, lg: lgOf(m.lg, m.h, m.a) });

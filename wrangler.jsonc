@@ -12,13 +12,14 @@
     { "pattern": "www.ziveprenosy.sk", "custom_domain": true }
   ],
   "assets": { "directory": "./dist/client", "binding": "ASSETS", "html_handling": "force-trailing-slash", "not_found_handling": "none" },
-  // SHARED with sportstreamy.cz, READ ONLY: its cron writes `live` / `pre` (Tipsport allowed one set of API calls,
-  // so this site must not call Tipsport itself). Changing the KV schema in sportstreamy breaks this site too.
+  // Shared KV of the live job (GitHub Actions in the sportstreamy repo): our scheduled handler writes `sk:live` / `sk:pre`
+  // from the Tipsport.sk Partner API (own account since 24. 11. 2026); sportstreamy's `live` / `pre` (Czech feed) is the
+  // fallback. Changing the record shape in sportstreamy still breaks the fallback.
   "kv_namespaces": [{ "binding": "DATA", "id": "ad0a4a01c23a4ed7b01a4690449014f1" }],
   // SHARED with sportstreamy.cz, READ ONLY: results written by sportstreamy's sync.
   "d1_databases": [{ "binding": "RESULTS", "database_name": "sportstreamy-results", "database_id": "8cfeb3e9-5390-4b8d-9331-083ec169eadf" }],
   "vars": {
-    // Tipsport.sk partner links from spiny.sk (pid 12487, sid 17272) until Tipsport SK approves this site's own account.
+    // Tipsport.sk partner links from spiny.sk (pid 12487, sid 17272); match deeplinks reuse the TV link's pid/sid/bid/tid.
     "TIPSPORT_TV_URL": "https://www.tipsport.sk/PartnerRedirectAction.do?pid=12487&sid=17272&bid=5053&tid=3021&urlid=356",
     "TIPSPORT_REG_URL": "https://www.tipsport.sk/PartnerRedirectAction.do?pid=12487&sid=17272&bid=1922&tid=484&urlid=253",
     "RESULTS_ENABLED": "on",

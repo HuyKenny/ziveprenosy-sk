@@ -25,10 +25,21 @@ const LEGACY = new Map<string, string>([
   ['/login', '/tipsport-prihlasenie/'],
   ['/prihlasenie', '/tipsport-prihlasenie/'],
   ['/registracia', '/tipsport-prihlasenie/'],
+  // Competition pages named after the Czech feed until 24. 11. 2026 (now Slovak names from our own Tipsport.sk feed).
+  ['/hokej/1-slovenska-liga', '/hokej/1-liga/'],
+  ['/basketbal/cernohorska-liga', '/basketbal/ciernohorska-liga/'],
+  ['/basketbal/izrael-narodni-liga', '/basketbal/izrael-narodna-liga/'],
+  ['/hokej/cesko-univerzitni-liga', '/hokej/cesko-univerzitna-liga/'],
 ]);
 
+/** ITF tournaments carried a number in the Czech feed ("ITF Bhopal 008 - tvrdý p."), the Slovak feed has none. */
+const ITF_NUMBER = /^\/tenis\/(itf-[a-z0-9-]+?)-\d{3}((?:-[a-z0-9-]+)?)\/?$/;
+
 export function legacyTarget(pathname: string): string | undefined {
-  return LEGACY.get(pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname);
+  const hit = LEGACY.get(pathname.length > 1 ? pathname.replace(/\/+$/, '') : pathname);
+  if (hit) return hit;
+  const itf = ITF_NUMBER.exec(pathname);
+  return itf ? `/tenis/${itf[1]}${itf[2]}/` : undefined;
 }
 
 const TEAM_TOKENS = TEAMS.map((t) => ({ t, tok: slugify(skTeam(t.feed)) })).filter((x) => x.tok);

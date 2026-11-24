@@ -102,6 +102,7 @@ export function skClock(ti: string): string {
   return ti
     .replace(/^Za okamžik$/, 'začne o chvíľu')
     .replace(/^Za (\d+) minut[uy]?$/, 'začne o $1 min')
+    .replace(/^O (\d+) minút[ay]?$/, 'začne o $1 min').replace(/^O chvíľu$/, 'začne o chvíľu')
     .replace(/\btř\./g, 'tr.').replace(/(\d)\.tř\./g, '$1.tr.')
     .replace(/(\d)\.čt\./g, '$1.štv.')
     .replace(/přestávka/g, 'prestávka').replace(/Přestávka/g, 'Prestávka')

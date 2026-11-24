@@ -2,14 +2,14 @@
  * Production Worker since 23. 11. 2026 (Cloudflare Workers Free): every page is a static asset rendered by the
  * GitHub Actions job in the sportstreamy repo (.github/workflows/live.yml → scripts/static/). Static asset hits never
  * run this code; it only runs for what has no file:
- *   /go/<book>/            tracked affiliate redirect (+ Analytics Engine point)
+ *   /go/<book>/            tracked affiliate redirect (+ Analytics Engine point); ?m=<id> → match deeplink on tipsport.sk
  *   /logo/<sport>/<id>.png crest proxy for crests that have no WebP yet
  *   /teraz-nazivo/, /program/*, /vysledky/*  (run_worker_first) ?sport= / ?stav= → the copy stored under /_q/
  *   legacy addresses, uppercase paths, finished matches (301 like before), everything else (404).
  * Keep it light: the Free plan allows 10 ms CPU per request.
  */
 import type { Env as AppEnv } from './lib/types';
-import { target } from './lib/partner';
+import { target, deeplink } from './lib/partner';
 import { legacyTarget, goneMatchTarget } from './lib/redirects';
 
 interface Env extends AppEnv {
@@ -32,7 +32,18 @@ async function page(env: Env, url: URL, path: string, status: number): Promise<R
   return new Response(r.body, { status, headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300', 'X-Robots-Tag': 'noindex' } });
 }
 
-function go(env: Env, url: URL, request: Request, book: string): Response | null {
+/** Tipsport.sk path of a match from the shard the live job writes (/_m/<id % SHARDS>.json: id → [page, Tipsport path]). */
+async function matchPath(env: Env, url: URL, id: string | null): Promise<string> {
+  if (!id || !/^\d{1,10}$/.test(id)) return '';
+  try {
+    const r = await asset(env, url, `/_m/${Number(id) % SHARDS}.json`);
+    return r.ok ? (((await r.json()) as Record<string, [string, string]>)[id]?.[1] ?? '') : '';
+  } catch {
+    return '';
+  }
+}
+
+async function go(env: Env, url: URL, request: Request, book: string): Promise<Response | null> {
   if (book !== 'tipsport' && book !== 'registracia') return null;
   try {
     const ua = request.headers.get('user-agent') ?? '';
@@ -41,7 +52,10 @@ function go(env: Env, url: URL, request: Request, book: string): Response | null
     try { from = new URL(request.headers.get('referer') ?? '').pathname; } catch { /* no referer */ }
     env.CLICKS?.writeDataPoint({ indexes: [book], blobs: [book, (url.searchParams.get('p') ?? '').slice(0, 40), from.slice(0, 120), url.searchParams.get('m')?.slice(0, 12) ?? '', device], doubles: [1] });
   } catch { /* measuring must never block the redirect */ }
-  return new Response(null, { status: 302, headers: { Location: target(env, book), 'X-Robots-Tag': 'noindex, nofollow', 'Cache-Control': 'private, no-store', 'Referrer-Policy': 'no-referrer-when-downgrade' } });
+  // Watch button of a known match → that match on tipsport.sk (stream / live stats); registration stays generic.
+  const path = book === 'tipsport' ? await matchPath(env, url, url.searchParams.get('m')) : '';
+  const to = path ? deeplink(env, path) : target(env, book);
+  return new Response(null, { status: 302, headers: { Location: to, 'X-Robots-Tag': 'noindex, nofollow', 'Cache-Control': 'private, no-store', 'Referrer-Policy': 'no-referrer-when-downgrade' } });
 }
 
 const LOGO_SPORTS = new Set(['football', 'hockey', 'basketball', 'volleyball', 'handball']);
@@ -80,7 +94,7 @@ export default {
       if (r.status !== 404) return r;
     }
     const seg = p.split('/');
-    if (seg[1] === 'go') return go(env, url, request, seg[2] ?? '') ?? page(env, url, '/_404/', 404);
+    if (seg[1] === 'go') return (await go(env, url, request, seg[2] ?? '')) ?? page(env, url, '/_404/', 404);
     if (seg[1] === 'logo' && seg.length === 4) return logo(seg[2], seg[3].replace(/\.png$/, ''));
     if (seg[1] === 'prenos' && seg[2]) {
       // A match page without a file: a renamed slug of a match we still have → its page; otherwise the club page

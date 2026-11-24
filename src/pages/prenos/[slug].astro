@@ -105,7 +105,7 @@ const desc = !m ? '' : over ? clip(`${resultSentence} ${lgName}, ${longDay(m.st)
             <div class="team"><Crest sp={m.sp} name={m.h} size={56} />{teamH ? <a href={teamPath(sport.slug, teamH.slug)}>{nh}</a> : nh}</div>
             <div>
               {sc ? <div class="big" data-s>{sc}</div> : <div class="big time">{hhmm(m.st)}</div>}
-              <div class:list={['when', state === 'live' && 'l']}>{over && r ? statusLabel(r.status, r.sport) : state === 'live' ? (/^Za /.test(m.ti ?? '') ? <span data-t>{skClockShort(m.ti ?? '')}</span> : <><span class="dot pulse"></span> Naživo <span class="clk" data-t>{skClockShort(m.ti ?? '')}</span></>) : state === 'pre' ? dayLabel(m.st, now) : 'Odohrané'}</div>
+              <div class:list={['when', state === 'live' && 'l']}>{over && r ? statusLabel(r.status, r.sport) : state === 'live' ? (/^(Za|O) /.test(m.ti ?? '') ? <span data-t>{skClockShort(m.ti ?? '')}</span> : <><span class="dot pulse"></span> Naživo <span class="clk" data-t>{skClockShort(m.ti ?? '')}</span></>) : state === 'pre' ? dayLabel(m.st, now) : 'Odohrané'}</div>
             </div>
             {m.a ? <div class="team b"><Crest sp={m.sp} name={m.a} size={56} />{teamA ? <a href={teamPath(sport.slug, teamA.slug)}>{na}</a> : na}</div> : <div></div>}
           </div>

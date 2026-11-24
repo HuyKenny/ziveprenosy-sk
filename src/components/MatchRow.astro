@@ -11,7 +11,7 @@ const { m, now, placement, live = false, showDay = false } = Astro.props;
 const [sh, sa] = (m.sc ?? '').split(':');
 const title = matchTitle(m);
 // The feed can flag a match live while the kick-off is delayed ("Za 11 minut"): say it starts soon, not that it is on.
-const soon = /^Za /.test(m.ti ?? '');
+const soon = /^(Za|O) /.test(m.ti ?? '');
 ---
 <div class:list={['m', live && 'live']} data-id={live ? m.id : undefined}>
   <div class="t">
