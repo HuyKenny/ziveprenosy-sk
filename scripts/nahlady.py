@@ -44,11 +44,14 @@ NHL_SK = re.compile(r'^(Montreal Canadiens|Calgary Flames|Tampa Bay Lightning|Wa
 BIG = re.compile(r'^(Real Madrid|FC Barcelona|Barcelona|Atlético Madrid|Bayern München|Dortmund|Paris SG|Manchester City|Manchester United|'
                  r'Liverpool|Arsenal|Chelsea|Tottenham|Inter Miláno|Inter Milano|AC Miláno|AC Milano|Juventus|Neapol|Napoli|Benfica Lisabon|Porto|Leverkusen)$')
 EURO = {'Liga majstrov', 'Európska liga', 'Konferenčná liga'}
+# Slovaks in NHL clubs (rosters at the start of 2026/27, checked 24. 11. 2026 – same as src/lib/teams.ts notes).
+NHL_SLOVAKS = {'Montreal Canadiens': ['Juraj Slafkovský'], 'Calgary Flames': ['Šimon Nemec', 'Martin Pospíšil', 'Samuel Honzek'],
+               'Tampa Bay Lightning': ['Erik Černák'], 'Washington Capitals': ['Martin Fehérváry'], 'St.Louis Blues': ['Dalibor Dvorský']}
 COMP_PATH = {'Liga majstrov': '/futbal/liga-majstrov/', 'Európska liga': '/futbal/europska-liga/', 'Konferenčná liga': '/futbal/konferencna-liga/',
              (FOOTBALL, '1. slovenská liga'): '/futbal/nike-liga/', 'Slovenská Tipsport liga': '/hokej/tipsport-liga/', 'NHL': '/hokej/nhl/'}
 SPORT_SLUGS = {FOOTBALL: 'futbal', HOCKEY: 'hokej'}
 TV = re.compile(r'\b(STVR|RTVS|Šport ?1|Šport ?2|JOJ|Dajto|Markíza|Voyo|Nova Sport|Arena Sport|Sport ?1|Sport ?2|DAZN|Eurosport|Canal\+|Premier Sport|Oneplay|Skylink|Magio|Niké TV|Huste)\b')
-BANNED = re.compile(r'istá výhra|istota|tutovka|garantovan|zaručen|nemôžeš prehrať|našich dát|interných dát|naše dáta|\(Pozn', re.I)
+BANNED = re.compile(r'istá výhra|istota|tutovka|garantovan|zaručen|nemôžeš prehrať|našich dát|interných dát|naše dáta|\(Pozn|tabuľk', re.I)  # no league tables on the site
 
 
 def items():
@@ -102,6 +105,8 @@ def facts_for(m, comp_path):
         'kurzy_1_X_2': k, 'pravdepodobnost_z_kurzov_percenta_1_X_2': prob,
         'video_prenos_po_prihlaseni': bool(m.get('stream')),
         'url_sutaze_na_webe': comp_path,
+        **({'slovaci_v_timoch_na_zaciatku_sezony': {t: NHL_SLOVAKS[t] for t in (m['h'], m['a']) if t in NHL_SLOVAKS}}
+           if any(t in NHL_SLOVAKS for t in (m['h'], m['a'])) else {}),
     }
 
 
@@ -126,7 +131,7 @@ POUŽI VÝHRADNE TIETO FAKTY (nič iné nevieš; žiadne iné mená, čísla, v�
 Online: {stream_line}
 Overené fakty o forme a kontexte: {facts}
 
-ŠTÝL: športový novinár, prirodzená spisovná slovenčina v celých vetách, tykanie. Žiadne odrážky typu „Zápas: … Výkop: …“, žiadne poznámky v zátvorkách, žiadne zmienky o dátach, zdrojoch ani overovaní, nič neopakuj. Žiadne tipy na výsledok. Kurzy len opíš (favorit, pravdepodobnosť z údajov) a povedz, že ide o stav v čase písania a aktuálne kurzy sú na stránke. Televízne stanice NEUVÁDZAJ vôbec (nemáme overené, kto zápas vysiela) – pri sledovaní píš len o online prenose a živých štatistikách. Keď je overených faktov málo, sekciu o forme napíš krátko a všeobecne – nevymýšľaj. Drž chronológiu podľa dátumov vo faktoch.
+ŠTÝL: športový novinár, prirodzená spisovná slovenčina v celých vetách, tykanie. Žiadne odrážky typu „Zápas: … Výkop: …“, žiadne poznámky v zátvorkách, žiadne zmienky o dátach, zdrojoch ani overovaní, nič neopakuj. Žiadne tipy na výsledok. Kurzy len opíš (favorit, pravdepodobnosť z údajov) a povedz, že ide o stav v čase písania a aktuálne kurzy sú na stránke. Televízne stanice NEUVÁDZAJ vôbec (nemáme overené, kto zápas vysiela) – pri sledovaní píš len o online prenose a živých štatistikách. Keď sú v údajoch slovenskí hráči v tímoch, spomeň ich (to je pre slovenského čitateľa hlavný dôvod sledovať zápas), ale nič o ich forme či štatistikách si nedomýšľaj. Tabuľky súťaže na našom webe nie sú – nesľubuj ich. Keď je overených faktov málo, sekciu o forme napíš krátko a všeobecne – nevymýšľaj. Drž chronológiu podľa dátumov vo faktoch.
 
 VÝSTUP (JSON):
 - title: „{home} – {away}: kde pozerať naživo a kurzy“ (max 70 znakov).
@@ -149,7 +154,7 @@ def tidy(p, m):
         if len(d) < 120:
             d += ' Prehľad pred zápasom.'
         p['description'] = d[:170]
-    fix = lambda t: re.sub(r'\b([Nn])aše dáta\b', lambda x: ('D' if x.group(1) == 'N' else 'd') + 'ostupné údaje', t)
+    fix = lambda t: re.sub(r'\b([Nn])aše dáta\b', lambda x: ('D' if x.group(1) == 'N' else 'd') + 'ostupné údaje', t).replace('nesádzaj', 'nestávkuj').replace('výkopu', 'začiatku' if m['sp'] == HOCKEY else 'výkopu')
     p['body'] = fix(p['body'])
     p['faq'] = [{'q': q['q'], 'a': fix(q['a'])} for q in p['faq']]
     return p
