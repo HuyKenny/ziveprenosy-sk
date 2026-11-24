@@ -5,14 +5,15 @@ import type { Match } from './types';
  * get a page — a registry, not every team in the feed, so there are no thin pages. `feed` is the name exactly as the
  * Czech feed and the results database write it (checked against both on 24. 10. 2026); women's sides ("(ž)") never match.
  */
-export interface Team { sp: number; slug: string; feed: string; name: string; comp?: string; national?: boolean }
+/** `q` = how people search for the club ("hokej Prešov dnes online", Ahrefs SK 24. 11. 2026) → front of the page title. */
+export interface Team { sp: number; slug: string; feed: string; name: string; comp?: string; national?: boolean; q?: string }
 
 export const TEAMS: Team[] = [
   // Futbal – Niké liga 2026/27
   { sp: 16, slug: 'slovan-bratislava', feed: 'Slovan Bratislava', name: 'ŠK Slovan Bratislava', comp: 'nike-liga' },
   { sp: 16, slug: 'spartak-trnava', feed: 'Trnava', name: 'Spartak Trnava', comp: 'nike-liga' },
   { sp: 16, slug: 'zilina', feed: 'Žilina', name: 'MŠK Žilina', comp: 'nike-liga' },
-  { sp: 16, slug: 'dac-dunajska-streda', feed: 'Dunajská Streda', name: 'DAC Dunajská Streda', comp: 'nike-liga' },
+  { sp: 16, slug: 'dac-dunajska-streda', feed: 'Dunajská Streda', name: 'FC DAC 1904 Dunajská Streda', comp: 'nike-liga' },
   { sp: 16, slug: 'fc-kosice', feed: 'FC Košice', name: 'FC Košice', comp: 'nike-liga' },
   { sp: 16, slug: 'podbrezova', feed: 'Podbrezová', name: 'Železiarne Podbrezová', comp: 'nike-liga' },
   { sp: 16, slug: 'ruzomberok', feed: 'Ružomberok', name: 'MFK Ružomberok', comp: 'nike-liga' },
@@ -23,18 +24,18 @@ export const TEAMS: Team[] = [
   { sp: 16, slug: 'dukla-banska-bystrica', feed: 'Banská Bystrica', name: 'Dukla Banská Bystrica', comp: 'nike-liga' },
   { sp: 16, slug: 'slovensko', feed: 'Slovensko', name: 'Slovensko', national: true },
   // Hokej – Tipsport liga 2026/27
-  { sp: 23, slug: 'slovan-bratislava', feed: 'Slovan Bratislava', name: 'HC Slovan Bratislava', comp: 'slovenska-extraliga' },
-  { sp: 23, slug: 'hk-nitra', feed: 'Nitra', name: 'HK Nitra', comp: 'slovenska-extraliga' },
-  { sp: 23, slug: 'hc-kosice', feed: 'Košice', name: 'HC Košice', comp: 'slovenska-extraliga' },
-  { sp: 23, slug: 'zilina', feed: 'Žilina', name: 'Vlci Žilina', comp: 'slovenska-extraliga' },
-  { sp: 23, slug: 'zvolen', feed: 'Zvolen', name: 'HKM Zvolen', comp: 'slovenska-extraliga' },
-  { sp: 23, slug: 'banska-bystrica', feed: 'Banská Bystrica', name: 'HC 05 Banská Bystrica', comp: 'slovenska-extraliga' },
-  { sp: 23, slug: 'michalovce', feed: 'Michalovce', name: 'HK Dukla Michalovce', comp: 'slovenska-extraliga' },
-  { sp: 23, slug: 'spisska-nova-ves', feed: 'Spišská Nová Ves', name: 'HK Spišská Nová Ves', comp: 'slovenska-extraliga' },
-  { sp: 23, slug: 'liptovsky-mikulas', feed: 'Liptovský Mikuláš', name: 'MHk 32 Liptovský Mikuláš', comp: 'slovenska-extraliga' },
-  { sp: 23, slug: 'presov', feed: 'Prešov', name: 'HC Prešov', comp: 'slovenska-extraliga' },
-  { sp: 23, slug: 'dukla-trencin', feed: 'Trenčín', name: 'HK Dukla Trenčín', comp: 'slovenska-extraliga' },
-  { sp: 23, slug: 'hk-poprad', feed: 'HK Poprad', name: 'HK Poprad', comp: 'slovenska-extraliga' },
+  { sp: 23, slug: 'slovan-bratislava', feed: 'Slovan Bratislava', name: 'HC Slovan Bratislava', comp: 'slovenska-extraliga' , q: 'Hokej Slovan'},
+  { sp: 23, slug: 'hk-nitra', feed: 'Nitra', name: 'HK Nitra', comp: 'slovenska-extraliga' , q: 'Hokej Nitra'},
+  { sp: 23, slug: 'hc-kosice', feed: 'Košice', name: 'HC Košice', comp: 'slovenska-extraliga' , q: 'Hokej Košice'},
+  { sp: 23, slug: 'zilina', feed: 'Žilina', name: 'Vlci Žilina', comp: 'slovenska-extraliga' , q: 'Hokej Žilina'},
+  { sp: 23, slug: 'zvolen', feed: 'Zvolen', name: 'HKM Zvolen', comp: 'slovenska-extraliga' , q: 'Hokej Zvolen'},
+  { sp: 23, slug: 'banska-bystrica', feed: 'Banská Bystrica', name: 'HC 05 Banská Bystrica', comp: 'slovenska-extraliga' , q: 'Hokej Banská Bystrica'},
+  { sp: 23, slug: 'michalovce', feed: 'Michalovce', name: 'HK Dukla Michalovce', comp: 'slovenska-extraliga' , q: 'Hokej Michalovce'},
+  { sp: 23, slug: 'spisska-nova-ves', feed: 'Spišská Nová Ves', name: 'HK Spišská Nová Ves', comp: 'slovenska-extraliga' , q: 'Hokej Spišská Nová Ves'},
+  { sp: 23, slug: 'liptovsky-mikulas', feed: 'Liptovský Mikuláš', name: 'MHk 32 Liptovský Mikuláš', comp: 'slovenska-extraliga' , q: 'Hokej Liptovský Mikuláš'},
+  { sp: 23, slug: 'presov', feed: 'Prešov', name: 'HC Prešov', comp: 'slovenska-extraliga' , q: 'Hokej Prešov'},
+  { sp: 23, slug: 'dukla-trencin', feed: 'Trenčín', name: 'HK Dukla Trenčín', comp: 'slovenska-extraliga' , q: 'Hokej Trenčín'},
+  { sp: 23, slug: 'hk-poprad', feed: 'HK Poprad', name: 'HK Poprad', comp: 'slovenska-extraliga' , q: 'Hokej Poprad'},
   { sp: 23, slug: 'slovensko', feed: 'Slovensko', name: 'Slovensko', national: true },
 ];
 
