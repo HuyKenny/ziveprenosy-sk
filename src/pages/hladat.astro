@@ -19,10 +19,76 @@ const liveIds = new Set(v.live.map((m) => m.id));
 <Base title={`Hľadať zápas${q ? `: ${q}` : ''} | ${BRAND}`} description="Vyhľadávanie zápasov, tímov a súťaží v programe živých prenosov." noindex ttl={60}>
   <div class="wrap" style="max-width:860px">
     <section class="head"><h1>Hľadať zápas</h1><p class="lead">Napíš názov tímu, hráča alebo súťaže – stačí časť a bez diakritiky.</p><div style="margin-top:14px"><Search id="pq" value={q} autofocus /></div></section>
+    <div data-results data-q={q}>
     {q ? (<>
       <h2 style="margin:0 0 12px">{hits.length ? `Výsledky pre „${q}“` : `Pre „${q}“ sme nič nenašli`}</h2>
       {hits.some((m) => liveIds.has(m.id)) ? <LeagueList items={hits.filter((m) => liveIds.has(m.id))} now={now} placement="search-live" live /> : null}
       <LeagueList items={hits.filter((m) => !liveIds.has(m.id))} now={now} placement="search" days empty="Skús iný názov alebo pozri program." />
     </>) : null}
+    </div>
   </div>
 </Base>
+<script>
+  // The production site is static (Cloudflare Workers Free): /hladat/ is one pre-rendered file, so ?q= is answered here
+  // from /api/search.json (the same index the search suggest uses). Markup mirrors LeagueList.astro / MatchRow.astro.
+  type Row = [string, string, string, number, number, string, string, number, string, string, string, string, string, string, string, number, number, [string, string] | 0, number];
+  const box = document.querySelector<HTMLElement>('[data-results]');
+  const q = (new URLSearchParams(location.search).get('q') ?? '').trim().slice(0, 60);
+  if (box && q && box.dataset.q !== q) {
+    const fold = (s: string) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+    const esc = (s: string) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c]!);
+    const words = fold(q).split(/\s+/).filter(Boolean);
+    const TZ = 'Europe/Bratislava';
+    const dayF = new Intl.DateTimeFormat('sv-SE', { timeZone: TZ, year: 'numeric', month: '2-digit', day: '2-digit' });
+    const timeF = new Intl.DateTimeFormat('sk-SK', { timeZone: TZ, hour: '2-digit', minute: '2-digit', hour12: false });
+    const longF = new Intl.DateTimeFormat('sk-SK', { timeZone: TZ, weekday: 'long', day: 'numeric', month: 'long' });
+    const now = Date.now();
+    const dayKey = (ms: number) => dayF.format(ms);
+    const dayLabel = (ms: number) => (dayKey(ms) === dayKey(now) ? 'Dnes' : dayKey(ms) === dayKey(now + 86_400_000) ? 'Zajtra' : longF.format(ms));
+    const icon = (name: string) => `<svg class="ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><use href="#i-${document.getElementById('i-' + name) ? name : 'ball'}"></use></svg>`;
+    const crest = (src: string, name: string) => {
+      if (src) return `<img class="crest" src="${esc(src)}" width="22" height="22" alt="" loading="lazy" decoding="async" style="width:22px;height:22px">`;
+      const ini = name.replace(/\(.*?\)/g, '').split(/[\s-]+/).filter((w) => /^\p{L}/u.test(w)).slice(0, 2).map((w) => w[0]).join('').toUpperCase() || '•';
+      return `<span class="crest ini" style="width:22px;height:22px;font-size:9px" aria-hidden="true">${esc(ini)}</span>`;
+    };
+    const row = (x: Row, live: boolean, placement: string) => {
+      const [title, , url, st, , , , video, , h, a, ch, ca, sc, ti, , , , soon] = x;
+      const id = (/\/prenos\/(\d+)-/.exec(url) ?? [])[1] ?? '';
+      const [sh, sa] = sc.split(':');
+      const score = live && sc ? (a && sa !== undefined ? `<span class="sc" data-s><span>${esc(sh)}</span><span>${esc(sa)}</span></span>` : `<span class="sc one" data-s>${esc(sc)}</span>`) : '';
+      return `<div class="m${live ? ' live' : ''}"${live ? ` data-id="${esc(id)}"` : ''}><div class="t">${live ? `<span class="dot pulse"></span> ${soon ? 'Čoskoro' : 'Naživo'}<small data-t>${esc(ti)}</small>` : timeF.format(st)}</div>`
+        + `<a class="teams" href="${esc(url)}">${a ? `<span>${crest(ch, h)}<em>${esc(h)}</em></span><span>${crest(ca, a)}<em>${esc(a)}</em></span>` : `<span class="one">${esc(h)}</span>`}</a>`
+        + `<div class="act">${score}${video ? '' : '<span class="tag" title="K zápasu nie je video, len živé štatistiky">bez videa</span>'}`
+        + `<a class="btn sm${video ? '' : ' out'}" data-watch href="/go/tipsport/?${id ? `m=${esc(id)}&amp;` : ''}p=${placement}" rel="sponsored nofollow noopener" target="_blank" aria-label="${video ? `Pozerať ${esc(title)} na Tipsport TV` : `Živé štatistiky ${esc(title)} na Tipsport.sk`}">${icon(video ? 'play' : 'spark')}<span class="lbl">${video ? 'Pozerať' : 'Živé štatistiky'}</span></a></div></div>`;
+    };
+    // byLeague(): one box per competition, best tier first, then sport order, then first kick-off.
+    const groups = (items: Row[], live: boolean, placement: string, days: boolean, empty: string) => {
+      const map = new Map<string, Row[]>();
+      for (const x of items) map.set(x[8], [...(map.get(x[8]) ?? []), x]);
+      const all = [...map.values()].sort((g1, g2) => Math.min(...g1.map((x) => x[15])) - Math.min(...g2.map((x) => x[15])) || g1[0][16] - g2[0][16] || g1[0][3] - g2[0][3]);
+      if (!all.length) return `<p class="empty">${empty}</p>`;
+      return all.map((g) => {
+        const f = g[0];
+        let last = '';
+        const rows = g.map((x) => { const k = dayKey(x[3]); const head = days && k !== last ? `<div class="day">${dayLabel(x[3])}</div>` : ''; last = k; return head + row(x, live || x[3] <= now, placement); }).join('');
+        const badge = f[17] ? `<span class="badge" style="background:${esc(f[17][1])}">${esc(f[17][0])}</span>` : `<span class="badge ico-b">${icon(f[6])}</span>`;
+        return `<section class="comp"><div class="comp-h">${badge}<a class="name" href="${esc(f[8])}">${esc(f[1])}</a>${f[5] ? `<span class="sp">${esc(f[5])}</span>` : ''}</div>${rows}</section>`;
+      }).join('');
+    };
+    document.title = `Hľadať zápas: ${q} | ${document.title.split(' | ').pop()}`;
+    document.querySelectorAll<HTMLInputElement>('form[data-search] input[name="q"]').forEach((i) => { i.value = q; });
+    box.innerHTML = '<p class="empty">Hľadám…</p>';
+    fetch('/api/search.json')
+      .then((r) => r.json() as Promise<{ m: Row[] }>)
+      .then(({ m }) => {
+        const hits = m.filter((x) => { const f = fold(`${x[0]} ${x[1]} ${x[5]}`); return words.every((w) => f.includes(w)); }).slice(0, 80);
+        const live = hits.filter((x) => x[4]);
+        let html = `<h2 style="margin:0 0 12px">${hits.length ? `Výsledky pre „${esc(q)}“` : `Pre „${esc(q)}“ sme nič nenašli`}</h2>`;
+        if (live.length) html += groups(live, true, 'search-live', false, '');
+        html += groups(hits.filter((x) => !x[4]), false, 'search', true, 'Skús iný názov alebo pozri program.');
+        box.innerHTML = html;
+        box.dataset.q = q;
+      })
+      .catch(() => { box.innerHTML = '<p class="empty">Vyhľadávanie sa nepodarilo načítať. Skús to prosím znova.</p>'; });
+  }
+</script>
