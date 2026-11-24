@@ -21,7 +21,7 @@ date: 2026-11-24
 
 Pittsburgh Penguins privítajú Calgary Flames vo štvrtok 26. novembra 2026 o 01:07 stredoeurópskeho času. Pre slovenských fanúšikov je to skutočne nočný zápas, takže si radšej nastav budík. Ide o duel zo súťaže NHL a všetky ďalšie zápasy nájdeš v sekcii [NHL](/hokej/nhl/).
 
-Pre slovenských divákov má zápas jeden zaujímavý bod. V kádri Calgary Flames sa na začiatku sezóny nachádzajú Šimon Nemec, Martin Pospíšil a Samuel Honzek, štvrtkový zápas však Pospíšil pre zranenie vynechá a jeho návrat sa odhaduje na 28. novembra.
+Pre slovenských divákov má zápas jeden zaujímavý bod. V kádri Calgary Flames sa na začiatku sezóny nachádzajú Šimon Nemec, Martin Pospíšil a Samuel Honzek. Štvrtkový zápas však Pospíšil pre zranenie vynechá a jeho návrat sa odhaduje na 28. novembra.
 
 ## Kde pozerať Pittsburgh Penguins – Calgary Flames online
 
